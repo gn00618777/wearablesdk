@@ -28,7 +28,9 @@
 -keep class cwm.wearablesdk.CwmInformation
 -keep class cwm.wearablesdk.Information
 -keep class cwm.wearablesdk.CwmManager$InformationListener{*;}
--keep class cwm.wearablesdk,CwmManager$WearableServiceListener{*;}
+-keep class cwm.wearablesdk.CwmManager$WearableServiceListener{*;}
+-keep class cwm.wearablesdk.CwmManager$BleScannerListener{*;}
+
 
 -keepclassmembers class cwm.wearablesdk.CwmManager {
    public *;
