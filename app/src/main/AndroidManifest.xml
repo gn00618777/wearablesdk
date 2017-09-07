@@ -1,13 +1,15 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
 
     package="cwm.wearablesdk">
-
+    <uses-permission android:name="android.permission.BLUETOOTH" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true">
-
+        <service
+            android:name="cwm.wearablesdk.WearableService"
+            android:enabled="true" />
     </application>
-
 </manifest>

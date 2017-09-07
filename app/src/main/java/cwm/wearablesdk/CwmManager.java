@@ -1,6 +1,17 @@
 package cwm.wearablesdk;
 
+import android.app.Activity;
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.ServiceConnection;
+import android.content.BroadcastReceiver;
+import android.os.Bundle;
+import android.os.IBinder;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
+import android.widget.Toast;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -11,7 +22,9 @@ import java.util.Queue;
  * Created by user on 2017/8/31.
  */
 
-public class CwmManager {
+public class CwmManager{
+
+    private String TAG = "CwmManager";
 
     InformationListener mListener = null;
 
@@ -40,6 +53,10 @@ public class CwmManager {
     private final int SEDENTARY_EVENT_MESSAGE_ID = 0x03;
     private final int HART_RATE_EVENT_MESSAGE_ID = 0x04;
 
+    private WearableService mService = null;
+    private Context mContext = null;
+    private Activity mActivity = null;
+    private WearableServiceListener mStatusListener = null;
 
 
     // interface -----------------------------------------------------------------------------------
@@ -51,10 +68,102 @@ public class CwmManager {
         void onGetActivity(CwmInformation activityInfo);
     } // onDataArrivalListener()
 
-    // function
-    public void registerInfomationListener(InformationListener listener){
-        mListener = listener;
+    public interface WearableServiceListener {
+        void onConnected();
+        void onDisconnected();
+        void onServiceDiscovery();
+        void onDataAvailable(byte[] rxBuffer);
+        void onNotSupport();
     }
+
+    public CwmManager(Activity activity, WearableServiceListener wListener, InformationListener iLlistener){
+        mActivity = activity;
+        mStatusListener = wListener;
+        mListener = iLlistener;
+
+        Intent bindIntent = new Intent(mActivity, cwm.wearablesdk.WearableService.class);
+        mActivity.bindService(bindIntent, mServiceConnection, Context.BIND_AUTO_CREATE);
+        LocalBroadcastManager.getInstance(mActivity).registerReceiver(UARTStatusChangeReceiver, makeGattUpdateIntentFilter());
+    }
+
+    // Intent Filter -------------------------------------------------------------------------------
+    private static IntentFilter makeGattUpdateIntentFilter() {
+        final IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(WearableService.ACTION_GATT_CONNECTED);
+        intentFilter.addAction(WearableService.ACTION_GATT_DISCONNECTED);
+        intentFilter.addAction(WearableService.ACTION_GATT_SERVICES_DISCOVERED);
+        intentFilter.addAction(WearableService.ACTION_DATA_AVAILABLE);
+        intentFilter.addAction(WearableService.DEVICE_DOES_NOT_SUPPORT_UART);
+        return intentFilter;
+    }
+
+    private ServiceConnection mServiceConnection = new ServiceConnection() {
+        public void onServiceConnected(ComponentName className, IBinder rawBinder) {
+            mService = ((WearableService.LocalBinder) rawBinder).getService();
+            Log.d(TAG, "onServiceConnected mService= " + mService);
+            if (!mService.initialize()) {
+                Log.e(TAG, "Unable to initialize Bluetooth");
+            }
+        }
+
+        public void onServiceDisconnected(ComponentName classname) {
+            mService = null;
+        }
+    };
+
+    private final BroadcastReceiver UARTStatusChangeReceiver = new BroadcastReceiver() {
+
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+            final Intent mIntent = intent;
+            //*********************//
+            if (action.equals(cwm.wearablesdk.WearableService.ACTION_GATT_CONNECTED)) {
+                mActivity.runOnUiThread(new Runnable() {
+                    public void run() {
+                        mStatusListener.onConnected();
+                    }
+                });
+            }
+
+            //*********************//
+            if (action.equals(WearableService.ACTION_GATT_DISCONNECTED)) {
+                mActivity.runOnUiThread(new Runnable() {
+                    public void run() {
+                        mService.close();
+                        mStatusListener.onDisconnected();
+                    }
+                });
+            }
+
+            //*********************//
+            if (action.equals(WearableService.ACTION_GATT_SERVICES_DISCOVERED)) {
+                mService.enableTXNotification();
+                mStatusListener.onServiceDiscovery();
+            }
+            //*********************//
+            if (action.equals(WearableService.ACTION_DATA_AVAILABLE)) {
+
+                final byte[] rxBuffer = intent.getByteArrayExtra(WearableService.EXTRA_DATA);
+                mActivity.runOnUiThread(new Runnable() {
+                    public void run() {
+                        try {
+                            mStatusListener.onDataAvailable(rxBuffer);
+                        } catch (Exception e) {
+                            Log.e(TAG, e.toString());
+                        }
+                    }
+                });
+            }
+            //*********************//
+            if (action.equals(WearableService.DEVICE_DOES_NOT_SUPPORT_UART)){
+                mService.disconnect();
+                mStatusListener.onNotSupport();
+            }
+
+        }
+    };
+
+    // function
     public void receiveRawByte(byte[] rxBuffer){
         int packet_type = 0;
         int packet_length = 0;
@@ -232,6 +341,7 @@ public class CwmManager {
         }
 
         public byte[] getValue(){return value;}
-
     }
+
+
 }
