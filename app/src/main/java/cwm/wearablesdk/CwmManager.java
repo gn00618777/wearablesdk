@@ -1,12 +1,18 @@
 package cwm.wearablesdk;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothManager;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.BroadcastReceiver;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v4.content.LocalBroadcastManager;
@@ -57,7 +63,12 @@ public class CwmManager{
     private Context mContext = null;
     private Activity mActivity = null;
     private WearableServiceListener mStatusListener = null;
+    private BleScannerListener mBleListener = null;
 
+    private final int REQUEST_ENABLE_BT = 1;
+
+    private BluetoothAdapter mBluetoothAdapter = null;
+    private BluetoothManager mBluetoothManager = null;
 
     // interface -----------------------------------------------------------------------------------
     public interface InformationListener {
@@ -76,15 +87,58 @@ public class CwmManager{
         void onNotSupport();
     }
 
-    public CwmManager(Activity activity, WearableServiceListener wListener, InformationListener iLlistener){
+    public interface BleScannerListener {
+        void onDeviceScanned(BluetoothDevice bleDevice);
+    }
+
+    public CwmManager(Activity activity, WearableServiceListener wListener,
+                      InformationListener iLlistener, BleScannerListener bListener){
+
         mActivity = activity;
         mStatusListener = wListener;
         mListener = iLlistener;
+        mBleListener = bListener;
 
+
+        systemBluetoothCheck();
+
+        // bind to wearableService
         Intent bindIntent = new Intent(mActivity, cwm.wearablesdk.WearableService.class);
         mActivity.bindService(bindIntent, mServiceConnection, Context.BIND_AUTO_CREATE);
         LocalBroadcastManager.getInstance(mActivity).registerReceiver(UARTStatusChangeReceiver, makeGattUpdateIntentFilter());
     }
+
+    private void systemBluetoothCheck(){
+
+        if (!mActivity.getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
+            Toast.makeText(mActivity,"This hardware is not supporting BLE", Toast.LENGTH_LONG).show();
+            mActivity.finish();
+        }
+
+        mBluetoothManager = (BluetoothManager) mActivity.getSystemService(Context.BLUETOOTH_SERVICE);
+        mBluetoothAdapter = mBluetoothManager.getAdapter();
+
+        // Checks if Bluetooth is supported on the device.
+        if (mBluetoothAdapter == null) {
+            new AlertDialog.Builder(mActivity)
+                    .setIcon(android.R.drawable.ic_dialog_alert)
+                    .setTitle("Warning")
+                    .setMessage("your ble is not supported")
+                    .setPositiveButton("yes", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            mActivity.finish();
+                        }
+                    })
+                    .setNegativeButton("no", null)
+                    .show();
+        }
+        if (!mBluetoothAdapter.isEnabled()) {
+            Intent enableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+            mActivity.startActivityForResult(enableIntent, REQUEST_ENABLE_BT);
+        }
+    }
+
 
     // Intent Filter -------------------------------------------------------------------------------
     private static IntentFilter makeGattUpdateIntentFilter() {
@@ -185,7 +239,27 @@ public class CwmManager{
 
     }
     public boolean CwmBleStatus(){
-        return true;
+        if(mBluetoothAdapter.isEnabled())
+          return true;
+        else
+            return false;
+    }
+
+    public void CwmBleSearch(){
+
+        if(mBluetoothAdapter != null && !mBluetoothAdapter.isEnabled()){
+            new AlertDialog.Builder(mActivity)
+                    .setIcon(android.R.drawable.ic_dialog_alert)
+                    .setTitle("Warning")
+                    .setMessage("your should enable bluetooth first")
+                    .setPositiveButton("yes", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            mActivity.finish();
+                        }
+                    }).show();
+        }
+
     }
     public boolean CwmDeviceUnregister(){
         return true;
