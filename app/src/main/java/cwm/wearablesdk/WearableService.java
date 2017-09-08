@@ -71,8 +71,8 @@ public class WearableService extends Service {
             "com.cyweemotion.ACTION_DATA_AVAILABLE";
     public final static String EXTRA_DATA =
             "com.cyweemotion..EXTRA_DATA";
-    public final static String DEVICE_DOES_NOT_SUPPORT_UART =
-            "com.cyweemotion.DEVICE_DOES_NOT_SUPPORT_UART";
+    public final static String APK_DOES_NOT_SUPPORT_WEARABLE =
+            "com.cyweemotion.APK_DOES_NOT_SUPPORT_WEARABLE";
     
     public static final UUID TX_POWER_UUID = UUID.fromString("00001804-0000-1000-8000-00805f9b34fb");
     public static final UUID TX_POWER_LEVEL_UUID = UUID.fromString("00002a07-0000-1000-8000-00805f9b34fb");
@@ -328,13 +328,13 @@ public class WearableService extends Service {
         String DevcieAddress = mBluetoothGatt.getDevice().getAddress();
     	if (RxService == null) {
             showMessage("Rx service not found!");
-            broadcastUpdate(DEVICE_DOES_NOT_SUPPORT_UART, DeviceName, DevcieAddress);
+            broadcastUpdate(APK_DOES_NOT_SUPPORT_WEARABLE, DeviceName, DevcieAddress);
             return false;
         }
     	BluetoothGattCharacteristic TxChar = RxService.getCharacteristic(TX_CHAR_UUID);
         if (TxChar == null) {
             showMessage("Tx charateristic not found!");
-            broadcastUpdate(DEVICE_DOES_NOT_SUPPORT_UART, DeviceName, DevcieAddress);
+            broadcastUpdate(APK_DOES_NOT_SUPPORT_WEARABLE, DeviceName, DevcieAddress);
             return false;
         }
         mBluetoothGatt.setCharacteristicNotification(TxChar,true);
@@ -354,13 +354,13 @@ public class WearableService extends Service {
         String DeviceAddress = mBluetoothGatt.getDevice().getAddress();
     	if (RxService == null) {
             showMessage("Rx service not found!");
-            broadcastUpdate(DEVICE_DOES_NOT_SUPPORT_UART, DeviceName, DeviceAddress);
+            broadcastUpdate(APK_DOES_NOT_SUPPORT_WEARABLE, DeviceName, DeviceAddress);
             return;
         }
     	BluetoothGattCharacteristic RxChar = RxService.getCharacteristic(RX_CHAR_UUID);
         if (RxChar == null) {
             showMessage("Rx charateristic not found!");
-            broadcastUpdate(DEVICE_DOES_NOT_SUPPORT_UART, DeviceName, DeviceAddress);
+            broadcastUpdate(APK_DOES_NOT_SUPPORT_WEARABLE, DeviceName, DeviceAddress);
             return;
         }
         RxChar.setValue(value);

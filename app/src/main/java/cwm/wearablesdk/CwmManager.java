@@ -139,7 +139,7 @@ public class CwmManager{
         intentFilter.addAction(WearableService.ACTION_GATT_DISCONNECTED);
         intentFilter.addAction(WearableService.ACTION_GATT_SERVICES_DISCOVERED);
         intentFilter.addAction(WearableService.ACTION_DATA_AVAILABLE);
-        intentFilter.addAction(WearableService.DEVICE_DOES_NOT_SUPPORT_UART);
+        intentFilter.addAction(WearableService.APK_DOES_NOT_SUPPORT_WEARABLE);
         return intentFilter;
     }
 
@@ -201,7 +201,7 @@ public class CwmManager{
                 });
             }
             //*********************//
-            if (action.equals(WearableService.DEVICE_DOES_NOT_SUPPORT_UART)){
+            if (action.equals(WearableService.APK_DOES_NOT_SUPPORT_WEARABLE)){
                 mService.disconnect();
                 mStatusListener.onNotSupport();
             }
