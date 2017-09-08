@@ -1,0 +1,185 @@
+<resources>
+    <string name="app_name">D.C.Decoder</string>
+    <string name="toolbar_openDrawer">Open Drawer</string>
+    <string name="toolbar_closeDrawer">Close Drawer</string>
+    <string name="cardview_font_family">Robot</string>
+    <string name="cardview_refresh">Refresh</string>
+
+    <string name="device">Device:</string>
+    <string name="no_device">&lt;Select a device&gt;</string>
+    <string name="select_device">Select a device</string>
+    <string name="status">Status</string>
+    <string name="llsWrite">LinkLossAlert</string>
+    <string name="iasWrite">ImmediateAlert</string>
+    <string name="scanning">Scanning for devices...</string>
+    <string name="no_ble_devices">No LE devices found.</string>
+    <string name="connected">Connected</string>
+    <string name="disconnected">Not connected</string>
+    <string name="ready">Ready</string>
+    <string name="disconnect">Disconnect</string>
+    <string name="connect">connect</string>
+    <string name="unpair">unpair</string>
+    <string name="pair">pair</string>
+    <string name="RadioButton1">Alert level high</string>
+    <string name="RadioButton2">Alert level mid</string>
+    <string name="RadioButton3">Stop alerting</string>
+    <string name="SystemId">SystemId</string>
+    <string name="ModelNumber">ModelNumber</string>
+    <string name="SerialNumber">SerialNumber</string>
+    <string name="FirmwareRevision">FirmwareRevision</string>
+    <string name="HardwareRevision">HardwareRevision</string>
+    <string name="SoftwareRevision">SoftwareRevision</string>
+    <string name="ManufactureName">ManufactureName</string>
+    <string name="RegCertDataList">RegCertDataList</string>
+    <string name="ManufactureId">    ManufactureId</string>
+    <string name="BatteryLevel">    Battery Level</string>
+    <string name="OrgId">    OrganizationId</string>
+    <string name="Txpower">    Txpower Level</string>
+    <string name="Noupdate">    No Update</string>
+    <string name="ReadTxPower">ReadTxPower</string>
+    <string name="high_alert">HIGH Alert triggered!</string>
+    <string name="low_alert">LOW Alert triggered!</string>
+    <string name="writeTxnoti">TxNoti</string>
+    <string name="readRssi">Read Rssi Value</string>
+    <string name="Readdummy">D Read</string>
+    <string name="removeBond">Remove Bond</string>
+    <string name="paired">paired</string>
+    <string name="popup_title">Quit nRF UART</string>
+    <string name="popup_message">Do you want to quit this Application?</string>
+    <string name="popup_yes">YES</string>
+    <string name="popup_no">NO</string>
+    <string name="ble_not_supported">Bluetooth Low Energy not supported</string>
+    <string name="scan">Scan</string>
+    <string name="cancel">Cancel</string>
+    <string name="title_activity_feature">FeatureActivity</string>
+    <string name="no_ble">Device doesn\'t have BLE support!</string>
+    <string name="dfu_default_name">DEFAULT DFU</string>
+    <string name="dfu_file_name_label">File Name:</string>
+    <string name="dfu_file_type_label">File Type:</string>
+    <string name="dfu_file_size_label">File Size:</string>
+    <string name="dfu_file_status_no_file">File not loaded</string>
+    <string name="dfu_action_select_file">SELECT FILE</string>
+    <string name="dfu_action_upload">UPLOAD</string>
+    <string name="dfu_uploading_percentage_label">0%</string>
+    <string name="dfu_lib_version">DFU Library version 1.3.0</string>
+    <string name="font_path">fonts/trebucbd.ttf</string>
+    <string name="normal_font_path">fonts/trebuc.ttf</string>
+    <string name="action_select">SELECT DEVICE</string>]
+    <string name="dfu_file_status_ok">OK</string>
+    <string name="dfu_action_upload_cancel">CANCEL</string>
+    <string name="dfu_success">Application has been transferred successfully.</string>
+    <string name="dfu_aborted">Uploading of the application has been canceled.</string>
+    <string name="dfu_uploading_percentage">%d%%</string>
+    <string name="permission_sd_text">CWM Toolbox would like to copy some sample applications, that may be uploaded onto your nRF51 device using the DFU (Device Firmware Update), to the memory of this device. If you agree, you will be asked to give the application permission to access files on your device.</string>
+    <string name="no_required_permission">Permission denied.</string>
+    <string name="dfu_service_title">nRF Toolbox DFU Proxy</string>
+    <string name="dfu_file_type_title">Select file type</string>
+    <string-array name="dfu_file_type">
+        <item>Distribution packet (ZIP)</item>
+        <item>Soft Device</item>
+        <item>Bootloader</item>
+        <item>Application</item>
+    </string-array>
+    <string name="ok">OK</string>
+    <string name="dfu_file_info">Info</string>
+    <string name="dfu_alert_no_filebrowser_title">File Browser not found</string>
+    <string name="no">No</string>
+    <string-array name="dfu_app_file_browser_action">
+        <item>market://details?id=com.google.android.apps.docs</item>
+        <item>market://details?id=com.rhmsoft.fm</item>
+        <item>market://details?id=com.ghisler.android.TotalCommander</item>
+        <item>market://search?q=file manager</item>
+    </string-array>
+    <string name="dfu_file_size_text">%d bytes</string>
+    <string name="dfu_file_status_invalid">Invalid file</string>
+    <string name="yes">Yes</string>
+    <string name="dfu_file_init_title">Init packet</string>
+    <string name="dfu_file_init_message">Do you want to select the Init packet file?\n
+		The Init packet file (*.dat) should contain the device type and revision, application version, list of supported Soft Devices and the firmware CRC
+		in binary format or, with old versions of the DFU bootloader, only the CRC (CRC-CCITT-16).
+		With the new version of the bootloader the extended Init packet is <b>required</b>.</string>
+    <string name="dfu_file_status_ok_with_init">OK (Init file selected)</string>
+    <string name="dfu_file_status_error">Reading file failed</string>
+    <string name="not_available">n/a</string>
+    <string name="scanner_title">Select device:</string>
+    <string name="scanner_action_cancel">Cancel</string>
+    <string name="scanner_action_scan">Scan</string>
+    <string name="dfu_alert_no_filebrowser_message">File browser application has not been found on your device. Would you like to download one?</string>
+    <string-array name="dfu_app_file_browser">
+        <item>Drive</item>
+        <item>File Manager</item>
+        <item>Total Commander</item>
+        <item>Search for others</item>
+    </string-array>
+    <string name="dfu_confirmation_dialog_title">Application Uploading</string>
+    <string name="dfu_upload_dialog_cancel_message">Are you sure to cancel upload?</string>
+    <string name="permission_title">Permission required</string>
+    <string name="scanner_subtitle_not_bonded">AVAILABLE DEVICES:</string>
+    <string name="scanner_subtitle_bonded">BONDED DEVICES:</string>
+    <string name="scanner_empty">No device found</string>
+    <string name="dfu_zip_info_text">Starting from nRF Toolbox v1.12 the new Distribution packet (ZIP) is the recommended method for distributing firmware upgrades.
+		You can create the ZIP file using the <b>nrf utility</b> tool, which is part of Master Control Panel 3.8.0+. For more detailed information, see the DFU documentation.
+		\n\n<b>Backward compatibility</b>
+		\nThe nRF Toolbox also supports all old file formats: HEX and BIN files, separate DAT files and ZIP files without a manifest file but with a fixed naming convention:
+</string>
+    <string name="dfu_example_files_created">Example HEX files were copied to /sdcard/Nordic Semiconductor.</string>
+    <string name="dfu_example_new_files_created">New example HEX files were copied to /sdcard/Nordic Semiconductor.</string>
+    <string name="dfu_scripts_created">DFU script files were copied to /sdcard/Nordic Semiconductor.</string>
+    <string name="scanner_permission_rationale">Since Android 6.0 Marshmallow system requires granting access to device\'s location in order to scan for Bluetooth Smart devices. Bluetooth beacons may be used to determine the phone\'s and user\'s location.</string>
+    <string name="dfu_file_status_invalid_message">Please, select valid HEX file</string>
+    <string name="action_about">About</string>
+    <string name="action_settings">Settings</string>
+    <string name="about_version">\n\nVersion: %s</string>
+    <string name="about_title">About</string>
+    <string name="dfu_about_text">The Device Firmware Update (DFU) app allows you to update the firmware of your Bluetooth Smart device over-the-air (OTA).
+		It is compatible with Nordic Semiconductor nRF51822 or nRF51422 devices with S110 SoftDevice and DFU bootloader enabled. With SoftDevice s110 7.0.0+,
+		the SoftDevice itself and/or a bootloader may also be updated.
+		\n\nFor more information about the DFU, see the About DFU section in Settings.</string>
+    <string name="no_application">Web Browser application is not available.</string>
+    <string name="dfu_settings_dfu_number_of_packets_info">During a DFU operation a lot of data packets are being sent to the target. The <i>onCharacteristicWrite(...)</i>
+		callback in Android API is invoked when the data has been written to the outgoing queue, not when physically sent. Packet receipt notifications were introduced to
+		prevent from overflowing the queue. Depending on the device model, disabling the notifications or setting the value to “high” (> ~300) may make the DFU process freeze
+		at some point.</string>
+    <string name="dfu_settings_dfu_information">Information</string>
+    <string name="dfu_settings_dfu_assume_dfu_mode_info">Check this switch to ON if you want to perform a DFU operation without jumping to the bootloader mode on a device
+		with a DFU implementation from SDK 6.1 or older. To achieve the same result on any newer implementation the DFU Version characteristic should return value other than 0x0100.</string>
+    <string name="dfu_settings_dfu">DFU options</string>
+    <string name="dfu_settings_dfu_packets_receipt_notification_label">Packets receipt notification procedure</string>
+    <string name="dfu_settings_dfu_number_of_packets_label">Number of packets</string>
+    <string name="dfu_settings_dfu_mbr_size_title">MBR size (4096 on nRF51, 12288 on nRF52)</string>
+    <string name="dfu_settings_dfu_mbr_size">MBR size</string>
+    <string name="dfu_feature_title_long">DEVICE FIRMWARE UPDATE</string>
+    <string name="dfu_settings_dfu_keep_bond">Keep bond information</string>
+    <string name="dfu_settings_dfu_assume_dfu_mode">External MCU DFU</string>
+    <string name="dfu_settings_dfu_about_summary">DFU documentation on Nordic\'s Developer Zone</string>
+    <string name="dfu_settings_dfu_about">About DFU</string>
+    <string name="template_settings_title">Template Settings</string>
+    <string name="dfu_section_application_header">APPLICATION</string>
+    <string name="dfu_section_dfu_header">DEVICE FIRMWARE UPDATE</string>
+    <string name="dfu_status_completed">Done</string>
+    <string name="dfu_help_title">Select file</string>
+    <string name="dfu_help_message">A file browser application must be installed on the device before selecting the file.
+		\n\nThere are number of applications available on Google Play store, e.g. Total Commander or File Manager, that allow you to pick a file from internal memory of the device. To upload
+		a file from the Internet you may use f.e. Drive or Dropbox application.
+		\n\nYou will be asked to select an application if more than one is installed. A single application will be launched automatically.
+		\n\nSince <b>Android KitKat</b> you may use the preinstalled document picker application. Ensure <i>Display advanced devices</i> option is enabled in settings to use the <i>Internal storage</i>.
+		\n\nSample applications were copied to <i>Nordic Semiconductor</i> folder in the internal storage.</string>
+    <string name="dfu_feature_title">DFU</string>
+    <string name="ble_device_list">BLE Device List</string>
+    <string name="decoder">Deocoder</string>
+    <string name="cwm_toobox">CWM-Tools</string>
+    <string name="wearable">WEARABLE</string>
+    <string name="personal_information_setting">個資設定</string>
+    <string name="aim_setting">目標設定</string>
+    <string name="ring_setting">手環設定</string>
+    <string name="analysis">分析</string>
+    <string name="intelligent_application">智能應用</string>
+    <string name="title_activity_storage_box">StorageBoxActivity</string>
+    <string name="equip">一個 USB 充電線與手環
+        \n\n說明文件與保卡
+        \n\n\n手還能防潑水，雨淋以及洗澡，但是請避免戴著泡湯或游泳。
+    </string>
+    <string name="instruction">點選手環螢幕左下方能畫面瀏覽。\n\n掌握即時運動訊息，同時
+        能搭配<b>App</b>提供的功能進行如<b>Tabata</b>鍛鍊或久坐提醒等功能。
+    </string>
+</resources>
