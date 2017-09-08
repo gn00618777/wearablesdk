@@ -82,7 +82,6 @@ public class CwmManager{
         void onConnected();
         void onDisconnected();
         void onServiceDiscovery();
-        void onDataAvailable(byte[] rxBuffer);
         void onNotSupport();
     }
 
@@ -194,7 +193,7 @@ public class CwmManager{
                 mActivity.runOnUiThread(new Runnable() {
                     public void run() {
                         try {
-                            mStatusListener.onDataAvailable(rxBuffer);
+
                         } catch (Exception e) {
                             Log.e(TAG, e.toString());
                         }
