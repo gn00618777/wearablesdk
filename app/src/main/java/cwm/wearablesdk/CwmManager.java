@@ -193,7 +193,7 @@ public class CwmManager{
                 mActivity.runOnUiThread(new Runnable() {
                     public void run() {
                         try {
-
+                            receiveRawByte(rxBuffer);
                         } catch (Exception e) {
                             Log.e(TAG, e.toString());
                         }
@@ -210,7 +210,7 @@ public class CwmManager{
     };
 
     // function
-    public void receiveRawByte(byte[] rxBuffer){
+    private void receiveRawByte(byte[] rxBuffer){
         int packet_type = 0;
         int packet_length = 0;
         int packet_id_type = 0;
@@ -223,6 +223,15 @@ public class CwmManager{
             packet_length = rxBuffer[2] & 0xFF;
             packet_id_type = rxBuffer[3] & 0xFF;
             packet_message_id = rxBuffer[4] & 0xFF;
+            packet = rxBuffer;
+            Data data = new Data(packet_type, packet_length, packet_id_type, packet_message_id, packet);
+            enqueue(data);
+        }
+        else if((rxBuffer[0] & 0xFF) == HEADER1 && (rxBuffer[1] & 0xFF) == HEADER2 && (rxBuffer[3] & 0xFF) != ACK && (rxBuffer[3] & 0xFF) != NACK){
+            packet_type = NON_PENDING;
+            packet_length = rxBuffer[2] & 0xFF;
+            packet_id_type = rxBuffer[3] & 0xFF;
+            packet_message_id = 0;
             packet = rxBuffer;
             Data data = new Data(packet_type, packet_length, packet_id_type, packet_message_id, packet);
             enqueue(data);
