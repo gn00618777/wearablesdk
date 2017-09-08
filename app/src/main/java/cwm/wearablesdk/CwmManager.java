@@ -251,6 +251,10 @@ public class CwmManager{
         mService.connect(address);
     }
 
+    public void CwmBleDisconnect(){
+        mService.disconnect();
+    }
+
     public boolean CwmDeviceUnregister(){
         return true;
     }
