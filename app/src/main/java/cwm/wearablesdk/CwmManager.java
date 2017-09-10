@@ -19,6 +19,7 @@ import android.widget.Toast;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.util.Calendar;
 import java.util.LinkedList;
 import java.util.Queue;
 
@@ -68,6 +69,11 @@ public class CwmManager{
     private BluetoothAdapter mBluetoothAdapter = null;
     private BluetoothManager mBluetoothManager = null;
 
+    // Keep Settings
+    public final static int BODY = 1;
+    public final static int INTELLIGENT = 2;
+    private BodySettings bodySettings;
+    private IntelligentSettings  intelligentSettings;
 
     // interface -----------------------------------------------------------------------------------
     public interface InformationListener {
@@ -76,6 +82,7 @@ public class CwmManager{
         void onGetBikeData(CwmInformation bikeInfo);
         void onGetHeartData(CwmInformation heartInfo);
         void onGetActivity(CwmInformation activityInfo);
+        void onGetBattery(CwmInformation batteryInfo);
     } // onDataArrivalListener()
 
     public interface WearableServiceListener {
@@ -91,6 +98,9 @@ public class CwmManager{
         mActivity = activity;
         mStatusListener = wListener;
         mListener = iLlistener;
+
+        bodySettings = new BodySettings();
+        intelligentSettings = new IntelligentSettings();
 
         systemBluetoothCheck();
 
@@ -269,6 +279,158 @@ public class CwmManager{
     public boolean CwmDeviceUnregister(){
         return true;
     }
+
+    public void CwmSaveBodySettings(BodySettings settings){
+            bodySettings = settings;
+    }
+    public void CwmSaveIntelligentSettings(IntelligentSettings settings){
+            intelligentSettings = settings;
+    }
+
+    public BodySettings CwmGetBodySettings(){
+        return bodySettings;
+    }
+
+    public IntelligentSettings CwmGetIntelligentSettings(){
+        return intelligentSettings;
+    }
+
+    public void CwmSyncBodySettings(){
+         int[] body = new int[4];
+
+         body[0] = bodySettings.getOld();
+         body[1] = bodySettings.getHight();
+         if(bodySettings.getSex() == 'm' || bodySettings.getSex() == 'M')
+            body[2] = 1;
+         else
+            body[2] = 2;
+         body[3] = bodySettings.getWeight();
+        /*******************************************************/
+        int checksum = 0xE6+0x90+0x09+0x14+body[2]+body[0]+body[1]+body[3];
+        byte[] command = {(byte)0xE6,(byte)0x90,(byte)0x09,(byte)0x14,(byte)body[2],(byte)body[0],
+                (byte)body[1],(byte)body[3],(byte)checksum};
+        /*********************************************************/
+    }
+
+    public void CwmSyncIntelligentSettings(){
+        boolean[] feature = new boolean[5];
+        int goal =  intelligentSettings.getGoal();
+        feature[0] = intelligentSettings.getSedtentary();
+        feature[1] = intelligentSettings.getHangUp();
+        feature[2] = intelligentSettings.getOnWear();
+        feature[3] = intelligentSettings.getDoubleTap();
+        feature[4] = intelligentSettings.getWristSwitch();
+
+        /***************************************************************/
+        int features = 0;
+        int onWearMask = 32;
+        int sedentaryRemindMask = 8;
+        int handUpMask = 4;
+        int tapMask = 2;
+        int wristMask = 1;
+        int targetStepL = 0;
+        int targetStepH = 0;
+        if(feature[0] == true)
+            features = features | sedentaryRemindMask;
+        else
+            features = features & ~(sedentaryRemindMask);
+        if(feature[1] == true)
+            features = features | handUpMask;
+        else
+            features = features & ~(handUpMask);
+        if(feature[2] == true)
+            features = features | onWearMask;
+        else
+            features = features & ~(onWearMask);
+        if(feature[3] == true)
+            features = features | tapMask;
+        else
+            features = features & ~(tapMask);
+        if(feature[4] == true)
+            features = features | wristMask;
+        else
+            features = features & ~(wristMask);
+
+        targetStepL = goal & 0xFF;
+        targetStepH = (goal >> 8) & 0xFF;
+
+        int checksum = 0xE6+0x90+0x09+0x12+features+0x00+targetStepL+targetStepH;
+        byte[] command = {(byte)0xE6,(byte)0x90,(byte)0x09,(byte)0x12,(byte)features,(byte)0x0,
+                (byte)targetStepL,(byte)targetStepH,(byte)checksum};
+        /***********************************************************************************/
+        mService.writeRXCharacteristic(command);
+
+    }
+
+    public void CwmSyncCurrentTime(){
+        int[] time = new int[7];
+        boolean isFirstSunday;
+        Calendar c = Calendar.getInstance();
+        time[0] = c.get(Calendar.YEAR);
+        time[1] = c.get(Calendar.MONTH);
+        time[2] = c.get(Calendar.DATE);
+        time[3] = c.get(Calendar.DAY_OF_WEEK);
+        time[4] = c.get(Calendar.HOUR);
+        time[5] = c.get(Calendar.MINUTE);
+        time[6] = c.get(Calendar.SECOND);
+
+        switch(time[1]) {
+            case Calendar.JANUARY:
+                time[1] = 1;
+                break;
+            case Calendar.FEBRUARY:
+                time[1] = 2;
+                break;
+            case Calendar.MARCH:
+                time[1] = 3;
+                break;
+            case Calendar.APRIL:
+                time[1] = 4;
+                break;
+            case Calendar.MAY:
+                time[1] = 5;
+                break;
+            case Calendar.JUNE:
+                time[1] = 6;
+                break;
+            case Calendar.JULY:
+                time[1] = 7;
+                break;
+            case Calendar.AUGUST:
+                time[1] = 8;
+                break;
+            case Calendar.SEPTEMBER:
+                time[1] = 9;
+                break;
+            case Calendar.OCTOBER:
+                time[1] = 10;
+                break;
+            case Calendar.NOVEMBER:
+                time[1] = 11;
+                break;
+            case Calendar.DECEMBER:
+                time[1] = 12;
+                break;
+        }
+
+        isFirstSunday = (c.getFirstDayOfWeek() == Calendar.SUNDAY);
+        if(isFirstSunday){
+            time[3] = time[3] - 1;
+            if(time[3] == 0){
+                time[3] = 7;
+            }
+        }
+        /****************************************/
+    }
+
+    public void CwmRequestBattery(){
+        /*******************************************************************************/
+        int battery_checksum = 0xE6+0x90+0x05+0x50;
+        final byte[] BATTERY_REQUEST = {(byte)0xE6, (byte)0x90,(byte)0x05,(byte)0x50,(byte)battery_checksum};
+         /****************************************************************************************/
+         mService.writeRXCharacteristic(BATTERY_REQUEST);
+    }
+
     private void enqueue(Data data){
         if (data.type == NON_PENDING && data.length <= PACKET_SIZE) {
             mOutPutQueue.add(data);
@@ -306,6 +468,7 @@ public class CwmManager{
                         break;
                     case BATTERY_STATUS_REPORT_MESSAGE_ID:
                         cwmInfo = getInfomation(BATTERY_STATUS_REPORT_MESSAGE_ID, value);
+                        mListener.onGetBattery(cwmInfo);
                         break;
                     case TAP_EVENT_MESSAGE_ID:
                         cwmInfo = getInfomation(TAP_EVENT_MESSAGE_ID, value);
@@ -331,7 +494,7 @@ public class CwmManager{
     }
     private CwmInformation getInfomation(int messageId, byte[] value){
         if(messageId == MOTION_DATA_REPORT_MESSAGE_ID ){
-
+/****************************************************************************/
             byte[] dest = new byte[4];
 
             System.arraycopy(value, 4, dest, 0, 4);
@@ -341,12 +504,19 @@ public class CwmManager{
             System.arraycopy(value, 12, dest, 0, 4);
             int calories = (int)ByteBuffer.wrap(dest).order(ByteOrder.LITTLE_ENDIAN).getFloat();
             int status = value[16] & 0xFF;
+            /***********************************************************************/
             CwmInformation cwmInfo = new CwmInformation();
             cwmInfo.setId(MOTION_DATA_REPORT_MESSAGE_ID);
             cwmInfo.setWalkStep(walkStep);
             cwmInfo.setDistance(distance);
             cwmInfo.setCalories(calories);
             cwmInfo.setStatus(status);
+            return cwmInfo;
+        }
+        else if(messageId == BATTERY_STATUS_REPORT_MESSAGE_ID){
+            CwmInformation cwmInfo = new CwmInformation();
+            /*******************************************************/
+            cwmInfo.setBattery(value[4] & 0xFF);
             return cwmInfo;
         }
         else if(messageId == TAP_EVENT_MESSAGE_ID){

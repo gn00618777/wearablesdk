@@ -27,6 +27,9 @@
 -keep class cwm.wearablesdk.CwmManager
 -keep class cwm.wearablesdk.CwmInformation
 -keep class cwm.wearablesdk.Information
+-keep class cwm.wearablesdk.Settings
+-keep class cwm.wearablesdk.BodySettings
+-keep class cwm.wearablesdk.IntelligentSettings
 -keep class cwm.wearablesdk.CwmManager$InformationListener{*;}
 -keep class cwm.wearablesdk.CwmManager$WearableServiceListener{*;}
 -keep class cwm.wearablesdk.CwmManager$BleScannerListener{*;}
@@ -42,5 +45,15 @@
    public int getRunStep();
    public int getHeartBeat();
    public int getStatus();
+   public int getBattery();
 
+}
+-keepclassmembers class cwm.wearablesdk.BodySettings {
+   public *;
+}
+-keepclassmembers class cwm.wearablesdk.IntelligentSettings {
+   public *;
+}
+-keepclassmembers class cwm.wearablesdk.Settings {
+   public *;
 }

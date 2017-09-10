@@ -13,6 +13,7 @@ public class CwmInformation extends Information{
     private int mCalories;
     private int mRunStep;
     private int mStatus;
+    private int mBattery;
 
     /**************heart beat*************/
     private int mHeartBeat;
@@ -24,6 +25,7 @@ public class CwmInformation extends Information{
           mCalories = 0;
           mStatus = 0;
           mHeartBeat = 0;
+          mBattery = 0;
     }
 
     public void setId(int id){mId = id;}
@@ -32,6 +34,7 @@ public class CwmInformation extends Information{
     public void setDistance(int distance){mDistance = distance;}
     public void setCalories(int calories){mCalories = calories;}
     public void setStatus(int status){mStatus = status;}
+    public void setBattery(int battery){mBattery = battery;}
     public int getWalkStep(){
        return mWalkStep;
     }
@@ -42,6 +45,7 @@ public class CwmInformation extends Information{
     public int getRunStep(){ return mRunStep;}
     public int getHeartBeat(){return mHeartBeat;}
     public int getStatus(){return mStatus;}
+    public int getBattery(){return mBattery;}
 
     public String getId() {
         if (mId == 0)
