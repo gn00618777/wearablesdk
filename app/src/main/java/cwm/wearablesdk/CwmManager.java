@@ -70,6 +70,8 @@ public class CwmManager{
     private BluetoothAdapter mBluetoothAdapter = null;
     private BluetoothManager mBluetoothManager = null;
 
+    private boolean mConnectStatus = false;
+
     // Keep Settings
     public final static int BODY = 1;
     public final static int INTELLIGENT = 2;
@@ -185,6 +187,7 @@ public class CwmManager{
             if (action.equals(cwm.wearablesdk.WearableService.ACTION_GATT_CONNECTED)) {
                 mActivity.runOnUiThread(new Runnable() {
                     public void run() {
+                        mConnectStatus = true;
                         mStatusListener.onConnected();
                     }
                 });
@@ -194,6 +197,7 @@ public class CwmManager{
             if (action.equals(WearableService.ACTION_GATT_DISCONNECTED)) {
                 mActivity.runOnUiThread(new Runnable() {
                     public void run() {
+                        mConnectStatus = false;
                         mService.close();
                         mStatusListener.onDisconnected();
                     }
@@ -202,6 +206,7 @@ public class CwmManager{
 
             //*********************//
             if (action.equals(WearableService.ACTION_GATT_SERVICES_DISCOVERED)) {
+                mConnectStatus = true;
                 mService.enableTXNotification();
                 mStatusListener.onServiceDiscovery(deviceName, deviceAddress);
             }
@@ -221,6 +226,7 @@ public class CwmManager{
             }
             //*********************//
             if (action.equals(WearableService.APK_DOES_NOT_SUPPORT_WEARABLE)){
+                mConnectStatus = false;
                 mService.disconnect();
                 mStatusListener.onNotSupport();
             }
@@ -320,53 +326,54 @@ public class CwmManager{
     }
 
     public void CwmSyncIntelligentSettings(){
-        boolean[] feature = new boolean[5];
-        int goal =  intelligentSettings.getGoal();
-        feature[0] = intelligentSettings.getSedtentary();
-        feature[1] = intelligentSettings.getHangUp();
-        feature[2] = intelligentSettings.getOnWear();
-        feature[3] = intelligentSettings.getDoubleTap();
-        feature[4] = intelligentSettings.getWristSwitch();
+        if(mConnectStatus == true) {
+            boolean[] feature = new boolean[5];
+            int goal = intelligentSettings.getGoal();
+            feature[0] = intelligentSettings.getSedtentary();
+            feature[1] = intelligentSettings.getHangUp();
+            feature[2] = intelligentSettings.getOnWear();
+            feature[3] = intelligentSettings.getDoubleTap();
+            feature[4] = intelligentSettings.getWristSwitch();
 
-        /***************************************************************/
-        int features = 0;
-        int onWearMask = 32;
-        int sedentaryRemindMask = 8;
-        int handUpMask = 4;
-        int tapMask = 2;
-        int wristMask = 1;
-        int targetStepL = 0;
-        int targetStepH = 0;
-        if(feature[0] == true)
-            features = features | sedentaryRemindMask;
-        else
-            features = features & ~(sedentaryRemindMask);
-        if(feature[1] == true)
-            features = features | handUpMask;
-        else
-            features = features & ~(handUpMask);
-        if(feature[2] == true)
-            features = features | onWearMask;
-        else
-            features = features & ~(onWearMask);
-        if(feature[3] == true)
-            features = features | tapMask;
-        else
-            features = features & ~(tapMask);
-        if(feature[4] == true)
-            features = features | wristMask;
-        else
-            features = features & ~(wristMask);
+            /***************************************************************/
+            int features = 0;
+            int onWearMask = 32;
+            int sedentaryRemindMask = 8;
+            int handUpMask = 4;
+            int tapMask = 2;
+            int wristMask = 1;
+            int targetStepL = 0;
+            int targetStepH = 0;
+            if (feature[0] == true)
+                features = features | sedentaryRemindMask;
+            else
+                features = features & ~(sedentaryRemindMask);
+            if (feature[1] == true)
+                features = features | handUpMask;
+            else
+                features = features & ~(handUpMask);
+            if (feature[2] == true)
+                features = features | onWearMask;
+            else
+                features = features & ~(onWearMask);
+            if (feature[3] == true)
+                features = features | tapMask;
+            else
+                features = features & ~(tapMask);
+            if (feature[4] == true)
+                features = features | wristMask;
+            else
+                features = features & ~(wristMask);
 
-        targetStepL = goal & 0xFF;
-        targetStepH = (goal >> 8) & 0xFF;
+            targetStepL = goal & 0xFF;
+            targetStepH = (goal >> 8) & 0xFF;
 
-        int checksum = 0xE6+0x90+0x09+0x12+features+0x00+targetStepL+targetStepH;
-        byte[] command = {(byte)0xE6,(byte)0x90,(byte)0x09,(byte)0x12,(byte)features,(byte)0x0,
-                (byte)targetStepL,(byte)targetStepH,(byte)checksum};
-        /***********************************************************************************/
-        mService.writeRXCharacteristic(command);
-
+            int checksum = 0xE6 + 0x90 + 0x09 + 0x12 + features + 0x00 + targetStepL + targetStepH;
+            byte[] command = {(byte) 0xE6, (byte) 0x90, (byte) 0x09, (byte) 0x12, (byte) features, (byte) 0x0,
+                    (byte) targetStepL, (byte) targetStepH, (byte) checksum};
+            /***********************************************************************************/
+            mService.writeRXCharacteristic(command);
+        }
     }
 
     public void CwmSyncCurrentTime(){
