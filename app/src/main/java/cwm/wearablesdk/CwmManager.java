@@ -309,20 +309,23 @@ public class CwmManager{
     }
 
     public void CwmSyncBodySettings(){
-         int[] body = new int[4];
+        if(mConnectStatus == true) {
+            int[] body = new int[4];
 
-         body[0] = bodySettings.getOld();
-         body[1] = bodySettings.getHight();
-         if(bodySettings.getSex() == 'm' || bodySettings.getSex() == 'M')
-            body[2] = 1;
-         else
-            body[2] = 2;
-         body[3] = bodySettings.getWeight();
-        /*******************************************************/
-        int checksum = 0xE6+0x90+0x09+0x14+body[2]+body[0]+body[1]+body[3];
-        byte[] command = {(byte)0xE6,(byte)0x90,(byte)0x09,(byte)0x14,(byte)body[2],(byte)body[0],
-                (byte)body[1],(byte)body[3],(byte)checksum};
-        /*********************************************************/
+            body[0] = bodySettings.getOld();
+            body[1] = bodySettings.getHight();
+            if (bodySettings.getSex() == 'm' || bodySettings.getSex() == 'M')
+                body[2] = 1;
+            else
+                body[2] = 2;
+            body[3] = bodySettings.getWeight();
+            /*******************************************************/
+            int checksum = 0xE6 + 0x90 + 0x09 + 0x14 + body[2] + body[0] + body[1] + body[3];
+            byte[] command = {(byte) 0xE6, (byte) 0x90, (byte) 0x09, (byte) 0x14, (byte) body[2], (byte) body[0],
+                    (byte) body[1], (byte) body[3], (byte) checksum};
+            /*********************************************************/
+            mService.writeRXCharacteristic(command);
+        }
     }
 
     public void CwmSyncIntelligentSettings(){
