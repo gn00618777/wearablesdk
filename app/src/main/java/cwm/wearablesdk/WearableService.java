@@ -150,8 +150,8 @@ public class WearableService extends Service {
 
     private void broadcastUpdate(final String action, String name, String address) {
         final Intent intent = new Intent(action);
-        intent.putExtra("ClientDeviceName", name);
-        intent.putExtra("ClientDeviceAddress", address);
+        intent.putExtra("DeviceName", name);
+        intent.putExtra("DeviceAddress", address);
         LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
     }
 

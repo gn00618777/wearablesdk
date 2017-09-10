@@ -81,7 +81,7 @@ public class CwmManager{
     public interface WearableServiceListener {
         void onConnected();
         void onDisconnected();
-        void onServiceDiscovery();
+        void onServiceDiscovery(String deviceName, String deviceAddress);
         void onNotSupport();
     }
 
@@ -162,6 +162,8 @@ public class CwmManager{
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
             final Intent mIntent = intent;
+            final String deviceName = intent.getStringExtra("DeviceName");
+            final String deviceAddress = intent.getStringExtra("DeviceAddress");
             //*********************//
             if (action.equals(cwm.wearablesdk.WearableService.ACTION_GATT_CONNECTED)) {
                 mActivity.runOnUiThread(new Runnable() {
@@ -184,7 +186,7 @@ public class CwmManager{
             //*********************//
             if (action.equals(WearableService.ACTION_GATT_SERVICES_DISCOVERED)) {
                 mService.enableTXNotification();
-                mStatusListener.onServiceDiscovery();
+                mStatusListener.onServiceDiscovery(deviceName, deviceAddress);
             }
             //*********************//
             if (action.equals(WearableService.ACTION_DATA_AVAILABLE)) {
