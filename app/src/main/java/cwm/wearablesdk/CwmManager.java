@@ -97,6 +97,8 @@ public class CwmManager{
 
     public interface AckListener{
         void onSyncTimeAckArrival();
+        void onSyncIntelligentAckArrival();
+        void onSyncPersonInfoAckArrival();
 
     }
 
@@ -470,8 +472,10 @@ public class CwmManager{
                         mAckListener.onSyncTimeAckArrival();
                         break;
                     case BODY_PARAMETER_RESPONSE_ID:
+                        mAckListener.onSyncPersonInfoAckArrival();
                         break;
                     case INTELLIGENT_FEATURE_RESPONSE_ID:
+                        mAckListener.onSyncIntelligentAckArrival();
                         break;
                     case CLEAN_BOND_RESPONSE_ID:
                         break;
