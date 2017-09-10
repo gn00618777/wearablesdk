@@ -62,6 +62,7 @@ public class CwmManager{
     private Context mContext = null;
     private Activity mActivity = null;
     private WearableServiceListener mStatusListener = null;
+    private AckListener mAckListener = null;
 
     private final int REQUEST_ENABLE_BT = 1;
     private final int REQUEST_SELECT_DEVICE = 2;
@@ -92,12 +93,18 @@ public class CwmManager{
         void onNotSupport();
     }
 
+    public interface AckListener{
+        void onSyncTimeAckArrival();
+
+    }
+
     public CwmManager(Activity activity, WearableServiceListener wListener,
-                      InformationListener iLlistener){
+                      InformationListener iLlistener, AckListener ackListener){
 
         mActivity = activity;
         mStatusListener = wListener;
         mListener = iLlistener;
+        mAckListener = ackListener;
 
         bodySettings = new BodySettings();
         intelligentSettings = new IntelligentSettings();
@@ -421,6 +428,13 @@ public class CwmManager{
             }
         }
         /****************************************/
+        int checksum = 0xE6+0x90+0x0C+0x02+time[0]+time[1]+time[2]+time[3]+time[4]+time[5]+time[6];
+        byte byteOfchecksum = (byte)checksum;
+        byte[] command = {(byte)HEADER1,(byte)HEADER2,(byte)0x0C,(byte)0x02,(byte)time[0],
+                (byte)time[1],(byte)time[2],(byte)time[3],(byte)time[4],(byte)time[5],(byte)time[6],
+                byteOfchecksum};
+        mService.writeRXCharacteristic(command);
+        /****************************************/
     }
 
     public void CwmRequestBattery(){
@@ -443,6 +457,7 @@ public class CwmManager{
                 int id = data.getMessageID();
                 switch (id) {
                     case SYNC_TIME_RESPONSE_ID:
+                        mAckListener.onSyncTimeAckArrival();
                         break;
                     case BODY_PARAMETER_RESPONSE_ID:
                         break;
