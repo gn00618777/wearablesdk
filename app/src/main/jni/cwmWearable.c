@@ -135,6 +135,39 @@ JNIEXPORT void JNICALL Java_cwm_wearablesdk_JniManager_getCwmInformation
          jbyte *rxData = (*env)->GetByteArrayElements(env, input, 0);
 
          if(messageId == 0xAF){ //motion
+            jint step = 0;
+            jint distance = 0;
+            jint calories = 0;
+            jint status = 0;
+            jint *txData = malloc(sizeof(jint)*4);
+            jbyte *dest = malloc(sizeof(jbyte)*4);
+            dest[0] = rxData[4];
+            dest[1] = rxData[5];
+            dest[2] = rxData[6];
+            dest[3] = rxData[7];
+            step = (jint)(*(float *)dest);
+
+            dest[0] = rxData[8];
+            dest[1] = rxData[9];
+            dest[2] = rxData[10];
+            dest[3] = rxData[11];
+            distance = (jint)(*(float *)dest);
+
+            dest[0] = rxData[12];
+            dest[1] = rxData[13];
+            dest[2] = rxData[14];
+            dest[3] = rxData[15];
+            calories = (jint)(*(float *)dest);
+
+            status = (jint)rxData[16];
+
+            txData[0] = step;
+            txData[1] = distance;
+            txData[2] = calories;
+            txData[3] = status;
+
+            (*env)->SetIntArrayRegion(env, output, 0, 4, txData);
+            free(txData);
 
          }
          else if(messageId == 0xED){ //battery

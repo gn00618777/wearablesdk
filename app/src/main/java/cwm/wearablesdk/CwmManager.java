@@ -495,17 +495,18 @@ public class CwmManager{
     }
     private CwmInformation getInfomation(int messageId, byte[] value){
         if(messageId == MOTION_DATA_REPORT_MESSAGE_ID ){
-/****************************************************************************/
-            byte[] dest = new byte[4];
-
-            System.arraycopy(value, 4, dest, 0, 4);
-            int walkStep = (int) ByteBuffer.wrap(dest).order(ByteOrder.LITTLE_ENDIAN).getFloat();
-            System.arraycopy(value, 8, dest, 0, 4);
-            int distance = (int)ByteBuffer.wrap(dest).order(ByteOrder.LITTLE_ENDIAN).getFloat();
-            System.arraycopy(value, 12, dest, 0, 4);
-            int calories = (int)ByteBuffer.wrap(dest).order(ByteOrder.LITTLE_ENDIAN).getFloat();
-            int status = value[16] & 0xFF;
+           int[] output = new int[4];
+            int walkStep = 0;
+            int distance = 0;
+            int calories = 0;
+            int status = 0;
             /***********************************************************************/
+            jniMgr.getCwmInformation(MOTION_DATA_REPORT_MESSAGE_ID,value,output);
+            /***********************************************************************/
+             walkStep = output[0];
+             distance = output[1];
+             calories = output[2];
+             status = output[3];
             CwmInformation cwmInfo = new CwmInformation();
             cwmInfo.setId(MOTION_DATA_REPORT_MESSAGE_ID);
             cwmInfo.setWalkStep(walkStep);
