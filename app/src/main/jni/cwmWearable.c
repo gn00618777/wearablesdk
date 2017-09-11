@@ -44,6 +44,8 @@ JNIEXPORT void JNICALL Java_cwm_wearablesdk_JniManager_getSyncIntelligentCommand
             else
                features = features & ~(wristMask);
 
+           (*env)->ReleaseBooleanArrayElements(env, input, rxData, 0);
+
            targetStepL = goal & 0xFF;
            targetStepH = (goal >> 8) & 0xFF;
 
@@ -86,6 +88,8 @@ JNIEXPORT void JNICALL Java_cwm_wearablesdk_JniManager_getSyncCurrentCommand
           txData[10] = (jbyte)rxData[6]; // second
           txData[11] = (jbyte)checksum; //checksum
 
+          (*env)->ReleaseIntArrayElements(env, input, rxData, 0);
+
           (*env)->SetByteArrayRegion(env, output, 0, 12, txData);
           free(txData);
   }
@@ -124,6 +128,8 @@ JNIEXPORT void JNICALL Java_cwm_wearablesdk_JniManager_getSyncBodyCommandCommand
             txData[6] = (jbyte)rxData[1];
             txData[7] = (jbyte)rxData[3];
             txData[8] = (jbyte)checksum;
+
+            (*env)->ReleaseIntArrayElements(env, input, rxData, 0);
 
             (*env)->SetByteArrayRegion(env, output, 0, 9, txData);
             free(txData);
@@ -199,5 +205,6 @@ JNIEXPORT void JNICALL Java_cwm_wearablesdk_JniManager_getCwmInformation
                (*env)->SetIntArrayRegion(env, output, 0, 2, txData);
                 free(txData);
          }
+         (*env)->ReleaseByteArrayElements(env, input, rxData, 0);
 }
 
