@@ -10,25 +10,59 @@ const jint APP_BTN = 0x04;
 const jint VOL_DOWN_BTN = 0x08;
 const jint VOL_UP_BTN = 0x10;
 
-JNIEXPORT void JNICALL Java_cwm_wearablesdk_JniMgr_getSyncIntelligentCommand
+JNIEXPORT void JNICALL Java_cwm_wearablesdk_JniManager_getSyncIntelligentCommand
   (JNIEnv * env, jobject obj, jbooleanArray input, jint goal, jbyteArray output)
 {
+           jboolean *rxData = (*env)->GetBooleanArrayElements(env, input, 0);
+           jint features = 0;
+           jint onWearMask = 32;
+           jint sedentaryRemindMask = 8;
+           jint handUpMask = 4;
+           jint tapMask = 2;
+           jint wristMask = 1;
+           jint targetStepL = 0;
+           jint targetStepH = 0;
 
-       // end = now_ms();
-        //sum += ((end - start)/1000000);
-      //}
-     /* else{
-         mAcc.x = 9999.0;
-         mAcc.y = 9999.0;
-         mAcc.z = 9999.0;
-         mGyro.x = 0;
-         mGyro.y = 0;
-         mGyro.z = 0;
-         mOri.x = 0;
-         mOri.y = 0;
-         mOri.z = 0;
-         mBtns[0] = mBtns[1] = mBtns[2] = mBtns[3] = mBtns[4] = 0;
-      }*/
+           if (rxData[0] == 1)
+             features = features | sedentaryRemindMask;
+           else
+             features = features & ~(sedentaryRemindMask);
+           if (rxData[1] == 1)
+             features = features | handUpMask;
+           else
+              features = features & ~(handUpMask);
+            if (rxData[2] == 1)
+                features = features | onWearMask;
+            else
+                features = features & ~(onWearMask);
+            if (rxData[3] == 1)
+                features = features | tapMask;
+            else
+                features = features & ~(tapMask);
+            if (rxData[4] == 1)
+               features = features | wristMask;
+            else
+               features = features & ~(wristMask);
+
+           targetStepL = goal & 0xFF;
+           targetStepH = (goal >> 8) & 0xFF;
+
+           jint checksum = 0xE6+0x90+0x09+0x12+features+0x00+targetStepL+targetStepH;
+
+           jbyte *txData = malloc(sizeof(jbyte)*9);
+
+           txData[0] = (jbyte)0xE6;
+           txData[1] = (jbyte)0x90;
+           txData[2] = (jbyte)0x09;
+           txData[3] = (jbyte)0x12;
+           txData[4] = (jbyte)features;
+           txData[5] = (jbyte)0x00;
+           txData[6] = (jbyte)targetStepL;
+           txData[7] = (jbyte)targetStepH;
+           txData[8] = (jbyte)checksum;
+
+           (*env)->SetByteArrayRegion(env, output, 0, 9, txData);
+            free(txData);
 
 }
 JNIEXPORT void JNICALL Java_cwm_wearablesdk_JniManager_getSyncCurrentCommand
@@ -71,3 +105,4 @@ JNIEXPORT void JNICALL Java_cwm_wearablesdk_JniManager_getRequestBatteryCommand
            (*env)->SetByteArrayRegion(env, output, 0, 5, txData);
            free(txData);
 }
+

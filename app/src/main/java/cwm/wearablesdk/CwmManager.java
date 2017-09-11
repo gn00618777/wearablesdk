@@ -337,6 +337,7 @@ public class CwmManager{
 
     public void CwmSyncIntelligentSettings(){
         if(mConnectStatus == true) {
+            byte[] command = new byte[9];
             boolean[] feature = new boolean[5];
             int goal = intelligentSettings.getGoal();
             feature[0] = intelligentSettings.getSedtentary();
@@ -346,41 +347,7 @@ public class CwmManager{
             feature[4] = intelligentSettings.getWristSwitch();
 
             /***************************************************************/
-            int features = 0;
-            int onWearMask = 32;
-            int sedentaryRemindMask = 8;
-            int handUpMask = 4;
-            int tapMask = 2;
-            int wristMask = 1;
-            int targetStepL = 0;
-            int targetStepH = 0;
-            if (feature[0] == true)
-                features = features | sedentaryRemindMask;
-            else
-                features = features & ~(sedentaryRemindMask);
-            if (feature[1] == true)
-                features = features | handUpMask;
-            else
-                features = features & ~(handUpMask);
-            if (feature[2] == true)
-                features = features | onWearMask;
-            else
-                features = features & ~(onWearMask);
-            if (feature[3] == true)
-                features = features | tapMask;
-            else
-                features = features & ~(tapMask);
-            if (feature[4] == true)
-                features = features | wristMask;
-            else
-                features = features & ~(wristMask);
-
-            targetStepL = goal & 0xFF;
-            targetStepH = (goal >> 8) & 0xFF;
-
-            int checksum = 0xE6 + 0x90 + 0x09 + 0x12 + features + 0x00 + targetStepL + targetStepH;
-            byte[] command = {(byte) 0xE6, (byte) 0x90, (byte) 0x09, (byte) 0x12, (byte) features, (byte) 0x0,
-                    (byte) targetStepL, (byte) targetStepH, (byte) checksum};
+            jniMgr.getSyncIntelligentCommand(feature, goal, command);
             /***********************************************************************************/
             mService.writeRXCharacteristic(command);
         }
