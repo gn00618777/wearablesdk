@@ -454,11 +454,11 @@ public class CwmManager{
     }
 
     public void CwmRequestBattery(){
+        byte[] command = new byte[5];
         /*******************************************************************************/
-        int battery_checksum = 0xE6+0x90+0x05+0x50;
-        final byte[] BATTERY_REQUEST = {(byte)0xE6, (byte)0x90,(byte)0x05,(byte)0x50,(byte)battery_checksum};
-         /****************************************************************************************/
-         mService.writeRXCharacteristic(BATTERY_REQUEST);
+        jniMgr.getRequestBatteryCommand(command);
+         /******************************************************************************/
+         mService.writeRXCharacteristic(command);
     }
 
     private void enqueue(Data data){
