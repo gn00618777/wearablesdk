@@ -106,3 +106,26 @@ JNIEXPORT void JNICALL Java_cwm_wearablesdk_JniManager_getRequestBatteryCommand
            free(txData);
 }
 
+JNIEXPORT void JNICALL Java_cwm_wearablesdk_JniManager_getSyncBodyCommandCommand
+(JNIEnv * env, jobject obj, jintArray input, jbyteArray output)
+{
+           jint *rxData = (*env)->GetIntArrayElements(env, input, 0);
+
+           jint checksum = 0xE6+0x90+0x09+0x14+rxData[2]+rxData[0]+rxData[1]+rxData[3];
+
+           jbyte *txData = malloc(sizeof(jbyte)*9);
+
+            txData[0] = (jbyte)0xE6;
+            txData[1] = (jbyte)0x90;
+            txData[2] = (jbyte)0x09;
+            txData[3] = (jbyte)0x14;
+            txData[4] = (jbyte)rxData[2];
+            txData[5] = (jbyte)rxData[0];
+            txData[6] = (jbyte)rxData[1];
+            txData[7] = (jbyte)rxData[3];
+            txData[8] = (jbyte)checksum;
+
+            (*env)->SetByteArrayRegion(env, output, 0, 9, txData);
+            free(txData);
+}
+
