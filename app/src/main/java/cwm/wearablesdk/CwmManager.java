@@ -78,6 +78,9 @@ public class CwmManager{
     private BodySettings bodySettings;
     private IntelligentSettings  intelligentSettings;
 
+    //JNI
+    JniManager jniMgr;
+
     // interface -----------------------------------------------------------------------------------
     public interface InformationListener {
         void onGetCwmRunData(CwmInformation runInfo);
@@ -109,6 +112,8 @@ public class CwmManager{
         mStatusListener = wListener;
         mListener = iLlistener;
         mAckListener = ackListener;
+
+        jniMgr = new JniManager();
 
         bodySettings = new BodySettings();
         intelligentSettings = new IntelligentSettings();
@@ -383,6 +388,7 @@ public class CwmManager{
 
     public void CwmSyncCurrentTime(){
         int[] time = new int[7];
+        byte[] command = new byte[12];
         boolean isFirstSunday;
         Calendar c = Calendar.getInstance();
         time[0] = c.get(Calendar.YEAR);
@@ -440,13 +446,11 @@ public class CwmManager{
             }
         }
         /****************************************/
-        int checksum = 0xE6+0x90+0x0C+0x02+time[0]+time[1]+time[2]+time[3]+time[4]+time[5]+time[6];
-        byte byteOfchecksum = (byte)checksum;
-        byte[] command = {(byte)HEADER1,(byte)HEADER2,(byte)0x0C,(byte)0x02,(byte)time[0],
-                (byte)time[1],(byte)time[2],(byte)time[3],(byte)time[4],(byte)time[5],(byte)time[6],
-                byteOfchecksum};
-        mService.writeRXCharacteristic(command);
+        jniMgr.getSyncCurrentCommand(time, command);
         /****************************************/
+
+        mService.writeRXCharacteristic(command);
+
     }
 
     public void CwmRequestBattery(){
