@@ -515,9 +515,13 @@ public class CwmManager{
             return cwmInfo;
         }
         else if(messageId == BATTERY_STATUS_REPORT_MESSAGE_ID){
+            int[] output = new int[1];
+            int battery = 0;
+            jniMgr.getCwmInformation(BATTERY_STATUS_REPORT_MESSAGE_ID,value,output);
+            battery = output[0];
             CwmInformation cwmInfo = new CwmInformation();
             /*******************************************************/
-            cwmInfo.setBattery(value[4] & 0xFF);
+            cwmInfo.setBattery(battery);
             return cwmInfo;
         }
         else if(messageId == TAP_EVENT_MESSAGE_ID){
@@ -531,11 +535,11 @@ public class CwmManager{
             return cwmInfo;
         }
         else if(messageId == HART_RATE_EVENT_MESSAGE_ID){
+            int[] output = new int[2];
             int heartBeat = 0;
-            byte[] dest = new byte[4];
 
-            System.arraycopy(value, 4, dest, 0, 4);
-            heartBeat = (int) ByteBuffer.wrap(dest).order(ByteOrder.LITTLE_ENDIAN).getFloat();
+            jniMgr.getCwmInformation(HART_RATE_EVENT_MESSAGE_ID,value,output);
+            heartBeat = output[0];
             CwmInformation cwmInfo = new CwmInformation();
             cwmInfo.setId(HART_RATE_EVENT_MESSAGE_ID);
             cwmInfo.setHeartBeat(heartBeat);

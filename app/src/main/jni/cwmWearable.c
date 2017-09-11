@@ -129,3 +129,42 @@ JNIEXPORT void JNICALL Java_cwm_wearablesdk_JniManager_getSyncBodyCommandCommand
             free(txData);
 }
 
+JNIEXPORT void JNICALL Java_cwm_wearablesdk_JniManager_getCwmInformation
+(JNIEnv * env, jobject obj, jint messageId, jbyteArray input, jintArray output)
+{
+         jbyte *rxData = (*env)->GetByteArrayElements(env, input, 0);
+
+         if(messageId == 0xAF){ //motion
+
+         }
+         else if(messageId == 0xED){ //battery
+             jint *txData = malloc(sizeof(jint)*1);
+             txData[0] = (jint)rxData[4];
+             (*env)->SetIntArrayRegion(env, output, 0, 1, txData);
+             free(txData);
+         }
+         else if(messageId == 0x01){ //tap
+
+         }
+         else if(messageId == 0x02){ //wrist
+
+         }
+         else if(messageId == 0x03){ //sedentary
+
+         }
+         else if(messageId == 0x04){ //heart
+               jbyte *dest = malloc(sizeof(jbyte)*4);
+                dest[0] = rxData[4];
+                dest[1] = rxData[5];
+                dest[2] = rxData[6];
+                dest[3] = rxData[7];
+
+                jint *txData = malloc(sizeof(jint)*2);
+                txData[0] = (jint)(*(float *)dest);
+                txData[1] = 0;
+
+               (*env)->SetIntArrayRegion(env, output, 0, 2, txData);
+                free(txData);
+         }
+}
+
