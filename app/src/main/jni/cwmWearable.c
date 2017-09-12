@@ -10,6 +10,11 @@ const jint APP_BTN = 0x04;
 const jint VOL_DOWN_BTN = 0x08;
 const jint VOL_UP_BTN = 0x10;
 
+const jbyte HEADER1 = 0xE6;
+const jbyte HEADER2 = 0x90;
+const jbyte ACK = 0xAC;
+const jbyte NACK = 0x15;
+
 JNIEXPORT void JNICALL Java_cwm_wearablesdk_JniManager_getSyncIntelligentCommand
   (JNIEnv * env, jobject obj, jbooleanArray input, jint goal, jbyteArray output)
 {
@@ -206,5 +211,21 @@ JNIEXPORT void JNICALL Java_cwm_wearablesdk_JniManager_getCwmInformation
                 free(txData);
          }
          (*env)->ReleaseByteArrayElements(env, input, rxData, 0);
+}
+
+JNIEXPORT jint JNICALL Java_cwm_wearablesdk_JniManager_getType
+        (JNIEnv * env, jobject obj, jbyteArray input)
+{
+         jbyte *rxData = (*env)->GetByteArrayElements(env, input, 0);
+         jint type = 0;
+
+         if(((rxData[0] == HEADER1) && (rxData[1] == HEADER2)) && ((rxData[3] == ACK) || (rxData[3] == NACK)))
+            type = 0;
+         else if(rxData[0] == HEADER1 && rxData[1] == HEADER2 && rxData[3] != ACK && rxData[3] != NACK)
+            type = 1;
+
+         (*env)->ReleaseByteArrayElements(env, input, rxData, 0);
+
+         return type;
 }
 

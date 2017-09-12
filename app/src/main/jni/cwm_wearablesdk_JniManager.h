@@ -42,10 +42,18 @@ JNIEXPORT void JNICALL Java_cwm_wearablesdk_JniManager_getRequestBatteryCommand
 /*
  * Class:     cwm_wearablesdk_JniManager
  * Method:    getCwmInformation
- * Signature: (I[I)V
+ * Signature: (I[B[I)V
  */
 JNIEXPORT void JNICALL Java_cwm_wearablesdk_JniManager_getCwmInformation
   (JNIEnv *, jobject, jint, jbyteArray, jintArray);
+
+/*
+ * Class:     cwm_wearablesdk_JniManager
+ * Method:    getType
+ * Signature: ([B)I
+ */
+JNIEXPORT jint JNICALL Java_cwm_wearablesdk_JniManager_getType
+  (JNIEnv *, jobject, jbyteArray);
 
 #ifdef __cplusplus
 }

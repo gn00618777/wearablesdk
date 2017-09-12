@@ -14,4 +14,5 @@ public class JniManager {
     public native void getSyncCurrentCommand(int[] time, byte[] command);
     public native void getRequestBatteryCommand(byte[] command);
     public native void getCwmInformation(int id, byte[] input, int[] info);
+    public native int getType(byte[] rxBuffer);
 }

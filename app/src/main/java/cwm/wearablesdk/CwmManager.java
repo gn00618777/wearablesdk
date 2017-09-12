@@ -41,10 +41,10 @@ public class CwmManager{
     private final Queue<Data> mOutPutQueue = new LinkedList<>();
 
     /******** protoco l************/
-    private final int HEADER1 = 0xE6;
-    private final int HEADER2 = 0x90;
+    private enum TYPE{ ACK, MESSAGE, LONG_MESSAGE, PENDING };
     private final int ACK = 0xAC;
     private final int NACK = 0x15;
+    /***************************/
     //response id received from ring
     private final int SYNC_TIME_RESPONSE_ID = 0x02;
     private final int BODY_PARAMETER_RESPONSE_ID = 0x14;
@@ -249,8 +249,7 @@ public class CwmManager{
         int packet_message_id = 0;
         byte[] packet = null;
 
-
-        if((rxBuffer[0] & 0xFF) == HEADER1 && (rxBuffer[1] & 0xFF) == HEADER2 && (((rxBuffer[3] & 0xFF) == ACK) || ((rxBuffer[3]) == NACK))) {
+        if(TYPE.ACK.ordinal() == jniMgr.getType(rxBuffer)){
             packet_type = NON_PENDING;
             packet_length = rxBuffer[2] & 0xFF;
             packet_id_type = rxBuffer[3] & 0xFF;
@@ -259,7 +258,7 @@ public class CwmManager{
             Data data = new Data(packet_type, packet_length, packet_id_type, packet_message_id, packet);
             enqueue(data);
         }
-        else if((rxBuffer[0] & 0xFF) == HEADER1 && (rxBuffer[1] & 0xFF) == HEADER2 && (rxBuffer[3] & 0xFF) != ACK && (rxBuffer[3] & 0xFF) != NACK){
+        else if(TYPE.MESSAGE.ordinal() == jniMgr.getType(rxBuffer)){
             packet_type = NON_PENDING;
             packet_length = rxBuffer[2] & 0xFF;
             packet_id_type = rxBuffer[3] & 0xFF;
@@ -269,7 +268,6 @@ public class CwmManager{
             enqueue(data);
         }
         parser();
-
     }
     public boolean CwmBleStatus(){
         if(mBluetoothAdapter.isEnabled())
