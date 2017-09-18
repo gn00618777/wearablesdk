@@ -329,8 +329,8 @@ public class CwmManager{
             /*******************************************************/
             jniMgr.getSyncBodyCommandCommand(body,command);
             /*********************************************************/
-
-            mService.writeRXCharacteristic(command);
+            if(mConnectStatus != false)
+               mService.writeRXCharacteristic(command);
         }
     }
 
@@ -348,7 +348,8 @@ public class CwmManager{
             /***************************************************************/
             jniMgr.getSyncIntelligentCommand(feature, goal, command);
             /***********************************************************************************/
-            mService.writeRXCharacteristic(command);
+            if(mConnectStatus != false)
+                mService.writeRXCharacteristic(command);
         }
     }
 
@@ -414,8 +415,8 @@ public class CwmManager{
         /****************************************/
         jniMgr.getSyncCurrentCommand(time, command);
         /****************************************/
-
-        mService.writeRXCharacteristic(command);
+        if(mConnectStatus != false)
+           mService.writeRXCharacteristic(command);
 
     }
 
@@ -424,7 +425,8 @@ public class CwmManager{
         /*******************************************************************************/
         jniMgr.getRequestBatteryCommand(command);
          /******************************************************************************/
-         mService.writeRXCharacteristic(command);
+         if(mConnectStatus != false)
+             mService.writeRXCharacteristic(command);
     }
 
     public void CwmSendTabataParameters(TabataSettings tabataSettings){
@@ -451,8 +453,8 @@ public class CwmManager{
             /********************************************************************************/
             jniMgr.getTabataParameterCommand(settings, items, command);
             /********************************************************************************/
-            Log.d("bernie","sdk debug");
-            mService.writeRXCharacteristic(command);
+            if(mConnectStatus != false)
+               mService.writeRXCharacteristic(command);
         }
 
     }
