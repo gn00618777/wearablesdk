@@ -48,7 +48,7 @@
    public int getHeartBeat();
    public int getStatus();
    public int getBattery();
-
+   public int getId();
 }
 -keepclassmembers class cwm.wearablesdk.BodySettings {
    public *;

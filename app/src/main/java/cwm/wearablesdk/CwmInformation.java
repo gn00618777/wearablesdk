@@ -47,11 +47,7 @@ public class CwmInformation extends Information{
     public int getStatus(){return mStatus;}
     public int getBattery(){return mBattery;}
 
-    public String getId() {
-        if (mId == 0)
-            return "WalkInform";
-        else if(mId == 1)
-            return "RunInform";
-        return null;
+    public int getId() {
+        return mId;
     }
 }
