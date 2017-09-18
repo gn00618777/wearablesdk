@@ -229,3 +229,106 @@ JNIEXPORT jint JNICALL Java_cwm_wearablesdk_JniManager_getType
          return type;
 }
 
+JNIEXPORT void JNICALL Java_cwm_wearablesdk_JniManager_getTabataParameterCommand
+(JNIEnv * env, jobject obj, jintArray input1, jbooleanArray input2, jbyteArray output)
+{
+        jint *rxData1 = (*env)->GetIntArrayElements(env, input1, 0);
+        jboolean *rxData2 = (*env)->GetBooleanArrayElements(env, input2, 0);
+        jint prepareTime = 0;
+        jint actionType = 0;
+        jint actionTime_s = 0;
+        jint actionTime_s_L = 0;
+        jint actionTime_s_H = 0;
+        jint intervalTime_L = 0;
+        jint intervalTime_H = 0;
+        jint intervalTime = 0;
+        jint cycle = 0;
+        jint actionItems1 = 0;
+        jint actionItems2 = 0;
+
+        jboolean pushUp = rxData2[0];
+        jboolean crunch = rxData2[1];
+        jboolean jumpingJack  = rxData2[2];
+        jboolean dips = rxData2[3];
+        jboolean squart = rxData2[4];
+        jboolean pushUpRotation = rxData2[5];
+        jboolean lunges = rxData2[6];
+        jboolean burpees = rxData2[7];
+        jboolean stepOnChair = rxData2[8];
+        jboolean highKneesRunning = rxData2[9];
+
+        (*env)->ReleaseBooleanArrayElements(env, input2, rxData2, 0);
+
+        jint pushUpMask = 1;
+        jint crunchMask = 2;
+        jint jumpingJackMask = 4;
+        jint dipsMask = 8;
+        jint squartMask = 16;
+        jint pushUpRotationMask = 32;
+        jint lungesMask = 64;
+        jint burpeesMask = 128;
+        jint stepOnChairMask = 1;
+        jint highKneesRunningMask = 2;
+
+        prepareTime = rxData1[0];
+        actionType = rxData1[1];
+        if(actionType == 1)
+           actionTime_s = rxData1[2];
+        else
+           actionTime_s = rxData1[3];
+        intervalTime = rxData1[4];
+        cycle = rxData1[5];
+
+        (*env)->ReleaseIntArrayElements(env, input1, rxData1, 0);
+
+        actionTime_s_L = actionTime_s & 0xFF;
+        actionTime_s_H = (actionTime_s >> 8) & 0xFF;
+        intervalTime_L = intervalTime & 0xFF;
+        intervalTime_H = (intervalTime >> 8) & 0xFF;
+
+        if(pushUp)
+           actionItems1 = actionItems1 | pushUpMask;
+        if(crunch)
+           actionItems1 = actionItems1 | crunchMask;
+        if(jumpingJack)
+           actionItems1 = actionItems1 | jumpingJackMask;
+        if(dips)
+           actionItems1 = actionItems1 | dipsMask;
+        if(squart)
+           actionItems1 = actionItems1 | squartMask;
+        if(pushUpRotation)
+           actionItems1 = actionItems1 | pushUpRotationMask;
+        if(lunges)
+           actionItems1 = actionItems1 | lungesMask;
+        if(burpees)
+           actionItems1 = actionItems1 | burpees;
+        if(stepOnChair)
+           actionItems2 = actionItems2 | stepOnChairMask;
+        if(highKneesRunning)
+           actionItems2 = actionItems2 | highKneesRunningMask;
+
+        jbyte *txData = malloc(sizeof(jbyte)*14);
+
+        txData[0] = (jbyte)0xE6;
+        txData[1] = (jbyte)0x90;
+        txData[2] = (jbyte)0x0E;
+        txData[3] = (jbyte)0x16;
+        txData[4] = (jbyte)prepareTime;
+        txData[5] = (jbyte)actionType;
+        txData[6] = (jbyte)actionTime_s_L;
+        txData[7] = (jbyte)actionTime_s_H;
+        txData[8] = (jbyte)intervalTime_L;
+        txData[9] = (jbyte)intervalTime_H;
+        txData[10] = (jbyte)actionItems1;
+        txData[11] = (jbyte)actionItems2;
+        txData[12] = (jbyte)cycle;
+
+        jint checksum = txData[0]+txData[1]+txData[2]+txData[3]+txData[4]+txData[5]+txData[6]+txData[7]+
+                        txData[8]+txData[9]+txData[10]+txData[11]+txData[12];
+
+        txData[13] = (jbyte)checksum;
+
+        (*env)->SetByteArrayRegion(env, output, 0, 14, txData);
+        free(txData);
+}
+

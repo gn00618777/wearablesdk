@@ -427,6 +427,36 @@ public class CwmManager{
          mService.writeRXCharacteristic(command);
     }
 
+    public void CwmSendTabataParameters(TabataSettings tabataSettings){
+           int[] settings = new int[6];
+           boolean[] items = new boolean[10];
+           byte[] command = new byte[14];
+           boolean itemSelected = false;
+
+           settings[0] = tabataSettings.getPrepareTime();
+           settings[1] = tabataSettings.getActionType();
+           settings[2] = tabataSettings.getActionTime();
+           settings[3] = tabataSettings.getActionTimes();
+           settings[4] = tabataSettings.getIntervalTime();
+           settings[5] = tabataSettings.getCycle();
+           items = tabataSettings.getExerciseItems();
+           for(int i = TabataSettings.ITEMS.PUSHUP.ordinal() ; i <= TabataSettings.ITEMS.HIGH_KNESSRUNNING.ordinal() ; i++) {
+               if (items[i] == true) {
+                   itemSelected = true;
+                   break;
+               }
+           }
+           // When any exercise item has selected
+        if(itemSelected == true) {
+            /********************************************************************************/
+            jniMgr.getTabataParameterCommand(settings, items, command);
+            /********************************************************************************/
+            Log.d("bernie","sdk debug");
+            mService.writeRXCharacteristic(command);
+        }
+
+    }
+
     private void enqueue(Data data){
         if (data.type == NON_PENDING && data.length <= PACKET_SIZE) {
             mOutPutQueue.add(data);
