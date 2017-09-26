@@ -301,7 +301,7 @@ JNIEXPORT void JNICALL Java_cwm_wearablesdk_JniManager_getTabataParameterCommand
         if(lunges)
            actionItems1 = actionItems1 | lungesMask;
         if(burpees)
-           actionItems1 = actionItems1 | burpees;
+           actionItems1 = actionItems1 | burpeesMask;
         if(stepOnChair)
            actionItems2 = actionItems2 | stepOnChairMask;
         if(highKneesRunning)
