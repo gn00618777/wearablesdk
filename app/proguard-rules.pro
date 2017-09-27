@@ -49,6 +49,10 @@
    public int getStatus();
    public int getBattery();
    public int getId();
+   public int  getTabataStatus();
+   public int getDoItemCount();
+   public int getExerciseItem();
+   public int getStrength();
 }
 -keepclassmembers class cwm.wearablesdk.BodySettings {
    public *;

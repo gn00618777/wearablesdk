@@ -57,6 +57,7 @@ public class CwmManager{
     private final int WRIST_SCROLL_EVENT_MESSAGE_ID = 0x02;
     private final int SEDENTARY_EVENT_MESSAGE_ID = 0x03;
     private final int HART_RATE_EVENT_MESSAGE_ID = 0x04;
+    private final int TABATA_EVENT_MESSAGE_ID = 0x05;
 
     private WearableService mService = null;
     private Context mContext = null;
@@ -89,6 +90,7 @@ public class CwmManager{
         void onGetHeartData(CwmInformation heartInfo);
         void onGetActivity(CwmInformation activityInfo);
         void onGetBattery(CwmInformation batteryInfo);
+        void onGetTabataResponse(CwmInformation tabataInfo);
     } // onDataArrivalListener()
 
     public interface WearableServiceListener {
@@ -431,7 +433,7 @@ public class CwmManager{
 
     public void CwmSendTabataParameters(TabataSettings tabataSettings){
            int[] settings = new int[6];
-           boolean[] items = new boolean[10];
+           boolean[] items;
            byte[] command = new byte[14];
            boolean itemSelected = false;
 
@@ -442,7 +444,7 @@ public class CwmManager{
            settings[4] = tabataSettings.getIntervalTime();
            settings[5] = tabataSettings.getCycle();
            items = tabataSettings.getExerciseItems();
-           for(int i = TabataSettings.ITEMS.PUSHUP.ordinal() ; i <= TabataSettings.ITEMS.HIGH_KNESSRUNNING.ordinal() ; i++) {
+           for(int i = TabataSettings.ITEMS.PUSHUP.ordinal() ; i <= TabataSettings.ITEMS.PUSHUP_ROTATION.ordinal() ; i++) {
                if (items[i] == true) {
                    itemSelected = true;
                    break;
@@ -517,6 +519,9 @@ public class CwmManager{
                         cwmInfo = getInfomation(HART_RATE_EVENT_MESSAGE_ID, value);
                         mListener.onGetHeartData(cwmInfo);
                         break;
+                    case TABATA_EVENT_MESSAGE_ID:
+                        cwmInfo = getInfomation(TABATA_EVENT_MESSAGE_ID, value);
+                        mListener.onGetTabataResponse(cwmInfo);
                     default:
                         break;
                 }
@@ -580,6 +585,43 @@ public class CwmManager{
             CwmInformation cwmInfo = new CwmInformation();
             cwmInfo.setId(SEDENTARY_EVENT_MESSAGE_ID);
             return cwmInfo;
+    }
+        else if(messageId == TABATA_EVENT_MESSAGE_ID){
+            int[] output = new int[6];
+            int items = 0;
+            int count = 0;
+            int calories = 0;
+            int heartRate = 0;
+            int strength = 0;
+            int status = 0;
+
+            CwmInformation cwmInfo = new CwmInformation();
+            cwmInfo.setId(TABATA_EVENT_MESSAGE_ID);
+            /***************************************************************/
+            jniMgr.getCwmInformation(TABATA_EVENT_MESSAGE_ID, value, output);
+            /***************************************************************/
+
+            //byte[] dest = new byte[4];
+            //System.arraycopy(value, 5, dest, 0, 4);
+            //Toast.makeText(mActivity,Float.toString(ByteBuffer.wrap(dest).order(ByteOrder.LITTLE_ENDIAN).getFloat()),Toast.LENGTH_SHORT).show();
+            //Log.d("bernie","tabata message id");
+
+            items = output[0];
+            count = output[1];
+            calories = output[2];
+            heartRate = output[3];
+            strength = output[4];
+            status = output[5];
+
+            cwmInfo.setExerciseItem(items);
+            cwmInfo.setDoItemCount(count);
+            cwmInfo.setCalories(calories);
+            cwmInfo.setHeartBeat(heartRate);
+            cwmInfo.setStrength(strength);
+            cwmInfo.setTabataStatus(status);
+
+            return cwmInfo;
+
         }
         return null;
     }

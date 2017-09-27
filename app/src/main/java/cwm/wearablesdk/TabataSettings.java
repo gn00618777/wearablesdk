@@ -8,16 +8,17 @@ public class TabataSettings {
     public static final int COUNT_DOWN = 1;
     public static final int COUNT_UP = 2;
     public enum ITEMS{
+        NULL,
         PUSHUP,
         CRUNCH,
+        SQUART,
         JUMPING_JACK,
         DIPS,
-        SQUART,
-        PUSHUP_ROTATION,
+        HIGH_KNESSRUNNING,
         LUNGES,
         BURPEES,
         STEP_ON_CHAIR,
-        HIGH_KNESSRUNNING
+        PUSHUP_ROTATION
     };
     private int prepareTime; //sec
     private int actionType; //count down or count times
@@ -34,17 +35,18 @@ public class TabataSettings {
         actionTimes = 5;
         intervalTime = 10;
         cycle = 1;
-        items = new boolean[10];
+        items = new boolean[11];
         items[ITEMS.PUSHUP.ordinal()] = true;
         items[ITEMS.CRUNCH.ordinal()] = true;
+        items[ITEMS.SQUART.ordinal()] = false;
         items[ITEMS.JUMPING_JACK.ordinal()] = false;
         items[ITEMS.DIPS.ordinal()] = false;
-        items[ITEMS.SQUART.ordinal()] = false;
-        items[ITEMS.PUSHUP_ROTATION.ordinal()] = false;
+        items[ITEMS.HIGH_KNESSRUNNING.ordinal()] = false;
         items[ITEMS.LUNGES.ordinal()] = false;
         items[ITEMS.BURPEES.ordinal()] = false;
         items[ITEMS.STEP_ON_CHAIR.ordinal()] = false;
-        items[ITEMS.HIGH_KNESSRUNNING.ordinal()] = false;
+        items[ITEMS.PUSHUP_ROTATION.ordinal()] = false;
+
     }
     public void setPrepareTime(int prepareTime) {
         if(prepareTime >= 5 && prepareTime <= 255)
@@ -102,16 +104,16 @@ public class TabataSettings {
         else if(item == ITEMS.CRUNCH.ordinal()){
             this.items[item] = true;
         }
+        else if(item == ITEMS.SQUART.ordinal()){
+            this.items[item] = true;
+        }
         else if(item == ITEMS.JUMPING_JACK.ordinal()){
             this.items[item] = true;
         }
         else if(item == ITEMS.DIPS.ordinal()){
             this.items[item] = true;
         }
-        else if(item == ITEMS.SQUART.ordinal()){
-            this.items[item] = true;
-        }
-        else if(item == ITEMS.PUSHUP_ROTATION.ordinal()){
+        else if(item == ITEMS.HIGH_KNESSRUNNING.ordinal()){
             this.items[item] = true;
         }
         else if(item == ITEMS.LUNGES.ordinal()){
@@ -123,7 +125,7 @@ public class TabataSettings {
         else if(item == ITEMS.STEP_ON_CHAIR.ordinal()){
             this.items[item] = true;
         }
-        else if(item == ITEMS.HIGH_KNESSRUNNING.ordinal()){
+        else if(item == ITEMS.PUSHUP_ROTATION.ordinal()){
             this.items[item] = true;
         }
     }
@@ -134,16 +136,16 @@ public class TabataSettings {
         else if(item == ITEMS.CRUNCH.ordinal()){
             this.items[item] = false;
         }
+        else if(item == ITEMS.SQUART.ordinal()){
+            this.items[item] = false;
+        }
         else if(item == ITEMS.JUMPING_JACK.ordinal()){
             this.items[item] = false;
         }
         else if(item == ITEMS.DIPS.ordinal()){
             this.items[item] = false;
         }
-        else if(item == ITEMS.SQUART.ordinal()){
-            this.items[item] = false;
-        }
-        else if(item == ITEMS.PUSHUP_ROTATION.ordinal()){
+        else if(item == ITEMS.HIGH_KNESSRUNNING.ordinal()){
             this.items[item] = false;
         }
         else if(item == ITEMS.LUNGES.ordinal()){
@@ -155,7 +157,7 @@ public class TabataSettings {
         else if(item == ITEMS.STEP_ON_CHAIR.ordinal()){
             this.items[item] = false;
         }
-        else if(item == ITEMS.HIGH_KNESSRUNNING.ordinal()){
+        else if(item == ITEMS.PUSHUP_ROTATION.ordinal()){
             this.items[item] = false;
         }
     }

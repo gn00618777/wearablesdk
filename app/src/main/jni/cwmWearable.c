@@ -210,6 +210,49 @@ JNIEXPORT void JNICALL Java_cwm_wearablesdk_JniManager_getCwmInformation
                (*env)->SetIntArrayRegion(env, output, 0, 2, txData);
                 free(txData);
          }
+         else if(messageId == 0x05){ //tabata response
+              jint firstFloat = 0;
+              jint secondFloat = 0;
+              jint thirdFloat = 0;
+              jint status = 0;
+               status = (jint)rxData[4];
+              jbyte *dest = malloc(sizeof(jbyte)*4);
+                dest[0] = rxData[5];
+                dest[1] = rxData[6];
+                dest[2] = rxData[7];
+                dest[3] = rxData[8];
+                firstFloat = (jint)(*((float *)dest)); //item+count
+                //memcpy(&firstFloat, dest, sizeof(float));
+
+                dest[0] = rxData[9];
+                dest[1] = rxData[10];
+                dest[2] = rxData[11];
+                dest[3] = rxData[12];
+                secondFloat = (jint)(*((float *)dest));
+                //memcpy(&secondFloat, dest, sizeof(float));
+
+                dest[0] = rxData[13];
+                dest[1] = rxData[14];
+                dest[2] = rxData[15];
+                dest[3] = rxData[16];
+                thirdFloat = (jint)(*((float *)dest));
+                //memcpy(&thirdFloat, dest, sizeof(float));
+                free(dest);
+
+                jint *txData = malloc(sizeof(jint)*5);
+
+                txData[0] = (/*(jint)*/firstFloat) / 1000; // what item
+                txData[1] = (/*(jint)*/firstFloat) % 1000; // count
+                txData[2] = /*(jint)*/secondFloat;
+                txData[3] = (/*(jint)*/thirdFloat) / 100; // heart rate
+                txData[4] = (/*(jint)*/thirdFloat) % 100; //strength
+                txData[5] = status;
+
+                (*env)->SetIntArrayRegion(env, output, 0, 6, txData);
+                 free(txData);
+
+
+         }
          (*env)->ReleaseByteArrayElements(env, input, rxData, 0);
 }
 
@@ -246,16 +289,16 @@ JNIEXPORT void JNICALL Java_cwm_wearablesdk_JniManager_getTabataParameterCommand
         jint actionItems1 = 0;
         jint actionItems2 = 0;
 
-        jboolean pushUp = rxData2[0];
-        jboolean crunch = rxData2[1];
-        jboolean jumpingJack  = rxData2[2];
-        jboolean dips = rxData2[3];
-        jboolean squart = rxData2[4];
-        jboolean pushUpRotation = rxData2[5];
-        jboolean lunges = rxData2[6];
-        jboolean burpees = rxData2[7];
-        jboolean stepOnChair = rxData2[8];
-        jboolean highKneesRunning = rxData2[9];
+        jboolean pushUp = rxData2[1];
+        jboolean crunch = rxData2[2];
+        jboolean squart = rxData2[3];
+        jboolean jumpingJack  = rxData2[4];
+        jboolean dips = rxData2[5];
+        jboolean highKneesRunning = rxData2[6];
+        jboolean lunges = rxData2[7];
+        jboolean burpees = rxData2[8];
+        jboolean stepOnChair = rxData2[9];
+        jboolean pushUpRotation = rxData2[10];
 
         (*env)->ReleaseBooleanArrayElements(env, input2, rxData2, 0);
 
