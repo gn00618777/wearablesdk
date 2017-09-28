@@ -140,6 +140,22 @@ JNIEXPORT void JNICALL Java_cwm_wearablesdk_JniManager_getSyncBodyCommandCommand
             free(txData);
 }
 
+JNIEXPORT void JNICALL Java_cwm_wearablesdk_JniManager_getSleepLogCommand
+(JNIEnv * env, jobject obj, jbyteArray output)
+{
+             jint checksum = 0xE6+0x90+0x05+0x30;
+             jbyte *txData = malloc(sizeof(jbyte)*5);
+
+             txData[0] = (jbyte)0xE6;
+             txData[1] = (jbyte)0x90;
+             txData[2] = (jbyte)0x05;
+             txData[3] = (jbyte)0x30;
+             txData[4] = (jbyte)checksum;
+
+             (*env)->SetByteArrayRegion(env, output, 0, 5, txData);
+             free(txData);
+}
+
 JNIEXPORT void JNICALL Java_cwm_wearablesdk_JniManager_getCwmInformation
 (JNIEnv * env, jobject obj, jint messageId, jbyteArray input, jintArray output)
 {
@@ -152,25 +168,25 @@ JNIEXPORT void JNICALL Java_cwm_wearablesdk_JniManager_getCwmInformation
             jint status = 0;
             jint *txData = malloc(sizeof(jint)*4);
             jbyte *dest = malloc(sizeof(jbyte)*4);
-            dest[0] = rxData[4];
-            dest[1] = rxData[5];
-            dest[2] = rxData[6];
-            dest[3] = rxData[7];
+            dest[0] = rxData[5];
+            dest[1] = rxData[6];
+            dest[2] = rxData[7];
+            dest[3] = rxData[8];
             step = (jint)(*(float *)dest);
 
-            dest[0] = rxData[8];
-            dest[1] = rxData[9];
-            dest[2] = rxData[10];
-            dest[3] = rxData[11];
+            dest[0] = rxData[9];
+            dest[1] = rxData[10];
+            dest[2] = rxData[11];
+            dest[3] = rxData[12];
             distance = (jint)(*(float *)dest);
 
-            dest[0] = rxData[12];
-            dest[1] = rxData[13];
-            dest[2] = rxData[14];
-            dest[3] = rxData[15];
+            dest[0] = rxData[13];
+            dest[1] = rxData[14];
+            dest[2] = rxData[15];
+            dest[3] = rxData[16];
             calories = (jint)(*(float *)dest);
 
-            status = (jint)rxData[16];
+            status = (jint)rxData[17];
 
             txData[0] = step;
             txData[1] = distance;
@@ -183,7 +199,7 @@ JNIEXPORT void JNICALL Java_cwm_wearablesdk_JniManager_getCwmInformation
          }
          else if(messageId == 0xED){ //battery
              jint *txData = malloc(sizeof(jint)*1);
-             txData[0] = (jint)rxData[4];
+             txData[0] = (jint)rxData[5];
              (*env)->SetIntArrayRegion(env, output, 0, 1, txData);
              free(txData);
          }
@@ -198,10 +214,10 @@ JNIEXPORT void JNICALL Java_cwm_wearablesdk_JniManager_getCwmInformation
          }
          else if(messageId == 0x04){ //heart
                jbyte *dest = malloc(sizeof(jbyte)*4);
-                dest[0] = rxData[4];
-                dest[1] = rxData[5];
-                dest[2] = rxData[6];
-                dest[3] = rxData[7];
+                dest[0] = rxData[5];
+                dest[1] = rxData[6];
+                dest[2] = rxData[7];
+                dest[3] = rxData[8];
 
                 jint *txData = malloc(sizeof(jint)*2);
                 txData[0] = (jint)(*(float *)dest);
@@ -215,26 +231,26 @@ JNIEXPORT void JNICALL Java_cwm_wearablesdk_JniManager_getCwmInformation
               jint secondFloat = 0;
               jint thirdFloat = 0;
               jint status = 0;
-               status = (jint)rxData[4];
+               status = (jint)rxData[5];
               jbyte *dest = malloc(sizeof(jbyte)*4);
-                dest[0] = rxData[5];
-                dest[1] = rxData[6];
-                dest[2] = rxData[7];
-                dest[3] = rxData[8];
+                dest[0] = rxData[6];
+                dest[1] = rxData[7];
+                dest[2] = rxData[8];
+                dest[3] = rxData[9];
                 firstFloat = (jint)(*((float *)dest)); //item+count
                 //memcpy(&firstFloat, dest, sizeof(float));
 
-                dest[0] = rxData[9];
-                dest[1] = rxData[10];
-                dest[2] = rxData[11];
-                dest[3] = rxData[12];
+                dest[0] = rxData[10];
+                dest[1] = rxData[11];
+                dest[2] = rxData[12];
+                dest[3] = rxData[13];
                 secondFloat = (jint)(*((float *)dest));
                 //memcpy(&secondFloat, dest, sizeof(float));
 
-                dest[0] = rxData[13];
-                dest[1] = rxData[14];
-                dest[2] = rxData[15];
-                dest[3] = rxData[16];
+                dest[0] = rxData[14];
+                dest[1] = rxData[15];
+                dest[2] = rxData[16];
+                dest[3] = rxData[17];
                 thirdFloat = (jint)(*((float *)dest));
                 //memcpy(&thirdFloat, dest, sizeof(float));
                 free(dest);
@@ -262,9 +278,9 @@ JNIEXPORT jint JNICALL Java_cwm_wearablesdk_JniManager_getType
          jbyte *rxData = (*env)->GetByteArrayElements(env, input, 0);
          jint type = 0;
 
-         if(((rxData[0] == HEADER1) && (rxData[1] == HEADER2)) && ((rxData[3] == ACK) || (rxData[3] == NACK)))
+         if(((rxData[0] == HEADER1) && (rxData[1] == HEADER2)) && ((rxData[4] == ACK) || (rxData[4] == NACK)))
             type = 0;
-         else if(rxData[0] == HEADER1 && rxData[1] == HEADER2 && rxData[3] != ACK && rxData[3] != NACK)
+         else if(rxData[0] == HEADER1 && rxData[1] == HEADER2 && rxData[4] != ACK && rxData[4] != NACK)
             type = 1;
 
          (*env)->ReleaseByteArrayElements(env, input, rxData, 0);

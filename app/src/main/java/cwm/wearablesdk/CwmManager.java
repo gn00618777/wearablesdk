@@ -250,20 +250,21 @@ public class CwmManager{
         int packet_id_type = 0;
         int packet_message_id = 0;
         byte[] packet = null;
-
+        Log.d("bernie","ACK is  "+ Integer.toHexString(rxBuffer[4] & 0xFF) + "ID is "+Integer.toHexString(rxBuffer[5] & 0xFF));
         if(TYPE.ACK.ordinal() == jniMgr.getType(rxBuffer)){
             packet_type = NON_PENDING;
-            packet_length = rxBuffer[2] & 0xFF;
-            packet_id_type = rxBuffer[3] & 0xFF;
-            packet_message_id = rxBuffer[4] & 0xFF;
+            packet_length = ((rxBuffer[3] & 0xFF) << 8) | (rxBuffer[2] & 0xFF);
+            Log.d("bernie","ACK length is "+ Integer.toString(packet_length));
+            packet_id_type = rxBuffer[4] & 0xFF;
+            packet_message_id = rxBuffer[5] & 0xFF;
             packet = rxBuffer;
             Data data = new Data(packet_type, packet_length, packet_id_type, packet_message_id, packet);
             enqueue(data);
         }
         else if(TYPE.MESSAGE.ordinal() == jniMgr.getType(rxBuffer)){
             packet_type = NON_PENDING;
-            packet_length = rxBuffer[2] & 0xFF;
-            packet_id_type = rxBuffer[3] & 0xFF;
+            packet_length = ((rxBuffer[3] & 0xFF) << 8) | (rxBuffer[2] & 0xFF);
+            packet_id_type = rxBuffer[4] & 0xFF;
             packet_message_id = 0;
             packet = rxBuffer;
             Data data = new Data(packet_type, packet_length, packet_id_type, packet_message_id, packet);
@@ -459,6 +460,12 @@ public class CwmManager{
                mService.writeRXCharacteristic(command);
         }
 
+    }
+
+    public void CwmRequestSleepLog(){
+            byte[] command = new byte[5];
+            jniMgr.getSleepLogCommand(command);
+            mService.writeRXCharacteristic(command);
     }
 
     private void enqueue(Data data){
