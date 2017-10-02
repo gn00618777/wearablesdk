@@ -31,6 +31,8 @@ public class CwmManager{
 
     private String TAG = "CwmManager";
 
+    private String SDK_VERSION = "V0.2";
+
     InformationListener mListener = null;
 
     private final int NON_PENDING = 1;
@@ -466,6 +468,10 @@ public class CwmManager{
             byte[] command = new byte[5];
             jniMgr.getSleepLogCommand(command);
             mService.writeRXCharacteristic(command);
+    }
+
+    public String CwmSdkVersion(){
+        return SDK_VERSION;
     }
 
     private void enqueue(Data data){
