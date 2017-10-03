@@ -10,7 +10,7 @@
         android:supportsRtl="true">
         <activity
             android:name="cwm.wearablesdk.DeviceListActivity"
-            android:theme="@android:style/Theme.Dialog"/>
+            android:theme="@android:style/Theme"/>
         <service
             android:name="cwm.wearablesdk.WearableService"
             android:enabled="true" />
