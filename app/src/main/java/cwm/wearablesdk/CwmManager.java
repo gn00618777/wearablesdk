@@ -60,6 +60,7 @@ public class CwmManager{
     private final int SEDENTARY_EVENT_MESSAGE_ID = 0x03;
     private final int HART_RATE_EVENT_MESSAGE_ID = 0x04;
     private final int TABATA_EVENT_MESSAGE_ID = 0x05;
+    private final int SOFTWARE_VERSION_MESSAGE_ID = 0x90;
 
     private WearableService mService = null;
     private Context mContext = null;
@@ -93,6 +94,7 @@ public class CwmManager{
         void onGetActivity(CwmInformation activityInfo);
         void onGetBattery(CwmInformation batteryInfo);
         void onGetTabataResponse(CwmInformation tabataInfo);
+        void onGetSwVersionResponse(CwmInformation swInfo);
     } // onDataArrivalListener()
 
     public interface WearableServiceListener {
@@ -434,6 +436,16 @@ public class CwmManager{
              mService.writeRXCharacteristic(command);
     }
 
+    public void CwmRequestSwVersion(){
+        byte[] command = new byte[5];
+        /*******************************************************************************/
+        jniMgr.getRequestSwVersionCommand(command);
+        /*******************************************************************************/
+        if(mConnectStatus != false)
+            mService.writeRXCharacteristic(command);
+
+    }
+
     public void CwmSendTabataParameters(TabataSettings tabataSettings){
            int[] settings = new int[6];
            boolean[] items;
@@ -535,6 +547,9 @@ public class CwmManager{
                     case TABATA_EVENT_MESSAGE_ID:
                         cwmInfo = getInfomation(TABATA_EVENT_MESSAGE_ID, value);
                         mListener.onGetTabataResponse(cwmInfo);
+                    case SOFTWARE_VERSION_MESSAGE_ID:
+                        cwmInfo = getInfomation(SOFTWARE_VERSION_MESSAGE_ID, value);
+                        mListener.onGetSwVersionResponse(cwmInfo);
                     default:
                         break;
                 }
@@ -635,6 +650,21 @@ public class CwmManager{
 
             return cwmInfo;
 
+        } else if(messageId == SOFTWARE_VERSION_MESSAGE_ID){
+            int[] output = new int[2];
+            float main = 0;
+            float sub = 0;
+            /***************************************************************/
+            jniMgr.getCwmInformation(SOFTWARE_VERSION_MESSAGE_ID,value,output);
+            /***************************************************************/
+            main = (float)output[0];
+            sub = (((float)output[1]) / 100);
+
+            CwmInformation cwmInfo = new CwmInformation();
+            cwmInfo.setId(SOFTWARE_VERSION_MESSAGE_ID);
+            cwmInfo.setSwVersion(main+sub);
+
+            return cwmInfo;
         }
         return null;
     }

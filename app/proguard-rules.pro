@@ -53,6 +53,7 @@
    public int getDoItemCount();
    public int getExerciseItem();
    public int getStrength();
+   public float getVersion();
 }
 -keepclassmembers class cwm.wearablesdk.BodySettings {
    public *;

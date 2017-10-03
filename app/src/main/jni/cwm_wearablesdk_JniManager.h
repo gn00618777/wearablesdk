@@ -71,6 +71,14 @@ JNIEXPORT jint JNICALL Java_cwm_wearablesdk_JniManager_getType
 JNIEXPORT void JNICALL Java_cwm_wearablesdk_JniManager_getSleepLogCommand
   (JNIEnv *, jobject, jbyteArray);
 
+/*
+ * Class:     cwm_wearablesdk_JniManager
+ * Method:    getRequestSwVersionCommand
+ * Signature: ([B)V
+ */
+JNIEXPORT void JNICALL Java_cwm_wearablesdk_JniManager_getRequestSwVersionCommand
+  (JNIEnv *, jobject, jbyteArray);
+
 #ifdef __cplusplus
 }
 #endif

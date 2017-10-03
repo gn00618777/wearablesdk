@@ -18,6 +18,7 @@ public class CwmInformation extends Information{
     private int mItemCount;
     private int mTabataStatus;
     private int mStrength;
+    private float mVersion;
 
 
     /**************heart beat*************/
@@ -48,6 +49,7 @@ public class CwmInformation extends Information{
     public void setDoItemCount(int count){mItemCount = count;}
     public void setTabataStatus(int status){mTabataStatus = status;}
     public void setStrength(int strength){mStrength = strength;}
+    public void setSwVersion(float version){mVersion = version;}
     public int getWalkStep(){
        return mWalkStep;
     }
@@ -65,6 +67,7 @@ public class CwmInformation extends Information{
     }
     public int getDoItemCount(){return mItemCount;}
     public int getStrength(){return mStrength;}
+    public float getVersion(){return mVersion;}
 
     public int getId() {
         return mId;

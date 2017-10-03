@@ -17,4 +17,5 @@ public class JniManager {
     public native void getCwmInformation(int id, byte[] input, int[] info);
     public native int getType(byte[] rxBuffer);
     public native void getSleepLogCommand(byte[] command);
+    public native void getRequestSwVersionCommand(byte[] command);
 }
