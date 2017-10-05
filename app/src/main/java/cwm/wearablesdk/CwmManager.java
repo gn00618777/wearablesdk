@@ -446,6 +446,15 @@ public class CwmManager{
 
     }
 
+    public void CwmSwitchOTA(){
+        byte[] command = new byte[5];
+        /*******************************************************************************/
+        jniMgr.getSwitchOTACommand(command);
+        /*******************************************************************************/
+        if(mConnectStatus != false)
+            mService.writeRXCharacteristic(command);
+    }
+
     public void CwmSendTabataParameters(TabataSettings tabataSettings){
            int[] settings = new int[6];
            boolean[] items;
@@ -485,6 +494,8 @@ public class CwmManager{
     public String CwmSdkVersion(){
         return SDK_VERSION;
     }
+
+
 
     private void enqueue(Data data){
         if (data.type == NON_PENDING && data.length <= PACKET_SIZE) {

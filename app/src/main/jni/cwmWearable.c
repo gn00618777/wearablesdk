@@ -413,3 +413,19 @@ JNIEXPORT void JNICALL Java_cwm_wearablesdk_JniManager_getRequestSwVersionComman
         free(txData);
 }
 
+JNIEXPORT void JNICALL Java_cwm_wearablesdk_JniManager_getSwitchOTACommand
+(JNIEnv * env, jobject jobj, jbyteArray output)
+{
+        jint checksum = 0xE6+0x90+0x05+0x1F;
+        jbyte *txData = malloc(sizeof(jbyte)*5);
+
+        txData[0] = (jbyte)0xE6;
+        txData[1] = (jbyte)0x90;
+        txData[2] = (jbyte)0x05;
+        txData[3] = (jbyte)0x1F;
+        txData[4] = (jbyte)checksum;
+
+        (*env)->SetByteArrayRegion(env, output, 0, 5, txData);
+        free(txData);
+}
+
