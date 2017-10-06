@@ -254,11 +254,10 @@ public class CwmManager{
         int packet_id_type = 0;
         int packet_message_id = 0;
         byte[] packet = null;
-        Log.d("bernie","ACK is  "+ Integer.toHexString(rxBuffer[4] & 0xFF) + "ID is "+Integer.toHexString(rxBuffer[5] & 0xFF));
+
         if(TYPE.ACK.ordinal() == jniMgr.getType(rxBuffer)){
             packet_type = NON_PENDING;
             packet_length = ((rxBuffer[3] & 0xFF) << 8) | (rxBuffer[2] & 0xFF);
-            Log.d("bernie","ACK length is "+ Integer.toString(packet_length));
             packet_id_type = rxBuffer[4] & 0xFF;
             packet_message_id = rxBuffer[5] & 0xFF;
             packet = rxBuffer;
