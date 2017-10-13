@@ -87,6 +87,14 @@ JNIEXPORT void JNICALL Java_cwm_wearablesdk_JniManager_getRequestSwVersionComman
 JNIEXPORT void JNICALL Java_cwm_wearablesdk_JniManager_getSwitchOTACommand
   (JNIEnv *, jobject, jbyteArray);
 
+/*
+ * Class:     cwm_wearablesdk_JniManager
+ * Method:    getCwmSleepInfomation
+ * Signature: (I[B[F)V
+ */
+JNIEXPORT void JNICALL Java_cwm_wearablesdk_JniManager_getCwmSleepInfomation
+  (JNIEnv *, jobject, jint, jbyteArray, jfloatArray);
+
 #ifdef __cplusplus
 }
 #endif

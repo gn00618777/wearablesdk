@@ -54,6 +54,10 @@
    public int getExerciseItem();
    public int getStrength();
    public float getVersion();
+  public int getSleepLength();
+  public byte[] getSleepCombined();
+  public int[] getSleepParser();
+  public int getParserLength();
 }
 -keepclassmembers class cwm.wearablesdk.BodySettings {
    public *;

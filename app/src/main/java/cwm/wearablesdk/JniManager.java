@@ -19,4 +19,5 @@ public class JniManager {
     public native void getSleepLogCommand(byte[] command);
     public native void getRequestSwVersionCommand(byte[] command);
     public native void getSwitchOTACommand(byte[] command);
+    public native void getCwmSleepInfomation(int id, byte[] input, float[] output);
 }

@@ -14,6 +14,13 @@ const jbyte HEADER1 = 0xE6;
 const jbyte HEADER2 = 0x90;
 const jbyte ACK = 0xAC;
 const jbyte NACK = 0x15;
+const jint HEADER_LENGTH = 2;
+const jint LENGTH_BYTE_LENGTH = 2;
+const jint MESSAGE_ID_LENGTH = 1;
+const jint CHECKSUM_LENGTH = 1;
+const jint SLEEP_LOG_SIZE = 12; //byte
+
+const jint BLE_SIZE = 20;
 
 JNIEXPORT void JNICALL Java_cwm_wearablesdk_JniManager_getSyncIntelligentCommand
   (JNIEnv * env, jobject obj, jbooleanArray input, jint goal, jbyteArray output)
@@ -284,11 +291,17 @@ JNIEXPORT jint JNICALL Java_cwm_wearablesdk_JniManager_getType
 {
          jbyte *rxData = (*env)->GetByteArrayElements(env, input, 0);
          jint type = 0;
+         jint data_length = 0;
+         data_length = ((rxData[3] & 0xFF) << 8) | (rxData[2] & 0xFF);
 
          if(((rxData[0] == HEADER1) && (rxData[1] == HEADER2)) && ((rxData[4] == ACK) || (rxData[4] == NACK)))
             type = 0;
-         else if(rxData[0] == HEADER1 && rxData[1] == HEADER2 && rxData[4] != ACK && rxData[4] != NACK)
+         else if(rxData[0] == HEADER1 && rxData[1] == HEADER2 && rxData[4] != ACK && rxData[4] != NACK && data_length <= BLE_SIZE )
             type = 1;
+         else if(rxData[0] == HEADER1 && rxData[1] == HEADER2 && rxData[4] != ACK && rxData[4] != NACK && data_length > BLE_SIZE)
+            type = 2;
+         else if(rxData[0] != HEADER1 && rxData[1] != HEADER2)
+            type = 3;
 
          (*env)->ReleaseByteArrayElements(env, input, rxData, 0);
 
@@ -427,5 +440,38 @@ JNIEXPORT void JNICALL Java_cwm_wearablesdk_JniManager_getSwitchOTACommand
 
         (*env)->SetByteArrayRegion(env, output, 0, 5, txData);
         free(txData);
+}
+JNIEXPORT void JNICALL Java_cwm_wearablesdk_JniManager_getCwmSleepInfomation
+(JNIEnv *env, jobject jobj, jint id, jbyteArray input, jfloatArray output)
+{
+        jbyte *rxData = (*env)->GetByteArrayElements(env, input, 0);
+        jint rawByteLength = sizeof(rxData)/sizeof(jbyte);
+        jint dataLength = rawByteLength - HEADER_LENGTH - LENGTH_BYTE_LENGTH - MESSAGE_ID_LENGTH - CHECKSUM_LENGTH;
+        jint startPos = HEADER_LENGTH + LENGTH_BYTE_LENGTH + MESSAGE_ID_LENGTH;
+        jint endPos = (rawByteLength-1) - CHECKSUM_LENGTH;
+        jbyte *readyToTransform = malloc(sizeof(jbyte)*dataLength);
+        jfloat *readyToReceived = malloc(sizeof(jfloat)*((dataLength) / 4));
+        jint j = 0;
+        //jint *temp = malloc(sizeof(jint)*4);
+
+         for(jint i = startPos ; i <= endPos ; i++){
+             readyToTransform[j] = rxData[i];
+             j++;
+         }
+
+        /* for(jint i  = 0 ; i < dataLength ; i = i + 4){
+            temp[0] = readyToTransform[i];
+            temp[1] = readyToTransform[i+1];
+            temp[2] = readyToTransform[i+2];
+            temp[3] = readyToTransform[i+3];
+            readyToReceived[j] = *((int *)temp);
+         }*/
+
+         memcpy(readyToReceived, readyToTransform, dataLength);
+         //readyToReceived = (int *)readyToTransform;
+         (*env)->SetFloatArrayRegion(env, output, 0, (dataLength / 4), readyToReceived);
+         //free(readyToTransform);
+         //free(readyToReceived);
+
 }
 

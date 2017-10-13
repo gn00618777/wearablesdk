@@ -37,10 +37,12 @@ public class CwmManager{
 
     private final int NON_PENDING = 1;
     private final int PENDING = 2;
+    private final int LONE_MESSAGE = 3;
 
     final static int PACKET_SIZE = 20;
 
     private final Queue<Data> mOutPutQueue = new LinkedList<>();
+    private final Queue<Data> mPendingQueue = new LinkedList<>();
 
     /******** protoco l************/
     private enum TYPE{ ACK, MESSAGE, LONG_MESSAGE, PENDING };
@@ -61,6 +63,7 @@ public class CwmManager{
     private final int HART_RATE_EVENT_MESSAGE_ID = 0x04;
     private final int TABATA_EVENT_MESSAGE_ID = 0x05;
     private final int SOFTWARE_VERSION_MESSAGE_ID = 0x90;
+    private final int SLEEP_REPORT_MESSAGE_ID = 0xBE;
 
     private WearableService mService = null;
     private Context mContext = null;
@@ -70,6 +73,9 @@ public class CwmManager{
 
     private final int REQUEST_ENABLE_BT = 1;
     private final int REQUEST_SELECT_DEVICE = 2;
+
+    private final int TIMESTAMP_BYTE_LENGTH = 4;
+    private final int HEADER_AND_CHECKSUM_LENGTH = 6;
 
     private BluetoothAdapter mBluetoothAdapter = null;
     private BluetoothManager mBluetoothManager = null;
@@ -85,6 +91,12 @@ public class CwmManager{
     //JNI
     JniManager jniMgr;
 
+    //the usage for combining packets to one packet
+    private int lengthMeasure = 0;
+    private int targetLength = 0;
+    private int targetID = 0;
+    private int messageID = 0;
+
     // interface -----------------------------------------------------------------------------------
     public interface InformationListener {
         void onGetCwmRunData(CwmInformation runInfo);
@@ -95,6 +107,7 @@ public class CwmManager{
         void onGetBattery(CwmInformation batteryInfo);
         void onGetTabataResponse(CwmInformation tabataInfo);
         void onGetSwVersionResponse(CwmInformation swInfo);
+        void onGetSleepLog(CwmInformation sleepLogInfo);
     } // onDataArrivalListener()
 
     public interface WearableServiceListener {
@@ -271,6 +284,25 @@ public class CwmManager{
             packet_message_id = 0;
             packet = rxBuffer;
             Data data = new Data(packet_type, packet_length, packet_id_type, packet_message_id, packet);
+            enqueue(data);
+        }
+        else if(TYPE.LONG_MESSAGE.ordinal() == jniMgr.getType(rxBuffer)){
+            packet_type = LONE_MESSAGE;
+            packet_length = ((rxBuffer[3] & 0xFF) << 8) | (rxBuffer[2] & 0xFF);
+            packet_id_type = rxBuffer[4] & 0xFF;
+            packet_message_id = 0;
+            packet = rxBuffer;
+            Data data = new Data(packet_type, packet_length, packet_id_type, packet_message_id, packet);
+            enqueue(data);
+        }
+        else if(TYPE.PENDING.ordinal() == jniMgr.getType(rxBuffer)){
+            packet_type = PENDING;
+            packet_length = rxBuffer.length;
+            packet_id_type = 0;
+            packet_message_id = 0;
+            packet = rxBuffer;
+            Data data = new Data(packet_type, packet_length, packet_id_type, packet_message_id, packet);
+            //Log.d("bernie","[0]:"+Byte.toString(rxBuffer[0])+" [1]:"+Byte.toString(rxBuffer[1])+" [2]:"+Byte.toString(rxBuffer[2])+" [3]:"+Byte.toString(rxBuffer[3]));
             enqueue(data);
         }
         parser();
@@ -500,6 +532,37 @@ public class CwmManager{
         if (data.type == NON_PENDING && data.length <= PACKET_SIZE) {
             mOutPutQueue.add(data);
         }
+        else if(data.type == LONE_MESSAGE){
+            targetLength = data.length - PACKET_SIZE;
+            messageID = data.getMessageID();
+            data.length = PACKET_SIZE;
+            mPendingQueue.add(data);
+        }
+        else if(data.type == PENDING){
+            lengthMeasure += data.length;
+            mPendingQueue.add(data);
+            Log.d("bernie","lengthMeasure:"+Integer.toString(lengthMeasure)+" targetLength:"+Integer.toString(targetLength));
+            if(lengthMeasure == targetLength){
+                byte[] value = new byte[targetLength+PACKET_SIZE];
+                int queueSize = 0;
+                int desPos = 0;
+
+                queueSize = mPendingQueue.size();
+
+                for(int i = 0 ; i < queueSize ; i++) {
+                    Data entry = mPendingQueue.poll();
+                    System.arraycopy(entry.getValue(), 0, value, desPos, entry.length);
+                    desPos += entry.length;
+                }
+
+                mOutPutQueue.add(new Data(LONE_MESSAGE, (targetLength+PACKET_SIZE), messageID, 0, value));
+
+                lengthMeasure = 0;
+                targetLength = 0;
+                targetID = 0;
+                messageID = 0;
+            }
+        }
     }
     private void parser(){
         if(mOutPutQueue.size() != 0){
@@ -557,9 +620,15 @@ public class CwmManager{
                     case TABATA_EVENT_MESSAGE_ID:
                         cwmInfo = getInfomation(TABATA_EVENT_MESSAGE_ID, value);
                         mListener.onGetTabataResponse(cwmInfo);
+                        break;
                     case SOFTWARE_VERSION_MESSAGE_ID:
                         cwmInfo = getInfomation(SOFTWARE_VERSION_MESSAGE_ID, value);
                         mListener.onGetSwVersionResponse(cwmInfo);
+                        break;
+                    case SLEEP_REPORT_MESSAGE_ID:
+                         cwmInfo = getInfomation(SLEEP_REPORT_MESSAGE_ID, value);
+                         mListener.onGetSleepLog(cwmInfo);
+                        break;
                     default:
                         break;
                 }
@@ -675,6 +744,33 @@ public class CwmManager{
             cwmInfo.setSwVersion(main+sub);
 
             return cwmInfo;
+        } else if(messageId == SLEEP_REPORT_MESSAGE_ID){
+            int startPos = 5;
+            int endPos = value.length -1 - 1;
+            int dataLength = endPos - startPos +1;
+            int j = 0;
+
+            float[] output = new float[dataLength/4];
+            int[] convert = new int[dataLength/4];
+            byte[] temp = new byte[4];
+            /***************************************************************/
+            //jniMgr.getCwmSleepInfomation(SLEEP_REPORT_MESSAGE_ID,value,output);
+            /***************************************************************/
+          //  Log.d("bernie","value length:"+Integer.toString(value.length));
+           //Log.d("bernie","value[5]:"+Integer.toString(value[5]&0xFF)+" value[6]:"+Integer.toString(value[6]&0xFF)+" value[7]"+Integer.toString(value[7]&0xFF)+" value[8]"+Integer.toString(value[9] & 0xFF));
+            for(int i = 5 ; i < dataLength; i+=4) {
+                System.arraycopy(value, i, temp, 0, 4);
+                convert[j] = ByteBuffer.wrap(temp).order(ByteOrder.LITTLE_ENDIAN).getInt();
+                j++;
+            }
+            CwmInformation cwmInfo = new CwmInformation();
+            cwmInfo.setId(SLEEP_REPORT_MESSAGE_ID);
+            cwmInfo.setSleepLogLength(value.length);
+            cwmInfo.setSleepCombined(value);
+            cwmInfo.setSleepParser(convert);
+            cwmInfo.setParserLength(convert.length);
+           // Log.d("bernie","using memcpy free");
+            return cwmInfo;
         }
         return null;
     }
@@ -692,20 +788,6 @@ public class CwmManager{
             this.length = length;
             this.idType = idType;
             this.messageID = messageID;
-            this.value = value;
-        }
-        private Data(int type, byte[] value){
-            this.type = type;
-            this.length = 0;
-            this.idType = 0;
-            this.messageID = 0;
-            this.value = value;
-        }
-        private Data(int type, int length, int id, byte[] value){
-            this.type = type;
-            this.length = length;
-            this.idType = id;
-            this.messageID = 0;
             this.value = value;
         }
 

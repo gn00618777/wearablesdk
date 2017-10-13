@@ -19,6 +19,10 @@ public class CwmInformation extends Information{
     private int mTabataStatus;
     private int mStrength;
     private float mVersion;
+    private int mLength;
+    private int mParserLength;
+    private byte[] value;
+    private int[] parser;
 
 
     /**************heart beat*************/
@@ -36,6 +40,8 @@ public class CwmInformation extends Information{
           mItemCount = 0;
           mTabataStatus = 0;
           mStrength = 0;
+          mLength = 0;
+         mParserLength = 0;
     }
 
     public void setId(int id){mId = id;}
@@ -50,6 +56,10 @@ public class CwmInformation extends Information{
     public void setTabataStatus(int status){mTabataStatus = status;}
     public void setStrength(int strength){mStrength = strength;}
     public void setSwVersion(float version){mVersion = version;}
+    public void setSleepCombined(byte[] value){this.value = value;}
+    public void setSleepLogLength(int length){mLength = length;}
+    public void setSleepParser(int[] parser){this.parser = parser;}
+    public void setParserLength(int length){ mParserLength = length;}
     public int getWalkStep(){
        return mWalkStep;
     }
@@ -68,6 +78,10 @@ public class CwmInformation extends Information{
     public int getDoItemCount(){return mItemCount;}
     public int getStrength(){return mStrength;}
     public float getVersion(){return mVersion;}
+    public int getSleepLength(){return mLength;}
+    public byte[] getSleepCombined(){return this.value;}
+    public int[] getSleepParser(){return this.parser;}
+    public int getParserLength(){return mParserLength;}
 
     public int getId() {
         return mId;
