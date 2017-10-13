@@ -62,6 +62,8 @@ public class CwmManager{
     private final int SEDENTARY_EVENT_MESSAGE_ID = 0x03;
     private final int HART_RATE_EVENT_MESSAGE_ID = 0x04;
     private final int TABATA_EVENT_MESSAGE_ID = 0x05;
+    private final int SHAKE_EVENT_MESSAGE_ID = 0x06;
+    private final int SIGNIFICANT_EVENT_MESSAGE_ID = 0x08;
     private final int SOFTWARE_VERSION_MESSAGE_ID = 0x90;
     private final int SLEEP_REPORT_MESSAGE_ID = 0xBE;
 
@@ -375,13 +377,15 @@ public class CwmManager{
     public void CwmSyncIntelligentSettings(){
         if(mConnectStatus == true) {
             byte[] command = new byte[9];
-            boolean[] feature = new boolean[5];
+            boolean[] feature = new boolean[7];
             int goal = intelligentSettings.getGoal();
             feature[0] = intelligentSettings.getSedtentary();
             feature[1] = intelligentSettings.getHangUp();
             feature[2] = intelligentSettings.getOnWear();
             feature[3] = intelligentSettings.getDoubleTap();
             feature[4] = intelligentSettings.getWristSwitch();
+            feature[5] = intelligentSettings.getShakeSwitch();
+            feature[6] = intelligentSettings.getSignificant();
 
             /***************************************************************/
             jniMgr.getSyncIntelligentCommand(feature, goal, command);
@@ -613,6 +617,14 @@ public class CwmManager{
                         cwmInfo = getInfomation(SEDENTARY_EVENT_MESSAGE_ID, value);
                         mListener.onGetActivity(cwmInfo);
                         break;
+                    case SHAKE_EVENT_MESSAGE_ID:
+                        cwmInfo = getInfomation(SHAKE_EVENT_MESSAGE_ID, value);
+                        mListener.onGetActivity(cwmInfo);
+                        break;
+                    case SIGNIFICANT_EVENT_MESSAGE_ID:
+                        cwmInfo = getInfomation(SIGNIFICANT_EVENT_MESSAGE_ID, value);
+                        mListener.onGetActivity(cwmInfo);
+                        break;
                     case HART_RATE_EVENT_MESSAGE_ID:
                         cwmInfo = getInfomation(HART_RATE_EVENT_MESSAGE_ID, value);
                         mListener.onGetHeartData(cwmInfo);
@@ -675,6 +687,16 @@ public class CwmManager{
         else if(messageId == WRIST_SCROLL_EVENT_MESSAGE_ID){
             CwmInformation cwmInfo = new CwmInformation();
             cwmInfo.setId(WRIST_SCROLL_EVENT_MESSAGE_ID);
+            return cwmInfo;
+        }
+        else if(messageId == SHAKE_EVENT_MESSAGE_ID){
+            CwmInformation cwmInfo = new CwmInformation();
+            cwmInfo.setId(SHAKE_EVENT_MESSAGE_ID);
+            return cwmInfo;
+        }
+        else if(messageId == SIGNIFICANT_EVENT_MESSAGE_ID){
+            CwmInformation cwmInfo = new CwmInformation();
+            cwmInfo.setId(SIGNIFICANT_EVENT_MESSAGE_ID);
             return cwmInfo;
         }
         else if(messageId == HART_RATE_EVENT_MESSAGE_ID){

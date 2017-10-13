@@ -11,6 +11,8 @@ public class IntelligentSettings {
       private boolean onWear;
       private boolean doubleTap;
       private boolean wristSwitch;
+      private boolean shakeSwitch;
+      private boolean significantSwitch;
       private int goal;
       public IntelligentSettings(){
           tag = CwmManager.INTELLIGENT;
@@ -19,6 +21,8 @@ public class IntelligentSettings {
           onWear = true;
           doubleTap = false;
           wristSwitch = false;
+          shakeSwitch = false;
+          significantSwitch = false;
           goal = 8000;
       }
 
@@ -27,6 +31,8 @@ public class IntelligentSettings {
       public void setOnWear(boolean s){this.onWear = s;}
       public void setDoubleTap(boolean s){this.doubleTap = s;}
       public void setWristSwitch(boolean s){this.wristSwitch = s;}
+      public void setShakeSwitch(boolean s){this.shakeSwitch = s;}
+      public void setSignificantSwitch(boolean s){this.significantSwitch = s;}
       public void setGoal(int g){this.goal = g;}
 
       public boolean getSedtentary(){return this.sedtentary;}
@@ -34,6 +40,8 @@ public class IntelligentSettings {
       public boolean getOnWear(){return this.onWear;}
       public boolean getDoubleTap(){return this.doubleTap;}
       public boolean getWristSwitch(){return this.wristSwitch;}
+      public boolean getShakeSwitch(){return this.shakeSwitch;}
+      public boolean getSignificant(){return this.significantSwitch;}
       public int getGoal(){return this.goal;}
 
 
