@@ -404,7 +404,7 @@ public class CwmManager{
         time[1] = c.get(Calendar.MONTH);
         time[2] = c.get(Calendar.DATE);
         time[3] = c.get(Calendar.DAY_OF_WEEK);
-        time[4] = c.get(Calendar.HOUR);
+        time[4] = c.get(Calendar.HOUR_OF_DAY);
         time[5] = c.get(Calendar.MINUTE);
         time[6] = c.get(Calendar.SECOND);
 
@@ -454,6 +454,7 @@ public class CwmManager{
                 time[3] = 7;
             }
         }
+
         /****************************************/
         jniMgr.getSyncCurrentCommand(time, command);
         /****************************************/
