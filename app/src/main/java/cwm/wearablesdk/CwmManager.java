@@ -768,20 +768,20 @@ public class CwmManager{
             return cwmInfo;
         } else if(messageId == SLEEP_REPORT_MESSAGE_ID){
             int startPos = 5;
-            int endPos = value.length -1 - 1;
+            int unit_sleep_log = 4;//byte
+            int checksum_byte = 1;//byte
+            int endPos = value.length -1 - checksum_byte;
             int dataLength = endPos - startPos +1;
             int j = 0;
 
-            float[] output = new float[dataLength/4];
-            int[] convert = new int[dataLength/4];
-            byte[] temp = new byte[4];
+            float[] output = new float[dataLength/unit_sleep_log];
+            int[] convert = new int[dataLength/unit_sleep_log];
+            byte[] temp = new byte[unit_sleep_log];
             /***************************************************************/
             //jniMgr.getCwmSleepInfomation(SLEEP_REPORT_MESSAGE_ID,value,output);
             /***************************************************************/
-          //  Log.d("bernie","value length:"+Integer.toString(value.length));
-           //Log.d("bernie","value[5]:"+Integer.toString(value[5]&0xFF)+" value[6]:"+Integer.toString(value[6]&0xFF)+" value[7]"+Integer.toString(value[7]&0xFF)+" value[8]"+Integer.toString(value[9] & 0xFF));
-            for(int i = 5 ; i < dataLength; i+=4) {
-                System.arraycopy(value, i, temp, 0, 4);
+            for(int i = startPos ; i < dataLength; i+=unit_sleep_log) {
+                System.arraycopy(value, i, temp, 0, unit_sleep_log);
                 convert[j] = ByteBuffer.wrap(temp).order(ByteOrder.LITTLE_ENDIAN).getInt();
                 j++;
             }
@@ -791,7 +791,7 @@ public class CwmManager{
             cwmInfo.setSleepCombined(value);
             cwmInfo.setSleepParser(convert);
             cwmInfo.setParserLength(convert.length);
-           // Log.d("bernie","using memcpy free");
+
             return cwmInfo;
         }
         return null;
