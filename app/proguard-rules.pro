@@ -35,6 +35,7 @@
 -keep class cwm.wearablesdk.CwmManager$WearableServiceListener{*;}
 -keep class cwm.wearablesdk.CwmManager$BleScannerListener{*;}
 -keep class cwm.wearablesdk.CwmManager$AckListener{*;}
+-keep class cwm.wearablesdk.CwmManager$ErrorListener{*;}
 
 
 -keepclassmembers class cwm.wearablesdk.CwmManager {

@@ -12,6 +12,7 @@ import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.BroadcastReceiver;
 import android.content.pm.PackageManager;
+import android.os.Handler;
 import android.os.IBinder;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
@@ -72,6 +73,7 @@ public class CwmManager{
     private Activity mActivity = null;
     private WearableServiceListener mStatusListener = null;
     private AckListener mAckListener = null;
+    private ErrorListener mErrorListener = null;
 
     private final int REQUEST_ENABLE_BT = 1;
     private final int REQUEST_SELECT_DEVICE = 2;
@@ -98,6 +100,22 @@ public class CwmManager{
     private int targetLength = 0;
     private int targetID = 0;
     private int messageID = 0;
+
+    private boolean hasLongMessage = false;
+
+    private Handler longMessageHandler = new Handler();
+    private Runnable mLongMessageTask = new Runnable() {
+        @Override
+        public void run() {
+            hasLongMessage = false;
+            mPendingQueue.clear();
+            lengthMeasure = 0;
+            targetLength = 0;
+            targetID = 0;
+            messageID = 0;
+            mErrorListener.onPacketLost();
+        }
+    };
 
     // interface -----------------------------------------------------------------------------------
     public interface InformationListener {
@@ -126,13 +144,18 @@ public class CwmManager{
 
     }
 
+    public interface ErrorListener{
+        void onPacketLost();
+    }
+
     public CwmManager(Activity activity, WearableServiceListener wListener,
-                      InformationListener iLlistener, AckListener ackListener){
+                      InformationListener iLlistener, AckListener ackListener, ErrorListener errorListener){
 
         mActivity = activity;
         mStatusListener = wListener;
         mListener = iLlistener;
         mAckListener = ackListener;
+        mErrorListener = errorListener;
 
         jniMgr = new JniManager();
 
@@ -369,7 +392,7 @@ public class CwmManager{
             /*******************************************************/
             jniMgr.getSyncBodyCommandCommand(body,command);
             /*********************************************************/
-            if(mConnectStatus != false)
+            if((mConnectStatus != false) && (hasLongMessage == false))
                mService.writeRXCharacteristic(command);
         }
     }
@@ -390,7 +413,7 @@ public class CwmManager{
             /***************************************************************/
             jniMgr.getSyncIntelligentCommand(feature, goal, command);
             /***********************************************************************************/
-            if(mConnectStatus != false)
+            if((mConnectStatus != false) && (hasLongMessage == false))
                 mService.writeRXCharacteristic(command);
         }
     }
@@ -458,7 +481,7 @@ public class CwmManager{
         /****************************************/
         jniMgr.getSyncCurrentCommand(time, command);
         /****************************************/
-        if(mConnectStatus != false)
+        if((mConnectStatus != false) && (hasLongMessage == false))
            mService.writeRXCharacteristic(command);
 
     }
@@ -477,7 +500,7 @@ public class CwmManager{
         /*******************************************************************************/
         jniMgr.getRequestSwVersionCommand(command);
         /*******************************************************************************/
-        if(mConnectStatus != false)
+        if((mConnectStatus != false) && (hasLongMessage == false))
             mService.writeRXCharacteristic(command);
 
     }
@@ -487,7 +510,7 @@ public class CwmManager{
         /*******************************************************************************/
         jniMgr.getSwitchOTACommand(command);
         /*******************************************************************************/
-        if(mConnectStatus != false)
+        if((mConnectStatus != false) && (hasLongMessage == false))
             mService.writeRXCharacteristic(command);
     }
 
@@ -515,7 +538,7 @@ public class CwmManager{
             /********************************************************************************/
             jniMgr.getTabataParameterCommand(settings, items, command);
             /********************************************************************************/
-            if(mConnectStatus != false)
+            if((mConnectStatus != false) && (hasLongMessage == false))
                mService.writeRXCharacteristic(command);
         }
 
@@ -524,7 +547,8 @@ public class CwmManager{
     public void CwmRequestSleepLog(){
             byte[] command = new byte[5];
             jniMgr.getSleepLogCommand(command);
-            mService.writeRXCharacteristic(command);
+            if((mConnectStatus != false) && (hasLongMessage == false))
+               mService.writeRXCharacteristic(command);
     }
 
     public String CwmSdkVersion(){
@@ -538,16 +562,22 @@ public class CwmManager{
             mOutPutQueue.add(data);
         }
         else if(data.type == LONE_MESSAGE){
+            hasLongMessage = true;
             targetLength = data.length - PACKET_SIZE;
             messageID = data.getMessageID();
             data.length = PACKET_SIZE;
             mPendingQueue.add(data);
+
+            //The timer for receiving long message
+            longMessageHandler.postDelayed(mLongMessageTask,5000);
         }
-        else if(data.type == PENDING){
+        else if((data.type == PENDING) && (hasLongMessage == true)){
             lengthMeasure += data.length;
             mPendingQueue.add(data);
             Log.d("bernie","lengthMeasure:"+Integer.toString(lengthMeasure)+" targetLength:"+Integer.toString(targetLength));
             if(lengthMeasure == targetLength){
+                longMessageHandler.removeCallbacks(mLongMessageTask);
+                hasLongMessage = false; //long message has been received completely.
                 byte[] value = new byte[targetLength+PACKET_SIZE];
                 int queueSize = 0;
                 int desPos = 0;
