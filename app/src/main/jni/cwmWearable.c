@@ -488,3 +488,28 @@ JNIEXPORT void JNICALL Java_cwm_wearablesdk_JniManager_getCwmSleepInfomation
 
 }
 
+JNIEXPORT void JNICALL Java_cwm_wearablesdk_JniManager_getSedentaryRemindTimeCommand
+(JNIEnv * env, jobject jobj, jint time, jbyteArray output)
+{
+         jbyte *txData = malloc(sizeof(jbyte)*7);
+         jint remindTime_L = 0;
+         jint remindTime_H = 0;
+
+         remindTime_L = time & 0xFF;
+         remindTime_H = (time >> 8) & 0xFF;
+
+         txData[0] = (jbyte)0xE6;
+         txData[1] = (jbyte)0x90;
+         txData[2] = (jbyte)0x07;
+         txData[3] = (jbyte)0x15;
+         txData[4] = (jbyte)remindTime_L;
+         txData[5] = (jbyte)remindTime_H;
+
+         jint checksum = txData[0]+txData[1]+txData[2]+txData[3]+txData[4]+txData[5];
+
+         txData[6] = (jbyte) checksum;
+
+         (*env)->SetByteArrayRegion(env, output, 0, 7, txData);
+         free(txData);
+}
+

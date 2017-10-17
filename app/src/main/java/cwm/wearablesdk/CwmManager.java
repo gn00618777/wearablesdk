@@ -400,8 +400,10 @@ public class CwmManager{
     public void CwmSyncIntelligentSettings(){
         if(mConnectStatus == true) {
             byte[] command = new byte[9];
+            byte[] command1 = new byte[7];
             boolean[] feature = new boolean[7];
             int goal = intelligentSettings.getGoal();
+            int remindTIme = intelligentSettings.getTime();
             feature[0] = intelligentSettings.getSedtentary();
             feature[1] = intelligentSettings.getHangUp();
             feature[2] = intelligentSettings.getOnWear();
@@ -412,9 +414,12 @@ public class CwmManager{
 
             /***************************************************************/
             jniMgr.getSyncIntelligentCommand(feature, goal, command);
+            jniMgr.getSedentaryRemindTimeCommand(remindTIme, command1);
             /***********************************************************************************/
-            if((mConnectStatus != false) && (hasLongMessage == false))
+            if((mConnectStatus != false) && (hasLongMessage == false)) {
+                mService.writeRXCharacteristic(command1);
                 mService.writeRXCharacteristic(command);
+            }
         }
     }
 

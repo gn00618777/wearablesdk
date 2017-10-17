@@ -95,6 +95,14 @@ JNIEXPORT void JNICALL Java_cwm_wearablesdk_JniManager_getSwitchOTACommand
 JNIEXPORT void JNICALL Java_cwm_wearablesdk_JniManager_getCwmSleepInfomation
   (JNIEnv *, jobject, jint, jbyteArray, jfloatArray);
 
+/*
+ * Class:     cwm_wearablesdk_JniManager
+ * Method:    getSedentaryRemindTimeCommand
+ * Signature: (I[B)V
+ */
+JNIEXPORT void JNICALL Java_cwm_wearablesdk_JniManager_getSedentaryRemindTimeCommand
+  (JNIEnv *, jobject, jint, jbyteArray);
+
 #ifdef __cplusplus
 }
 #endif

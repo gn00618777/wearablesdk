@@ -14,6 +14,7 @@ public class IntelligentSettings {
       private boolean shakeSwitch;
       private boolean significantSwitch;
       private int goal;
+      private int time;
       public IntelligentSettings(){
           tag = CwmManager.INTELLIGENT;
           sedtentary = false;
@@ -24,6 +25,7 @@ public class IntelligentSettings {
           shakeSwitch = false;
           significantSwitch = false;
           goal = 8000;
+          time = 60;
       }
 
       public void setSedtentary(boolean s){this.sedtentary = s;}
@@ -34,6 +36,7 @@ public class IntelligentSettings {
       public void setShakeSwitch(boolean s){this.shakeSwitch = s;}
       public void setSignificantSwitch(boolean s){this.significantSwitch = s;}
       public void setGoal(int g){this.goal = g;}
+      public void setSedentaryTime(int s){this.time = s;}
 
       public boolean getSedtentary(){return this.sedtentary;}
       public boolean getHangUp(){return this.hangUp;}
@@ -43,6 +46,7 @@ public class IntelligentSettings {
       public boolean getShakeSwitch(){return this.shakeSwitch;}
       public boolean getSignificant(){return this.significantSwitch;}
       public int getGoal(){return this.goal;}
+      public int getTime(){return this.time;}
 
 
 
