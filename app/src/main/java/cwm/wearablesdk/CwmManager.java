@@ -811,7 +811,7 @@ public class CwmManager{
             /***************************************************************/
             //jniMgr.getCwmSleepInfomation(SLEEP_REPORT_MESSAGE_ID,value,output);
             /***************************************************************/
-            for(int i = startPos ; i < dataLength; i+=unit_sleep_log) {
+            for(int i = startPos ; i <= endPos; i+=unit_sleep_log) {
                 System.arraycopy(value, i, temp, 0, unit_sleep_log);
                 convert[j] = ByteBuffer.wrap(temp).order(ByteOrder.LITTLE_ENDIAN).getInt();
                 j++;
