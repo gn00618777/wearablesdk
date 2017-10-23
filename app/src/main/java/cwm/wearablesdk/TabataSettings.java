@@ -162,6 +162,9 @@ public class TabataSettings {
         }
     }
     public boolean isEnabled(int item){
+        if(item == ITEMS.NULL.ordinal()){
+         return this.items[item];
+        }
         if(item == ITEMS.PUSHUP.ordinal()){
             return this.items[item];
         }
