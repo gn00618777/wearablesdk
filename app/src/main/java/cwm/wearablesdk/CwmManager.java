@@ -129,10 +129,7 @@ public class CwmManager{
     }
 
     public interface AckListener{
-        void onSyncTimeAckArrival();
-        void onSyncIntelligentAckArrival();
-        void onSyncPersonInfoAckArrival();
-
+        void onAckArrival(AckEvents ackEvents);
     }
 
     public interface ErrorListener{
@@ -605,15 +602,19 @@ public class CwmManager{
             Data data = mOutPutQueue.poll();
             if(data.getIdType() == ACK) {
                 int id = data.getMessageID();
+                AckEvents ackEvents = new AckEvents();
                 switch (id) {
                     case SYNC_TIME_RESPONSE_ID:
-                        mAckListener.onSyncTimeAckArrival();
+                        ackEvents.setId(SYNC_TIME_RESPONSE_ID);
+                        mAckListener.onAckArrival(ackEvents);
                         break;
                     case BODY_PARAMETER_RESPONSE_ID:
-                        mAckListener.onSyncPersonInfoAckArrival();
+                        ackEvents.setId(BODY_PARAMETER_RESPONSE_ID);
+                        mAckListener.onAckArrival(ackEvents);
                         break;
                     case INTELLIGENT_FEATURE_RESPONSE_ID:
-                        mAckListener.onSyncIntelligentAckArrival();
+                        ackEvents.setId(INTELLIGENT_FEATURE_RESPONSE_ID);
+                        mAckListener.onAckArrival(ackEvents);
                         break;
                     case CLEAN_BOND_RESPONSE_ID:
                         break;

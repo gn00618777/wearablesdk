@@ -26,6 +26,7 @@
 
 -keep class cwm.wearablesdk.CwmManager
 -keep class cwm.wearablesdk.CwmEvents
+-keep class cwm.wearablesdk.AckEvents
 -keep class cwm.wearablesdk.Information
 -keep class cwm.wearablesdk.Settings
 -keep class cwm.wearablesdk.BodySettings
@@ -60,6 +61,10 @@
   public int[] getSleepParser();
   public int getParserLength();
 }
+-keepclassmembers class cwm.wearablesdk.AckEvents{
+public *;
+}
+
 -keepclassmembers class cwm.wearablesdk.BodySettings {
    public *;
 }
