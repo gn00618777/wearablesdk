@@ -126,6 +126,7 @@ public class CwmManager{
         void onDisconnected();
         void onServiceDiscovery(String deviceName, String deviceAddress);
         void onNotSupport();
+        void onUnknownProblem();
     }
 
     public interface AckListener{
@@ -198,6 +199,7 @@ public class CwmManager{
         intentFilter.addAction(WearableService.ACTION_GATT_SERVICES_DISCOVERED);
         intentFilter.addAction(WearableService.ACTION_DATA_AVAILABLE);
         intentFilter.addAction(WearableService.APK_DOES_NOT_SUPPORT_WEARABLE);
+        intentFilter.addAction(WearableService.MCU_HAS_UNKNOWN_PROBLEM);
         return intentFilter;
     }
 
@@ -246,8 +248,8 @@ public class CwmManager{
             //*********************//
             if (action.equals(WearableService.ACTION_GATT_SERVICES_DISCOVERED)) {
                 mConnectStatus = true;
-                mService.enableTXNotification();
-                mStatusListener.onServiceDiscovery(deviceName, deviceAddress);
+                if(mService.enableTXNotification())
+                   mStatusListener.onServiceDiscovery(deviceName, deviceAddress);
             }
             //*********************//
             if (action.equals(WearableService.ACTION_DATA_AVAILABLE)) {
@@ -268,6 +270,12 @@ public class CwmManager{
                 mConnectStatus = false;
                 mService.disconnect();
                 mStatusListener.onNotSupport();
+            }
+
+            if(action.equals(WearableService.MCU_HAS_UNKNOWN_PROBLEM)){
+                mConnectStatus = false;
+                mService.disconnect();
+                mStatusListener.onUnknownProblem();
             }
 
         }

@@ -73,6 +73,9 @@ public class WearableService extends Service {
             "com.cyweemotion..EXTRA_DATA";
     public final static String APK_DOES_NOT_SUPPORT_WEARABLE =
             "com.cyweemotion.APK_DOES_NOT_SUPPORT_WEARABLE";
+
+    public final static String MCU_HAS_UNKNOWN_PROBLEM =
+            "com.cyweemotion.MCU_HAS_UNKNOWN_PROBLEM";
     
     public static final UUID TX_POWER_UUID = UUID.fromString("00001804-0000-1000-8000-00805f9b34fb");
     public static final UUID TX_POWER_LEVEL_UUID = UUID.fromString("00002a07-0000-1000-8000-00805f9b34fb");
@@ -323,27 +326,32 @@ public class WearableService extends Service {
     		return;
     	}
     		*/
-    	BluetoothGattService RxService = mBluetoothGatt.getService(RX_SERVICE_UUID);
-        String DeviceName = mBluetoothGatt.getDevice().getName();
-        String DevcieAddress = mBluetoothGatt.getDevice().getAddress();
-    	if (RxService == null) {
-            showMessage("Rx service not found!");
-            broadcastUpdate(APK_DOES_NOT_SUPPORT_WEARABLE, DeviceName, DevcieAddress);
-            return false;
-        }
-    	BluetoothGattCharacteristic TxChar = RxService.getCharacteristic(TX_CHAR_UUID);
-        if (TxChar == null) {
-            showMessage("Tx charateristic not found!");
-            broadcastUpdate(APK_DOES_NOT_SUPPORT_WEARABLE, DeviceName, DevcieAddress);
-            return false;
-        }
-        mBluetoothGatt.setCharacteristicNotification(TxChar,true);
-        
-        BluetoothGattDescriptor descriptor = TxChar.getDescriptor(CCCD);
-        descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
-        mBluetoothGatt.writeDescriptor(descriptor);
+        try {
+            BluetoothGattService RxService = mBluetoothGatt.getService(RX_SERVICE_UUID);
+            String DeviceName = mBluetoothGatt.getDevice().getName();
+            String DevcieAddress = mBluetoothGatt.getDevice().getAddress();
+            if (RxService == null) {
+                showMessage("Rx service not found!");
+                broadcastUpdate(APK_DOES_NOT_SUPPORT_WEARABLE, DeviceName, DevcieAddress);
+                return false;
+            }
+            BluetoothGattCharacteristic TxChar = RxService.getCharacteristic(TX_CHAR_UUID);
+            if (TxChar == null) {
+                showMessage("Tx charateristic not found!");
+                broadcastUpdate(APK_DOES_NOT_SUPPORT_WEARABLE, DeviceName, DevcieAddress);
+                return false;
+            }
+            mBluetoothGatt.setCharacteristicNotification(TxChar, true);
 
-        return true;
+            BluetoothGattDescriptor descriptor = TxChar.getDescriptor(CCCD);
+            descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
+            mBluetoothGatt.writeDescriptor(descriptor);
+
+            return true;
+        }catch (NullPointerException e){
+            broadcastUpdate(APK_DOES_NOT_SUPPORT_WEARABLE, "", "");
+            return false;
+        }
     }
     
     public void writeRXCharacteristic(byte[] value)
