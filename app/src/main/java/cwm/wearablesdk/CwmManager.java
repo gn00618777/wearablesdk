@@ -350,6 +350,8 @@ public class CwmManager{
     }
 
     public void CwmBleConnect(String address){
+        mService.disconnect();
+        mService.close();
         mService.connect(address);
     }
 
@@ -357,6 +359,9 @@ public class CwmManager{
         mService.disconnect();
     }
 
+    public void CwmBleClose(){
+        mService.close();
+    }
     public boolean CwmDeviceUnregister(){
         return true;
     }
