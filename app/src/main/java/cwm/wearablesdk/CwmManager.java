@@ -34,8 +34,6 @@ public class CwmManager{
 
     private String SDK_VERSION = "V0.2";
 
-    InformationListener mListener = null;
-
     private final int NON_PENDING = 1;
     private final int PENDING = 2;
     private final int LONE_MESSAGE = 3;
@@ -74,6 +72,7 @@ public class CwmManager{
     private WearableServiceListener mStatusListener = null;
     private AckListener mAckListener = null;
     private ErrorListener mErrorListener = null;
+    private EventListener mListener = null;
 
     private final int REQUEST_ENABLE_BT = 1;
     private final int REQUEST_SELECT_DEVICE = 2;
@@ -118,17 +117,9 @@ public class CwmManager{
     };
 
     // interface -----------------------------------------------------------------------------------
-    public interface InformationListener {
-        void onGetCwmRunData(CwmInformation runInfo);
-        void onGetCwmWalkData(CwmInformation walkInfo);
-        void onGetBikeData(CwmInformation bikeInfo);
-        void onGetHeartData(CwmInformation heartInfo);
-        void onGetActivity(CwmInformation activityInfo);
-        void onGetBattery(CwmInformation batteryInfo);
-        void onGetTabataResponse(CwmInformation tabataInfo);
-        void onGetSwVersionResponse(CwmInformation swInfo);
-        void onGetSleepLog(CwmInformation sleepLogInfo);
-    } // onDataArrivalListener()
+    public interface EventListener {
+        void onEventArrival(CwmEvents cwmEvents);
+    }
 
     public interface WearableServiceListener {
         void onConnected();
@@ -149,7 +140,7 @@ public class CwmManager{
     }
 
     public CwmManager(Activity activity, WearableServiceListener wListener,
-                      InformationListener iLlistener, AckListener ackListener, ErrorListener errorListener){
+                      EventListener iLlistener, AckListener ackListener, ErrorListener errorListener){
 
         mActivity = activity;
         mStatusListener = wListener;
@@ -636,51 +627,51 @@ public class CwmManager{
             else{
                 int id = data.getIdType();
                 byte[] value = data.getValue();
-                CwmInformation cwmInfo;
+                CwmEvents cwmEvent;
                 switch (id){
                     case MOTION_DATA_REPORT_MESSAGE_ID:
-                         cwmInfo = getInfomation(MOTION_DATA_REPORT_MESSAGE_ID, value);
-                        mListener.onGetCwmWalkData(cwmInfo);
+                         cwmEvent = getInfomation(MOTION_DATA_REPORT_MESSAGE_ID, value);
+                        mListener.onEventArrival(cwmEvent);
                         break;
                     case BATTERY_STATUS_REPORT_MESSAGE_ID:
-                        cwmInfo = getInfomation(BATTERY_STATUS_REPORT_MESSAGE_ID, value);
-                        mListener.onGetBattery(cwmInfo);
+                        cwmEvent = getInfomation(BATTERY_STATUS_REPORT_MESSAGE_ID, value);
+                        mListener.onEventArrival(cwmEvent);
                         break;
                     case TAP_EVENT_MESSAGE_ID:
-                        cwmInfo = getInfomation(TAP_EVENT_MESSAGE_ID, value);
-                        mListener.onGetActivity(cwmInfo);
+                        cwmEvent = getInfomation(TAP_EVENT_MESSAGE_ID, value);
+                        mListener.onEventArrival(cwmEvent);
                         break;
                     case WRIST_SCROLL_EVENT_MESSAGE_ID:
-                        cwmInfo = getInfomation(WRIST_SCROLL_EVENT_MESSAGE_ID, value);
-                        mListener.onGetActivity(cwmInfo);
+                        cwmEvent = getInfomation(WRIST_SCROLL_EVENT_MESSAGE_ID, value);
+                        mListener.onEventArrival(cwmEvent);
                         break;
                     case SEDENTARY_EVENT_MESSAGE_ID:
-                        cwmInfo = getInfomation(SEDENTARY_EVENT_MESSAGE_ID, value);
-                        mListener.onGetActivity(cwmInfo);
+                        cwmEvent = getInfomation(SEDENTARY_EVENT_MESSAGE_ID, value);
+                        mListener.onEventArrival(cwmEvent);
                         break;
                     case SHAKE_EVENT_MESSAGE_ID:
-                        cwmInfo = getInfomation(SHAKE_EVENT_MESSAGE_ID, value);
-                        mListener.onGetActivity(cwmInfo);
+                        cwmEvent = getInfomation(SHAKE_EVENT_MESSAGE_ID, value);
+                        mListener.onEventArrival(cwmEvent);
                         break;
                     case SIGNIFICANT_EVENT_MESSAGE_ID:
-                        cwmInfo = getInfomation(SIGNIFICANT_EVENT_MESSAGE_ID, value);
-                        mListener.onGetActivity(cwmInfo);
+                        cwmEvent = getInfomation(SIGNIFICANT_EVENT_MESSAGE_ID, value);
+                        mListener.onEventArrival(cwmEvent);
                         break;
                     case HART_RATE_EVENT_MESSAGE_ID:
-                        cwmInfo = getInfomation(HART_RATE_EVENT_MESSAGE_ID, value);
-                        mListener.onGetHeartData(cwmInfo);
+                        cwmEvent = getInfomation(HART_RATE_EVENT_MESSAGE_ID, value);
+                        mListener.onEventArrival(cwmEvent);
                         break;
                     case TABATA_EVENT_MESSAGE_ID:
-                        cwmInfo = getInfomation(TABATA_EVENT_MESSAGE_ID, value);
-                        mListener.onGetTabataResponse(cwmInfo);
+                        cwmEvent = getInfomation(TABATA_EVENT_MESSAGE_ID, value);
+                        mListener.onEventArrival(cwmEvent);
                         break;
                     case SOFTWARE_VERSION_MESSAGE_ID:
-                        cwmInfo = getInfomation(SOFTWARE_VERSION_MESSAGE_ID, value);
-                        mListener.onGetSwVersionResponse(cwmInfo);
+                        cwmEvent = getInfomation(SOFTWARE_VERSION_MESSAGE_ID, value);
+                        mListener.onEventArrival(cwmEvent);
                         break;
                     case SLEEP_REPORT_MESSAGE_ID:
-                         cwmInfo = getInfomation(SLEEP_REPORT_MESSAGE_ID, value);
-                         mListener.onGetSleepLog(cwmInfo);
+                         cwmEvent = getInfomation(SLEEP_REPORT_MESSAGE_ID, value);
+                         mListener.onEventArrival(cwmEvent);
                         break;
                     default:
                         break;
@@ -688,7 +679,7 @@ public class CwmManager{
             }
         }
     }
-    private CwmInformation getInfomation(int messageId, byte[] value){
+    private CwmEvents getInfomation(int messageId, byte[] value){
         if(messageId == MOTION_DATA_REPORT_MESSAGE_ID ){
            int[] output = new int[4];
             int walkStep = 0;
@@ -702,43 +693,44 @@ public class CwmManager{
              distance = output[1];
              calories = output[2];
              status = output[3];
-            CwmInformation cwmInfo = new CwmInformation();
-            cwmInfo.setId(MOTION_DATA_REPORT_MESSAGE_ID);
-            cwmInfo.setWalkStep(walkStep);
-            cwmInfo.setDistance(distance);
-            cwmInfo.setCalories(calories);
-            cwmInfo.setStatus(status);
-            return cwmInfo;
+            CwmEvents cwmEvents = new CwmEvents();
+            cwmEvents.setId(MOTION_DATA_REPORT_MESSAGE_ID);
+            cwmEvents.setWalkStep(walkStep);
+            cwmEvents.setDistance(distance);
+            cwmEvents.setCalories(calories);
+            cwmEvents.setStatus(status);
+            return cwmEvents;
         }
         else if(messageId == BATTERY_STATUS_REPORT_MESSAGE_ID){
             int[] output = new int[1];
             int battery = 0;
             jniMgr.getCwmInformation(BATTERY_STATUS_REPORT_MESSAGE_ID,value,output);
             battery = output[0];
-            CwmInformation cwmInfo = new CwmInformation();
+            CwmEvents cwmEvents = new CwmEvents();
             /*******************************************************/
-            cwmInfo.setBattery(battery);
-            return cwmInfo;
+            cwmEvents.setId(BATTERY_STATUS_REPORT_MESSAGE_ID);
+            cwmEvents.setBattery(battery);
+            return cwmEvents;
         }
         else if(messageId == TAP_EVENT_MESSAGE_ID){
-            CwmInformation cwmInfo = new CwmInformation();
-            cwmInfo.setId(TAP_EVENT_MESSAGE_ID);
-            return cwmInfo;
+            CwmEvents cwmEvents = new CwmEvents();
+            cwmEvents.setId(TAP_EVENT_MESSAGE_ID);
+            return cwmEvents;
         }
         else if(messageId == WRIST_SCROLL_EVENT_MESSAGE_ID){
-            CwmInformation cwmInfo = new CwmInformation();
-            cwmInfo.setId(WRIST_SCROLL_EVENT_MESSAGE_ID);
-            return cwmInfo;
+            CwmEvents cwmEvents = new CwmEvents();
+            cwmEvents.setId(WRIST_SCROLL_EVENT_MESSAGE_ID);
+            return cwmEvents;
         }
         else if(messageId == SHAKE_EVENT_MESSAGE_ID){
-            CwmInformation cwmInfo = new CwmInformation();
-            cwmInfo.setId(SHAKE_EVENT_MESSAGE_ID);
-            return cwmInfo;
+            CwmEvents cwmEvents = new CwmEvents();
+            cwmEvents.setId(SHAKE_EVENT_MESSAGE_ID);
+            return cwmEvents;
         }
         else if(messageId == SIGNIFICANT_EVENT_MESSAGE_ID){
-            CwmInformation cwmInfo = new CwmInformation();
-            cwmInfo.setId(SIGNIFICANT_EVENT_MESSAGE_ID);
-            return cwmInfo;
+            CwmEvents cwmEvents = new CwmEvents();
+            cwmEvents.setId(SIGNIFICANT_EVENT_MESSAGE_ID);
+            return cwmEvents;
         }
         else if(messageId == HART_RATE_EVENT_MESSAGE_ID){
             int[] output = new int[2];
@@ -746,15 +738,15 @@ public class CwmManager{
 
             jniMgr.getCwmInformation(HART_RATE_EVENT_MESSAGE_ID,value,output);
             heartBeat = output[0];
-            CwmInformation cwmInfo = new CwmInformation();
-            cwmInfo.setId(HART_RATE_EVENT_MESSAGE_ID);
-            cwmInfo.setHeartBeat(heartBeat);
-            return cwmInfo;
+            CwmEvents cwmEvents = new CwmEvents();
+            cwmEvents.setId(HART_RATE_EVENT_MESSAGE_ID);
+            cwmEvents.setHeartBeat(heartBeat);
+            return cwmEvents;
         }
         else if(messageId == SEDENTARY_EVENT_MESSAGE_ID){
-            CwmInformation cwmInfo = new CwmInformation();
-            cwmInfo.setId(SEDENTARY_EVENT_MESSAGE_ID);
-            return cwmInfo;
+            CwmEvents cwmEvents = new CwmEvents();
+            cwmEvents.setId(SEDENTARY_EVENT_MESSAGE_ID);
+            return cwmEvents;
     }
         else if(messageId == TABATA_EVENT_MESSAGE_ID){
             int[] output = new int[6];
@@ -765,8 +757,8 @@ public class CwmManager{
             int strength = 0;
             int status = 0;
 
-            CwmInformation cwmInfo = new CwmInformation();
-            cwmInfo.setId(TABATA_EVENT_MESSAGE_ID);
+            CwmEvents cwmEvents = new CwmEvents();
+            cwmEvents.setId(TABATA_EVENT_MESSAGE_ID);
             /***************************************************************/
             jniMgr.getCwmInformation(TABATA_EVENT_MESSAGE_ID, value, output);
             /***************************************************************/
@@ -783,14 +775,14 @@ public class CwmManager{
             strength = output[4];
             status = output[5];
 
-            cwmInfo.setExerciseItem(items);
-            cwmInfo.setDoItemCount(count);
-            cwmInfo.setCalories(calories);
-            cwmInfo.setHeartBeat(heartRate);
-            cwmInfo.setStrength(strength);
-            cwmInfo.setTabataStatus(status);
+            cwmEvents.setExerciseItem(items);
+            cwmEvents.setDoItemCount(count);
+            cwmEvents.setCalories(calories);
+            cwmEvents.setHeartBeat(heartRate);
+            cwmEvents.setStrength(strength);
+            cwmEvents.setTabataStatus(status);
 
-            return cwmInfo;
+            return cwmEvents;
 
         } else if(messageId == SOFTWARE_VERSION_MESSAGE_ID){
             int[] output = new int[2];
@@ -802,11 +794,11 @@ public class CwmManager{
             main = (float)output[0];
             sub = (((float)output[1]) / 100);
 
-            CwmInformation cwmInfo = new CwmInformation();
-            cwmInfo.setId(SOFTWARE_VERSION_MESSAGE_ID);
-            cwmInfo.setSwVersion(main+sub);
+            CwmEvents cwmEvents = new CwmEvents();
+            cwmEvents.setId(SOFTWARE_VERSION_MESSAGE_ID);
+            cwmEvents.setSwVersion(main+sub);
 
-            return cwmInfo;
+            return cwmEvents;
         } else if(messageId == SLEEP_REPORT_MESSAGE_ID){
             int startPos = 5;
             int unit_sleep_log = 4;//byte
@@ -826,14 +818,14 @@ public class CwmManager{
                 convert[j] = ByteBuffer.wrap(temp).order(ByteOrder.LITTLE_ENDIAN).getInt();
                 j++;
             }
-            CwmInformation cwmInfo = new CwmInformation();
-            cwmInfo.setId(SLEEP_REPORT_MESSAGE_ID);
-            cwmInfo.setSleepLogLength(value.length);
-            cwmInfo.setSleepCombined(value);
-            cwmInfo.setSleepParser(convert);
-            cwmInfo.setParserLength(convert.length);
+            CwmEvents cwmEvents = new CwmEvents();
+            cwmEvents.setId(SLEEP_REPORT_MESSAGE_ID);
+            cwmEvents.setSleepLogLength(value.length);
+            cwmEvents.setSleepCombined(value);
+            cwmEvents.setSleepParser(convert);
+            cwmEvents.setParserLength(convert.length);
 
-            return cwmInfo;
+            return cwmEvents;
         }
         return null;
     }

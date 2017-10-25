@@ -25,13 +25,13 @@
 #-renamesourcefileattribute SourceFile
 
 -keep class cwm.wearablesdk.CwmManager
--keep class cwm.wearablesdk.CwmInformation
+-keep class cwm.wearablesdk.CwmEvents
 -keep class cwm.wearablesdk.Information
 -keep class cwm.wearablesdk.Settings
 -keep class cwm.wearablesdk.BodySettings
 -keep class cwm.wearablesdk.IntelligentSettings
 -keep class cwm.wearablesdk.TabataSettings
--keep class cwm.wearablesdk.CwmManager$InformationListener{*;}
+-keep class cwm.wearablesdk.CwmManager$EventListener{*;}
 -keep class cwm.wearablesdk.CwmManager$WearableServiceListener{*;}
 -keep class cwm.wearablesdk.CwmManager$BleScannerListener{*;}
 -keep class cwm.wearablesdk.CwmManager$AckListener{*;}
@@ -41,7 +41,7 @@
 -keepclassmembers class cwm.wearablesdk.CwmManager {
    public *;
 }
--keepclassmembers class cwm.wearablesdk.CwmInformation {
+-keepclassmembers class cwm.wearablesdk.CwmEvents {
    public int getWalkStep();
    public int getDistance();
    public int getCalories();

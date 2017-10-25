@@ -4,7 +4,7 @@ package cwm.wearablesdk;
  * Created by user on 2017/8/31.
  */
 
-public class CwmInformation extends Information{
+public class CwmEvents extends Information{
     private int mId = 0;
 
     /************walk info**************/
@@ -28,7 +28,7 @@ public class CwmInformation extends Information{
     /**************heart beat*************/
     private int mHeartBeat;
 
-     CwmInformation(){
+     CwmEvents(){
           mId = 0;
           mWalkStep = 0;
           mDistance = 0;
