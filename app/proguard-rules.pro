@@ -32,6 +32,8 @@
 -keep class cwm.wearablesdk.BodySettings
 -keep class cwm.wearablesdk.IntelligentSettings
 -keep class cwm.wearablesdk.TabataSettings
+-keep class cwm.wearablesdk.TabataObject
+-keep class cwm.wearablesdk.ErrorEvents
 -keep class cwm.wearablesdk.CwmManager$EventListener{*;}
 -keep class cwm.wearablesdk.CwmManager$WearableServiceListener{*;}
 -keep class cwm.wearablesdk.CwmManager$BleScannerListener{*;}
@@ -75,5 +77,11 @@ public *;
    public *;
 }
 -keepclassmembers class cwm.wearablesdk.TabataSettings {
+ public *;
+}
+-keepclassmembers class cwm.wearablesdk.ErrorEvents {
+ public *;
+}
+-keepclassmembers class cwm.wearablesdk.TabataObject {
  public *;
 }

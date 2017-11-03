@@ -42,6 +42,22 @@ public class CwmManager{
 
     private final Queue<Data> mOutPutQueue = new LinkedList<>();
     private final Queue<Data> mPendingQueue = new LinkedList<>();
+    private Task mCurrentTask;
+
+    public enum ITEMS{
+        TABATA_INIT,
+        TABATA_PAUSE,
+        TABATA_PREPARE_START,
+        TABATA_PREPARE_COUNT,
+        TABATA_PREARE_END,
+        TABATA_REST_START,
+        TABATA_REST_COUNT,
+        TABATA_REST_END,
+        TABATA_ACTION_ITEM,
+        TABATA_ACTION_START,
+        TABATA_ACTION_END,
+        TABATA_DONE
+    };
 
     /******** protoco l************/
     private enum TYPE{ ACK, MESSAGE, LONG_MESSAGE, PENDING };
@@ -65,6 +81,8 @@ public class CwmManager{
     private final int SIGNIFICANT_EVENT_MESSAGE_ID = 0x08;
     private final int SOFTWARE_VERSION_MESSAGE_ID = 0x90;
     private final int SLEEP_REPORT_MESSAGE_ID = 0xBE;
+    private final int SWITCH_OTA_ID = 0x1F;
+    private final int TABATA_COMMAND_ID = 0x17;
 
     private WearableService mService = null;
     private Context mContext = null;
@@ -85,6 +103,8 @@ public class CwmManager{
 
     private boolean mConnectStatus = false;
 
+    private Handler taskReceivedHandler = new Handler();
+
     // Keep Settings
     public final static int BODY = 1;
     public final static int INTELLIGENT = 2;
@@ -97,22 +117,25 @@ public class CwmManager{
     //the usage for combining packets to one packet
     private int lengthMeasure = 0;
     private int targetLength = 0;
-    private int targetID = 0;
     private int messageID = 0;
 
+    private boolean isTaskHasComplete = true;
     private boolean hasLongMessage = false;
 
     private Handler longMessageHandler = new Handler();
     private Runnable mLongMessageTask = new Runnable() {
         @Override
         public void run() {
+            if(messageID == mCurrentTask.getCommand())
+                isTaskHasComplete = true;
+            ErrorEvents errorEvents = new ErrorEvents();
+            errorEvents.setId(0x02); //packets lost
+            errorEvents.setCommand(messageID);
             hasLongMessage = false;
             mPendingQueue.clear();
             lengthMeasure = 0;
             targetLength = 0;
-            targetID = 0;
             messageID = 0;
-            mErrorListener.onPacketLost();
         }
     };
 
@@ -134,7 +157,7 @@ public class CwmManager{
     }
 
     public interface ErrorListener{
-        void onPacketLost();
+        void onErrorArrival(ErrorEvents errorEvents);
     }
 
     public CwmManager(Activity activity, WearableServiceListener wListener,
@@ -378,183 +401,184 @@ public class CwmManager{
     }
 
     public void CwmSyncBodySettings(){
-        if(mConnectStatus == true) {
-            byte[] command = new byte[9];
-            int[] body = new int[4];
-
-            body[0] = bodySettings.getOld();
-            body[1] = bodySettings.getHight();
-            if (bodySettings.getSex() == 'm' || bodySettings.getSex() == 'M')
-                body[2] = 1;
-            else
-                body[2] = 2;
-            body[3] = bodySettings.getWeight();
-
-            /*******************************************************/
-            jniMgr.getSyncBodyCommandCommand(body,command);
-            /*********************************************************/
-            if((mConnectStatus != false) && (hasLongMessage == false))
-               mService.writeRXCharacteristic(command);
+        Task task = new Task(BODY_PARAMETER_RESPONSE_ID, 2);
+        if(isTaskHasComplete == true) {
+            mCurrentTask = task;
+            mCurrentTask.doWork();
+            taskReceivedHandler.postDelayed(mCurrentTask, mCurrentTask.getTime());
         }
     }
 
     public void CwmSyncIntelligentSettings(){
-        if(mConnectStatus == true) {
-            byte[] command = new byte[9];
-            byte[] command1 = new byte[7];
-            boolean[] feature = new boolean[7];
-            int goal = intelligentSettings.getGoal();
-            int remindTIme = intelligentSettings.getTime();
-            feature[0] = intelligentSettings.getSedtentary();
-            feature[1] = intelligentSettings.getHangUp();
-            feature[2] = intelligentSettings.getOnWear();
-            feature[3] = intelligentSettings.getDoubleTap();
-            feature[4] = intelligentSettings.getWristSwitch();
-            feature[5] = intelligentSettings.getShakeSwitch();
-            feature[6] = intelligentSettings.getSignificant();
-
-            /***************************************************************/
-            jniMgr.getSyncIntelligentCommand(feature, goal, command);
-            jniMgr.getSedentaryRemindTimeCommand(remindTIme, command1);
-            /***********************************************************************************/
-            if((mConnectStatus != false) && (hasLongMessage == false)) {
-                mService.writeRXCharacteristic(command1);
-                mService.writeRXCharacteristic(command);
-            }
+        Task task = new Task(INTELLIGENT_FEATURE_RESPONSE_ID, 2);
+        if(isTaskHasComplete == true) {
+            mCurrentTask = task;
+            mCurrentTask.doWork();
+            taskReceivedHandler.postDelayed(mCurrentTask, mCurrentTask.getTime());
         }
     }
 
     public void CwmSyncCurrentTime(){
-        int[] time = new int[7];
-        byte[] command = new byte[12];
-        boolean isFirstSunday;
-        Calendar c = Calendar.getInstance();
-        time[0] = c.get(Calendar.YEAR);
-        time[1] = c.get(Calendar.MONTH);
-        time[2] = c.get(Calendar.DATE);
-        time[3] = c.get(Calendar.DAY_OF_WEEK);
-        time[4] = c.get(Calendar.HOUR_OF_DAY);
-        time[5] = c.get(Calendar.MINUTE);
-        time[6] = c.get(Calendar.SECOND);
-
-        switch(time[1]) {
-            case Calendar.JANUARY:
-                time[1] = 1;
-                break;
-            case Calendar.FEBRUARY:
-                time[1] = 2;
-                break;
-            case Calendar.MARCH:
-                time[1] = 3;
-                break;
-            case Calendar.APRIL:
-                time[1] = 4;
-                break;
-            case Calendar.MAY:
-                time[1] = 5;
-                break;
-            case Calendar.JUNE:
-                time[1] = 6;
-                break;
-            case Calendar.JULY:
-                time[1] = 7;
-                break;
-            case Calendar.AUGUST:
-                time[1] = 8;
-                break;
-            case Calendar.SEPTEMBER:
-                time[1] = 9;
-                break;
-            case Calendar.OCTOBER:
-                time[1] = 10;
-                break;
-            case Calendar.NOVEMBER:
-                time[1] = 11;
-                break;
-            case Calendar.DECEMBER:
-                time[1] = 12;
-                break;
+        Task task = new Task(SYNC_TIME_RESPONSE_ID, 2);
+        if(isTaskHasComplete == true) {
+            mCurrentTask = task;
+            mCurrentTask.doWork();
+            taskReceivedHandler.postDelayed(mCurrentTask, mCurrentTask.getTime());
         }
-
-        isFirstSunday = (c.getFirstDayOfWeek() == Calendar.SUNDAY);
-        if(isFirstSunday){
-            time[3] = time[3] - 1;
-            if(time[3] == 0){
-                time[3] = 7;
-            }
-        }
-
-        /****************************************/
-        jniMgr.getSyncCurrentCommand(time, command);
-        /****************************************/
-        if((mConnectStatus != false) && (hasLongMessage == false))
-           mService.writeRXCharacteristic(command);
-
     }
 
     public void CwmRequestBattery(){
-        byte[] command = new byte[5];
-        /*******************************************************************************/
-        jniMgr.getRequestBatteryCommand(command);
-         /******************************************************************************/
-         if(mConnectStatus != false)
-             mService.writeRXCharacteristic(command);
+        Task task = new Task(BATTERY_STATUS_REPORT_MESSAGE_ID, 2); //ID, timer 2 sec
+        if(isTaskHasComplete == true) {
+            mCurrentTask = task;
+            mCurrentTask.doWork();
+            taskReceivedHandler.postDelayed(mCurrentTask, mCurrentTask.getTime());
+        }
     }
 
     public void CwmRequestSwVersion(){
-        byte[] command = new byte[5];
-        /*******************************************************************************/
-        jniMgr.getRequestSwVersionCommand(command);
-        /*******************************************************************************/
-        if((mConnectStatus != false) && (hasLongMessage == false))
-            mService.writeRXCharacteristic(command);
-
+        Task task = new Task(SOFTWARE_VERSION_MESSAGE_ID, 2); //ID, timer 2 sec
+        if(isTaskHasComplete == true) {
+            mCurrentTask = task;
+            mCurrentTask.doWork();
+            taskReceivedHandler.postDelayed(mCurrentTask, mCurrentTask.getTime());
+        }
     }
 
     public void CwmSwitchOTA(){
-        byte[] command = new byte[5];
+        Task task = new Task(SWITCH_OTA_ID, 2); //ID, timer 2 sec
+        if(isTaskHasComplete == true) {
+            mCurrentTask = task;
+            mCurrentTask.doWork();
+            taskReceivedHandler.postDelayed(mCurrentTask, mCurrentTask.getTime());
+        }
+        //byte[] command = new byte[5];
         /*******************************************************************************/
-        jniMgr.getSwitchOTACommand(command);
+        //jniMgr.getSwitchOTACommand(command);
         /*******************************************************************************/
-        if((mConnectStatus != false) && (hasLongMessage == false))
-            mService.writeRXCharacteristic(command);
+        //if((mConnectStatus != false) && (hasLongMessage == false))
+         //   mService.writeRXCharacteristic(command);
     }
 
-    public void CwmSendTabataParameters(TabataSettings tabataSettings){
-           int[] settings = new int[6];
-           boolean[] items;
-           byte[] command = new byte[14];
-           boolean itemSelected = false;
+    public void CwmTabataCommand(int operate, int prepare, int interval, int action_item){
 
-           settings[0] = tabataSettings.getPrepareTime();
-           settings[1] = tabataSettings.getActionType();
-           settings[2] = tabataSettings.getActionTime();
-           settings[3] = tabataSettings.getActionTimes();
-           settings[4] = tabataSettings.getIntervalTime();
-           settings[5] = tabataSettings.getCycle();
-           items = tabataSettings.getExerciseItems();
-           for(int i = TabataSettings.ITEMS.PUSHUP.ordinal() ; i <= TabataSettings.ITEMS.PUSHUP_ROTATION.ordinal() ; i++) {
-               if (items[i] == true) {
-                   itemSelected = true;
-                   break;
+           if(operate == ITEMS.TABATA_INIT.ordinal()){
+               Task task = new Task(TABATA_COMMAND_ID, 2); //ID, timer 2 sec
+               if(isTaskHasComplete == true) {
+                   mCurrentTask = task;
+                   mCurrentTask.doWork();
+                   taskReceivedHandler.postDelayed(mCurrentTask, mCurrentTask.getTime());
                }
            }
-           // When any exercise item has selected
-        if(itemSelected == true) {
-            /********************************************************************************/
-            jniMgr.getTabataParameterCommand(settings, items, command);
-            /********************************************************************************/
-            if((mConnectStatus != false) && (hasLongMessage == false))
-               mService.writeRXCharacteristic(command);
-        }
+           else if(operate == ITEMS.TABATA_PREPARE_START.ordinal()){
+               byte[] command = new byte[9];
+               /********************************************************************************/
+               jniMgr.getTabataCommand(ITEMS.TABATA_PREPARE_START.ordinal(), 0, 0, 0, command);
+               /********************************************************************************/
+               if((mConnectStatus != false)){
+                   mService.writeRXCharacteristic(command);
+               }
+           }
+           else if(operate == ITEMS.TABATA_PREPARE_COUNT.ordinal()){
+               byte[] command = new byte[9];
+               /********************************************************************************/
+               jniMgr.getTabataCommand(ITEMS.TABATA_PREPARE_COUNT.ordinal(), prepare, 0, 0, command);
+               /********************************************************************************/
+               if((mConnectStatus != false)){
+                   mService.writeRXCharacteristic(command);
+               }
+           }
+           else if(operate == ITEMS.TABATA_PREARE_END.ordinal()){
+               byte[] command = new byte[9];
+               /********************************************************************************/
+               jniMgr.getTabataCommand(ITEMS.TABATA_PREARE_END.ordinal(), 0, 0, 0, command);
+               /********************************************************************************/
+               if((mConnectStatus != false)){
+                   mService.writeRXCharacteristic(command);
+               }
+           }
+           else if(operate == ITEMS.TABATA_ACTION_ITEM.ordinal()){
+               byte[] command = new byte[9];
+               /********************************************************************************/
+               jniMgr.getTabataCommand(ITEMS.TABATA_ACTION_ITEM.ordinal(), 0, 0, action_item, command);
+               /********************************************************************************/
+               if((mConnectStatus != false)){
+                   mService.writeRXCharacteristic(command);
+               }
+           }
+           else if(operate == ITEMS.TABATA_ACTION_START.ordinal()){
+               byte[] command = new byte[9];
+               /********************************************************************************/
+               jniMgr.getTabataCommand(ITEMS.TABATA_ACTION_START.ordinal(), 0, 0, 0, command);
+               /********************************************************************************/
+               if((mConnectStatus != false)){
+                   mService.writeRXCharacteristic(command);
+               }
 
+           }
+           else if(operate == ITEMS.TABATA_ACTION_END.ordinal()){
+               byte[] command = new byte[9];
+               /********************************************************************************/
+               jniMgr.getTabataCommand(ITEMS.TABATA_ACTION_END.ordinal(), 0, 0, 0, command);
+               /********************************************************************************/
+               if((mConnectStatus != false)){
+                   mService.writeRXCharacteristic(command);
+               }
+           }
+           else if(operate == ITEMS.TABATA_REST_START.ordinal()){
+               byte[] command = new byte[9];
+               /********************************************************************************/
+               jniMgr.getTabataCommand(ITEMS.TABATA_REST_START.ordinal(), 0, 0, 0, command);
+               /********************************************************************************/
+               if((mConnectStatus != false)){
+                   mService.writeRXCharacteristic(command);
+               }
+           }
+           else if(operate == ITEMS.TABATA_REST_COUNT.ordinal()){
+               byte[] command = new byte[9];
+               /********************************************************************************/
+               jniMgr.getTabataCommand(ITEMS.TABATA_REST_COUNT.ordinal(), 0, interval, 0, command);
+               /********************************************************************************/
+               if((mConnectStatus != false)){
+                   mService.writeRXCharacteristic(command);
+               }
+           }
+           else if(operate == ITEMS.TABATA_REST_END.ordinal()){
+               byte[] command = new byte[9];
+               /********************************************************************************/
+               jniMgr.getTabataCommand(ITEMS.TABATA_REST_END.ordinal(), 0, 0, 0, command);
+               /********************************************************************************/
+               if((mConnectStatus != false)){
+                   mService.writeRXCharacteristic(command);
+               }
+           }
+           else if(operate == ITEMS.TABATA_PAUSE.ordinal()){
+               byte[] command = new byte[9];
+               /********************************************************************************/
+               jniMgr.getTabataCommand(ITEMS.TABATA_PAUSE.ordinal(), 0, 0, 0, command);
+               /********************************************************************************/
+               if((mConnectStatus != false)){
+                   mService.writeRXCharacteristic(command);
+               }
+           }
+           else if(operate == ITEMS.TABATA_DONE.ordinal()){
+               byte[] command = new byte[9];
+               /********************************************************************************/
+               jniMgr.getTabataCommand(ITEMS.TABATA_DONE.ordinal(), 0, 0, 0, command);
+               /********************************************************************************/
+               if((mConnectStatus != false)){
+                   mService.writeRXCharacteristic(command);
+               }
+           }
     }
 
     public void CwmRequestSleepLog(){
-            byte[] command = new byte[5];
-            jniMgr.getSleepLogCommand(command);
-            if((mConnectStatus != false) && (hasLongMessage == false))
-               mService.writeRXCharacteristic(command);
+        Task task = new Task(SLEEP_REPORT_MESSAGE_ID, 5); //ID, timer 2 sec
+        if(isTaskHasComplete == true) {
+            mCurrentTask = task;
+            mCurrentTask.doWork();
+            taskReceivedHandler.postDelayed(mCurrentTask, mCurrentTask.getTime());
+        }
     }
 
     public String CwmSdkVersion(){
@@ -565,9 +589,19 @@ public class CwmManager{
 
     private void enqueue(Data data){
         if (data.type == NON_PENDING && data.length <= PACKET_SIZE) {
+            //if we receive header in time, then cancle time out handler
+            if(data.getMessageID() == mCurrentTask.getCommand()) {
+                isTaskHasComplete = false;
+                taskReceivedHandler.removeCallbacks(mCurrentTask);
+            }
             mOutPutQueue.add(data);
         }
         else if(data.type == LONE_MESSAGE){
+            //if we receive header in time, then cancle time out handler
+            if(data.getMessageID() == mCurrentTask.getCommand()) {
+                isTaskHasComplete = false;
+                taskReceivedHandler.removeCallbacks(mCurrentTask);
+            }
             hasLongMessage = true;
             targetLength = data.length - PACKET_SIZE;
             messageID = data.getMessageID();
@@ -600,7 +634,6 @@ public class CwmManager{
 
                 lengthMeasure = 0;
                 targetLength = 0;
-                targetID = 0;
                 messageID = 0;
             }
         }
@@ -608,6 +641,9 @@ public class CwmManager{
     private void parser(){
         if(mOutPutQueue.size() != 0){
             Data data = mOutPutQueue.poll();
+            if(data.getMessageID() == mCurrentTask.getCommand()){
+                isTaskHasComplete = true;
+            }
             if(data.getIdType() == ACK) {
                 int id = data.getMessageID();
                 AckEvents ackEvents = new AckEvents();
@@ -625,6 +661,14 @@ public class CwmManager{
                         mAckListener.onAckArrival(ackEvents);
                         break;
                     case CLEAN_BOND_RESPONSE_ID:
+                        break;
+                    case SLEEP_REPORT_MESSAGE_ID:
+                        ackEvents.setId(SLEEP_REPORT_MESSAGE_ID);
+                        mAckListener.onAckArrival(ackEvents);
+                        break;
+                    case TABATA_COMMAND_ID:
+                        ackEvents.setId(TABATA_EVENT_MESSAGE_ID);
+                        mAckListener.onAckArrival(ackEvents);
                         break;
                     default:
                         break;
@@ -867,6 +911,192 @@ public class CwmManager{
         }
 
         public byte[] getValue(){return value;}
+    }
+    public class Task implements Runnable{
+        int time_expected;
+        int id;
+
+        @Override
+        public void run(){
+            ErrorEvents errorEvents = new ErrorEvents();
+            errorEvents.setId(0x01); //header lost
+            errorEvents.setCommand(mCurrentTask.getCommand());
+            isTaskHasComplete = true;
+        }
+
+        public void doWork(){
+            byte[] command;
+            byte[] command1;
+            switch (id){
+                case BATTERY_STATUS_REPORT_MESSAGE_ID:
+                    command = new byte[5];
+                    /*******************************************************************************/
+                    jniMgr.getRequestBatteryCommand(command);
+                    /******************************************************************************/
+                    if(mConnectStatus != false) {
+                        mService.writeRXCharacteristic(command);
+                    }
+                    break;
+                case SOFTWARE_VERSION_MESSAGE_ID:
+                     command = new byte[5];
+                    /*******************************************************************************/
+                    jniMgr.getRequestSwVersionCommand(command);
+                    /*******************************************************************************/
+                    if(mConnectStatus != false)
+                       mService.writeRXCharacteristic(command);
+                    break;
+                case SYNC_TIME_RESPONSE_ID:
+                    int[] time = new int[7];
+                    command = new byte[12];
+                    boolean isFirstSunday;
+                    Calendar c = Calendar.getInstance();
+                    time[0] = c.get(Calendar.YEAR);
+                    time[1] = c.get(Calendar.MONTH);
+                    time[2] = c.get(Calendar.DATE);
+                    time[3] = c.get(Calendar.DAY_OF_WEEK);
+                    time[4] = c.get(Calendar.HOUR_OF_DAY);
+                    time[5] = c.get(Calendar.MINUTE);
+                    time[6] = c.get(Calendar.SECOND);
+
+                    switch(time[1]) {
+                       case Calendar.JANUARY:
+                           time[1] = 1;
+                       break;
+                       case Calendar.FEBRUARY:
+                           time[1] = 2;
+                        break;
+                       case Calendar.MARCH:
+                           time[1] = 3;
+                        break;
+                       case Calendar.APRIL:
+                           time[1] = 4;
+                         break;
+                       case Calendar.MAY:
+                           time[1] = 5;
+                        break;
+                       case Calendar.JUNE:
+                           time[1] = 6;
+                        break;
+                       case Calendar.JULY:
+                           time[1] = 7;
+                        break;
+                       case Calendar.AUGUST:
+                           time[1] = 8;
+                        break;
+                       case Calendar.SEPTEMBER:
+                           time[1] = 9;
+                        break;
+                       case Calendar.OCTOBER:
+                           time[1] = 10;
+                        break;
+                       case Calendar.NOVEMBER:
+                           time[1] = 11;
+                        break;
+                       case Calendar.DECEMBER:
+                           time[1] = 12;
+                        break;
+                   }
+
+                   isFirstSunday = (c.getFirstDayOfWeek() == Calendar.SUNDAY);
+                   if(isFirstSunday){
+                       time[3] = time[3] - 1;
+                       if(time[3] == 0){
+                           time[3] = 7;
+                       }
+                   }
+                   /****************************************/
+                   jniMgr.getSyncCurrentCommand(time, command);
+                   /****************************************/
+                   if(mConnectStatus != false)
+                       mService.writeRXCharacteristic(command);
+                   break;
+
+                case BODY_PARAMETER_RESPONSE_ID:
+                    if(mConnectStatus == true) {
+                        command = new byte[9];
+                        int[] body = new int[4];
+
+                        body[0] = bodySettings.getOld();
+                        body[1] = bodySettings.getHight();
+                        if (bodySettings.getSex() == 'm' || bodySettings.getSex() == 'M')
+                            body[2] = 1;
+                        else
+                            body[2] = 2;
+                        body[3] = bodySettings.getWeight();
+
+                        /*******************************************************/
+                        jniMgr.getSyncBodyCommandCommand(body,command);
+                        /*********************************************************/
+                        if(mConnectStatus != false)
+                            mService.writeRXCharacteristic(command);
+                    }
+                    break;
+                case INTELLIGENT_FEATURE_RESPONSE_ID:
+                    if(mConnectStatus == true) {
+                        command = new byte[9];
+                        command1 = new byte[7];
+                        boolean[] feature = new boolean[7];
+                        int goal = intelligentSettings.getGoal();
+                        int remindTIme = intelligentSettings.getTime();
+                        feature[0] = intelligentSettings.getSedtentary();
+                        feature[1] = intelligentSettings.getHangUp();
+                        feature[2] = intelligentSettings.getOnWear();
+                        feature[3] = intelligentSettings.getDoubleTap();
+                        feature[4] = intelligentSettings.getWristSwitch();
+                        feature[5] = intelligentSettings.getShakeSwitch();
+                        feature[6] = intelligentSettings.getSignificant();
+
+                        /***************************************************************/
+                        jniMgr.getSyncIntelligentCommand(feature, goal, command);
+                        jniMgr.getSedentaryRemindTimeCommand(remindTIme, command1);
+                        /***********************************************************************************/
+                        if(mConnectStatus != false) {
+                            mService.writeRXCharacteristic(command1);
+                            mService.writeRXCharacteristic(command);
+                        }
+                    }
+                    break;
+
+                case SLEEP_REPORT_MESSAGE_ID:
+                    command = new byte[5];
+                    jniMgr.getSleepLogCommand(command);
+                    if(mConnectStatus != false)
+                        mService.writeRXCharacteristic(command);
+                    break;
+
+                case SWITCH_OTA_ID:
+                    command = new byte[5];
+                    /*******************************************************************************/
+                    jniMgr.getSwitchOTACommand(command);
+                    /*******************************************************************************/
+                    if(mConnectStatus != false)
+                       mService.writeRXCharacteristic(command);
+                    break;
+
+                case TABATA_COMMAND_ID:
+                    command = new byte[9];
+                    /********************************************************************************/
+                     jniMgr.getTabataCommand(ITEMS.TABATA_INIT.ordinal(), 0, 0, 0, command);
+                    /********************************************************************************/
+                    if((mConnectStatus != false)){
+                      mService.writeRXCharacteristic(command);
+                     }
+                    break;
+            }
+        }
+
+        public int getTime(){
+            return time_expected*1000;
+        }
+        public Task(int command, int time){
+            this.id = command;
+            time_expected = time;
+        }
+
+        public int getCommand(){
+            return id;
+        }
+
     }
 
 

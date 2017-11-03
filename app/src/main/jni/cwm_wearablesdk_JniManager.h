@@ -41,11 +41,11 @@ JNIEXPORT void JNICALL Java_cwm_wearablesdk_JniManager_getRequestBatteryCommand
 
 /*
  * Class:     cwm_wearablesdk_JniManager
- * Method:    getTabataParameterCommand
- * Signature: ([I[Z[B)V
+ * Method:    getTabataCommand
+ * Signature: (IIII[B)V
  */
-JNIEXPORT void JNICALL Java_cwm_wearablesdk_JniManager_getTabataParameterCommand
-  (JNIEnv *, jobject, jintArray, jbooleanArray, jbyteArray);
+JNIEXPORT void JNICALL Java_cwm_wearablesdk_JniManager_getTabataCommand
+  (JNIEnv *, jobject, jint, jint, jint, jint, jbyteArray);
 
 /*
  * Class:     cwm_wearablesdk_JniManager

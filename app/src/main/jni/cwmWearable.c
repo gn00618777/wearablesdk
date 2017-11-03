@@ -512,4 +512,251 @@ JNIEXPORT void JNICALL Java_cwm_wearablesdk_JniManager_getSedentaryRemindTimeCom
          (*env)->SetByteArrayRegion(env, output, 0, 7, txData);
          free(txData);
 }
+JNIEXPORT void JNICALL Java_cwm_wearablesdk_JniManager_getTabataCommand
+(JNIEnv * env, jobject jobj, jint operate, jint prepare, jint interval, jint action_item, jbyteArray output)
+{
+
+           jbyte *txData = malloc(sizeof(jbyte)*9);
+
+           if(operate == 0){ // tabata init
+
+              txData[0] = (jbyte)0xE6;
+              txData[1] = (jbyte)0x90;
+              txData[2] = (jbyte)0x09;
+              txData[3] = (jbyte)0x17;
+              txData[4] = (jbyte)0x0;// tabata flag
+              txData[5] = (jbyte)0x0;
+              txData[6] = (jbyte)0x0;
+              txData[7] = (jbyte)0x0;
+
+              jint checksum = txData[0]+txData[1]+txData[2]+txData[3]+txData[4]+txData[5]+
+                      txData[6]+txData[7];
+
+               txData[8] = (jbyte)checksum;
+
+              (*env)->SetByteArrayRegion(env, output, 0, 9, txData);
+              free(txData);
+          }
+          else if(operate == 1){ //tabata pause
+
+                 txData[0] = (jbyte)0xE6;
+                 txData[1] = (jbyte)0x90;
+                 txData[2] = (jbyte)0x09;
+                 txData[3] = (jbyte)0x17;
+                 txData[4] = (jbyte)0x01; // tabata flag
+                 txData[5] = (jbyte)0x00;
+                 txData[6] = (jbyte)0x00;
+                 txData[7] = (jbyte)0x00;
+
+                 jint checksum = txData[0]+txData[1]+txData[2]+txData[3]+txData[4]+txData[5]+
+                              txData[6]+txData[7];
+
+                txData[8] = (jbyte)checksum;
+
+                (*env)->SetByteArrayRegion(env, output, 0, 9, txData);
+                free(txData);
+          }
+          else if(operate == 8){ //select tabat item
+
+              txData[0] = (jbyte)0xE6;
+              txData[1] = (jbyte)0x90;
+              txData[2] = (jbyte)0x09;
+              txData[3] = (jbyte)0x17;
+              txData[4] = (jbyte)0x8; //tabata flag
+              txData[5] = (jbyte)0x0;
+              txData[6] = (jbyte)0x0;
+              txData[7] = (jbyte)action_item;
+
+              jint checksum = txData[0]+txData[1]+txData[2]+txData[3]+txData[4]+txData[5]+
+                              txData[6]+txData[7];
+
+              txData[8] = (jbyte)checksum;
+
+              (*env)->SetByteArrayRegion(env, output, 0, 9, txData);
+              free(txData);
+          }
+          else if(operate == 3){ //tabata prepare count
+
+                 jint prepareTime_L = 0;
+                 jint prepareTime_H = 0;
+
+                 prepareTime_L = prepare & 0xFF;
+                 prepareTime_H = (prepare >> 8) & 0xFF;
+
+                 txData[0] = (jbyte)0xE6;
+                 txData[1] = (jbyte)0x90;
+                 txData[2] = (jbyte)0x09;
+                 txData[3] = (jbyte)0x17;
+                 txData[4] = (jbyte)0x3; // tabata flag
+                 txData[5] = (jbyte)prepareTime_L;
+                 txData[6] = (jbyte)prepareTime_H;
+                 txData[7] = (jbyte)0x0;
+
+                 jint checksum = txData[0]+txData[1]+txData[2]+txData[3]+txData[4]+txData[5]+
+                                  txData[6]+txData[7];
+
+                 txData[8] = (jbyte)checksum;
+
+                 (*env)->SetByteArrayRegion(env, output, 0, 9, txData);
+                 free(txData);
+          }
+          else if(operate == 2){ //tabata prepare start
+
+                 txData[0] = (jbyte)0xE6;
+                 txData[1] = (jbyte)0x90;
+                 txData[2] = (jbyte)0x09;
+                 txData[3] = (jbyte)0x17;
+                 txData[4] = (jbyte)0x2; // tabata flag
+                 txData[5] = (jbyte)0x00;
+                 txData[6] = (jbyte)0x00;
+                 txData[7] = (jbyte)0x00;
+
+                 jint checksum = txData[0]+txData[1]+txData[2]+txData[3]+txData[4]+txData[5]+
+                                 txData[6]+txData[7];
+
+                 txData[8] = (jbyte)checksum;
+
+                 (*env)->SetByteArrayRegion(env, output, 0, 9, txData);
+                 free(txData);
+          }
+          else if(operate == 4){ //tabata prepare end
+
+                txData[0] = (jbyte)0xE6;
+                txData[1] = (jbyte)0x90;
+                txData[2] = (jbyte)0x09;
+                txData[3] = (jbyte)0x17;
+                txData[4] = (jbyte)0x4; // tabata flag
+                txData[5] = (jbyte)0x00;
+                txData[6] = (jbyte)0x00;
+                txData[7] = (jbyte)0x00;
+
+                jint checksum = txData[0]+txData[1]+txData[2]+txData[3]+txData[4]+txData[5]+
+                               txData[6]+txData[7];
+
+                txData[8] = (jbyte)checksum;
+
+                (*env)->SetByteArrayRegion(env, output, 0, 9, txData);
+                free(txData);
+          }
+          else if(operate == 5){ //tabata reset start
+
+                txData[0] = (jbyte)0xE6;
+                txData[1] = (jbyte)0x90;
+                txData[2] = (jbyte)0x09;
+                txData[3] = (jbyte)0x17;
+                txData[4] = (jbyte)0x5; // tabata flag
+                txData[5] = (jbyte)0x00;
+                txData[6] = (jbyte)0x00;
+                txData[7] = (jbyte)0x00;
+
+                jint checksum = txData[0]+txData[1]+txData[2]+txData[3]+txData[4]+txData[5]+
+                               txData[6]+txData[7];
+
+                txData[8] = (jbyte)checksum;
+
+                (*env)->SetByteArrayRegion(env, output, 0, 9, txData);
+                free(txData);
+          }
+          else if(operate == 6){ //tabata reset count
+
+                 jint intervalTime_L = 0;
+                 jint intervalTime_H = 0;
+
+                 intervalTime_L = interval & 0xFF;
+                 intervalTime_H = (interval >> 8) & 0xFF;
+
+                 txData[0] = (jbyte)0xE6;
+                 txData[1] = (jbyte)0x90;
+                 txData[2] = (jbyte)0x09;
+                 txData[3] = (jbyte)0x17;
+                 txData[4] = (jbyte)0x6; // tabata flag
+                 txData[5] = (jbyte)intervalTime_L;
+                 txData[6] = (jbyte)intervalTime_H;
+                 txData[7] = (jbyte)0x0;
+
+                 jint checksum = txData[0]+txData[1]+txData[2]+txData[3]+txData[4]+txData[5]+
+                                txData[6]+txData[7];
+
+                 txData[8] = (jbyte)checksum;
+
+                 (*env)->SetByteArrayRegion(env, output, 0, 9, txData);
+                 free(txData);
+          }
+          else if(operate == 7){ //tabata reset end
+
+                 txData[0] = (jbyte)0xE6;
+                 txData[1] = (jbyte)0x90;
+                 txData[2] = (jbyte)0x09;
+                 txData[3] = (jbyte)0x17;
+                 txData[4] = (jbyte)0x7; // tabata flag
+                 txData[5] = (jbyte)0x00;
+                 txData[6] = (jbyte)0x00;
+                 txData[7] = (jbyte)0x00;
+
+                 jint checksum = txData[0]+txData[1]+txData[2]+txData[3]+txData[4]+txData[5]+
+                                txData[6]+txData[7];
+
+                 txData[8] = (jbyte)checksum;
+
+                (*env)->SetByteArrayRegion(env, output, 0, 9, txData);
+                free(txData);
+          }
+          else if(operate == 9) { //tabata action start
+
+                 txData[0] = (jbyte)0xE6;
+                 txData[1] = (jbyte)0x90;
+                 txData[2] = (jbyte)0x09;
+                 txData[3] = (jbyte)0x17;
+                 txData[4] = (jbyte)0x9; // tabata flag
+                 txData[5] = (jbyte)0x00;
+                 txData[6] = (jbyte)0x00;
+                 txData[7] = (jbyte)0x00;
+
+                 jint checksum = txData[0]+txData[1]+txData[2]+txData[3]+txData[4]+txData[5]+
+                               txData[6]+txData[7];
+
+                 txData[8] = (jbyte)checksum;
+
+                 (*env)->SetByteArrayRegion(env, output, 0, 9, txData);
+                 free(txData);
+          }
+          else if(operate == 10) { //tabata action end
+
+                 txData[0] = (jbyte)0xE6;
+                 txData[1] = (jbyte)0x90;
+                 txData[2] = (jbyte)0x09;
+                 txData[3] = (jbyte)0x17;
+                 txData[4] = (jbyte)0xA; // tabata flag
+                 txData[5] = (jbyte)0x00;
+                 txData[6] = (jbyte)0x00;
+                 txData[7] = (jbyte)0x00;
+
+                 jint checksum = txData[0]+txData[1]+txData[2]+txData[3]+txData[4]+txData[5]+
+                                txData[6]+txData[7];
+
+                 txData[8] = (jbyte)checksum;
+
+                 (*env)->SetByteArrayRegion(env, output, 0, 9, txData);
+                 free(txData);
+          }
+          else if(operate == 11){ //tabata done
+
+                 txData[0] = (jbyte)0xE6;
+                 txData[1] = (jbyte)0x90;
+                 txData[2] = (jbyte)0x09;
+                 txData[3] = (jbyte)0x17;
+                 txData[4] = (jbyte)0xB; // tabata flag
+                 txData[5] = (jbyte)0x00;
+                 txData[6] = (jbyte)0x00;
+                 txData[7] = (jbyte)0x00;
+
+                 jint checksum = txData[0]+txData[1]+txData[2]+txData[3]+txData[4]+txData[5]+
+                               txData[6]+txData[7];
+
+                 txData[8] = (jbyte)checksum;
+
+                 (*env)->SetByteArrayRegion(env, output, 0, 9, txData);
+                 free(txData);
+          }
+}
 

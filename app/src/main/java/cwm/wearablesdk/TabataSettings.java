@@ -1,5 +1,8 @@
 package cwm.wearablesdk;
 
+import java.util.LinkedList;
+import java.util.Queue;
+
 /**
  * Created by user on 2017/9/14.
  */
@@ -78,6 +81,16 @@ public class TabataSettings {
         if(cycle >= 1 && cycle <= 255){
             this.cycle = cycle;
         }
+    }
+    public int getTotalItemsNumber(){
+        int total = 0;
+
+        for(int i = ITEMS.PUSHUP.ordinal() ; i <= ITEMS.PUSHUP_ROTATION.ordinal() ; i++){
+            if(items[i] == true)
+                total++;
+        }
+
+        return total;
     }
     public int getPrepareTime(){
         return this.prepareTime;
@@ -198,5 +211,54 @@ public class TabataSettings {
         else
             return false;
     }
-    public boolean[] getExerciseItems(){return this.items;}
+    public Queue<TabataObject> getExerciseItems(){
+        Queue<TabataObject> ItemQueue = new LinkedList<>();
+        for(int i = ITEMS.PUSHUP.ordinal() ; i <= ITEMS.PUSHUP_ROTATION.ordinal() ; i++){
+            if(items[i] == true){
+                TabataObject obj = new TabataObject();
+                if(i == ITEMS.PUSHUP.ordinal()) {
+                    obj.setItemName(ITEMS.PUSHUP.toString());
+                    obj.setItemPos(ITEMS.PUSHUP.ordinal());
+                }
+                else if(i == ITEMS.CRUNCH.ordinal()){
+                    obj.setItemName(ITEMS.CRUNCH.toString());
+                    obj.setItemPos(ITEMS.CRUNCH.ordinal());
+                }
+                else if(i == ITEMS.SQUART.ordinal()){
+                    obj.setItemName(ITEMS.SQUART.toString());
+                    obj.setItemPos(ITEMS.SQUART.ordinal());
+                }
+                else if(i == ITEMS.JUMPING_JACK.ordinal()){
+                    obj.setItemName(ITEMS.JUMPING_JACK.toString());
+                    obj.setItemPos(ITEMS.JUMPING_JACK.ordinal());
+                }
+                else if(i == ITEMS.DIPS.ordinal()){
+                    obj.setItemName(ITEMS.DIPS.toString());
+                    obj.setItemPos(ITEMS.DIPS.ordinal());
+                }
+                else if(i == ITEMS.HIGH_KNESSRUNNING.ordinal()){
+                    obj.setItemName(ITEMS.HIGH_KNESSRUNNING.toString());
+                    obj.setItemPos(ITEMS.HIGH_KNESSRUNNING.ordinal());
+                }
+                else if(i == ITEMS.LUNGES.ordinal()){
+                    obj.setItemName(ITEMS.LUNGES.toString());
+                    obj.setItemPos(ITEMS.LUNGES.ordinal());
+                }
+                else if(i == ITEMS.BURPEES.ordinal()){
+                    obj.setItemName(ITEMS.BURPEES.toString());
+                    obj.setItemPos(ITEMS.BURPEES.ordinal());
+                }
+                else if(i == ITEMS.STEP_ON_CHAIR.ordinal()){
+                    obj.setItemName(ITEMS.STEP_ON_CHAIR.toString());
+                    obj.setItemPos(ITEMS.STEP_ON_CHAIR.ordinal());
+                }
+                else if(i == ITEMS.PUSHUP_ROTATION.ordinal()){
+                    obj.setItemName(ITEMS.PUSHUP_ROTATION.toString());
+                    obj.setItemPos(ITEMS.PUSHUP_ROTATION.ordinal());
+                }
+                ItemQueue.add(obj);
+            }
+        }
+        return ItemQueue;
+    }
 }
