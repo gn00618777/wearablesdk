@@ -103,6 +103,14 @@ JNIEXPORT void JNICALL Java_cwm_wearablesdk_JniManager_getCwmSleepInfomation
 JNIEXPORT void JNICALL Java_cwm_wearablesdk_JniManager_getSedentaryRemindTimeCommand
   (JNIEnv *, jobject, jint, jbyteArray);
 
+/*
+ * Class:     cwm_wearablesdk_JniManager
+ * Method:    getReadFlashCommand
+ * Signature: (I[B)V
+ */
+JNIEXPORT void JNICALL Java_cwm_wearablesdk_JniManager_getReadFlashCommand
+  (JNIEnv *, jobject, jint, jbyteArray);
+
 #ifdef __cplusplus
 }
 #endif

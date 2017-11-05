@@ -759,4 +759,39 @@ JNIEXPORT void JNICALL Java_cwm_wearablesdk_JniManager_getTabataCommand
                  free(txData);
           }
 }
+JNIEXPORT void JNICALL Java_cwm_wearablesdk_JniManager_getReadFlashCommand
+(JNIEnv *env, jobject jobj, jint type, jbyteArray output)
+{
+      jbyte *txData = malloc(sizeof(jbyte)*6);
+      jint checksum = 0;
+
+      txData[0] = (jbyte)0xE6;
+      txData[1] = (jbyte)0x90;
+      txData[2] = (jbyte)0x06;
+      txData[3] = (jbyte)0x20; //command id
+
+      if(type == 0){ //sync start
+         txData[4] = (jbyte)0x0;
+      }
+      else if(type == 1){ //sync success
+         txData[4] = (jbyte)0x1;
+      }
+      else if(type == 2){ //sync fail
+         txData[4] = (jbyte)0x2;
+      }
+      else if(type == 3){ //sync abort
+          txData[4] = (jbyte)0x3;
+      }
+      else if(type == 4){ //sync done
+          txData[4] = (jbyte)0x4;
+      }
+
+       checksum = txData[0]+txData[1]+txData[2]+txData[3]+txData[4];
+
+       txData[5] = (jbyte) checksum;
+
+       (*env)->SetByteArrayRegion(env, output, 0, 6, txData);
+       free(txData);
+
+}
 

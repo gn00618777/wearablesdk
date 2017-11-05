@@ -58,6 +58,13 @@ public class CwmManager{
         TABATA_ACTION_END,
         TABATA_DONE
     };
+    enum FLASH_SYNC_TYPE{
+        SYNC_START,
+        SYNC_SUCCESS,
+        SYNC_FAIL,
+        SYNC_ABORT,
+        SYNC_DONE
+    };
 
     /******** protoco l************/
     private enum TYPE{ ACK, MESSAGE, LONG_MESSAGE, PENDING };
@@ -83,6 +90,8 @@ public class CwmManager{
     private final int SLEEP_REPORT_MESSAGE_ID = 0xBE;
     private final int SWITCH_OTA_ID = 0x1F;
     private final int TABATA_COMMAND_ID = 0x17;
+    private final int READ_FLASH_COMMAND_ID = 0x20;
+    private final int RECEIVED_FLASH_COMMAND_ID = 0x21;
 
     private WearableService mService = null;
     private Context mContext = null;
@@ -118,6 +127,7 @@ public class CwmManager{
     private int lengthMeasure = 0;
     private int targetLength = 0;
     private int messageID = 0;
+    private int tagID = 0;
 
     private boolean isTaskHasComplete = true;
     private boolean hasLongMessage = false;
@@ -131,11 +141,15 @@ public class CwmManager{
             ErrorEvents errorEvents = new ErrorEvents();
             errorEvents.setId(0x02); //packets lost
             errorEvents.setCommand(messageID);
+            if(messageID == READ_FLASH_COMMAND_ID)
+               errorEvents.setTag(tagID);
+            mErrorListener.onErrorArrival(errorEvents);
             hasLongMessage = false;
             mPendingQueue.clear();
             lengthMeasure = 0;
             targetLength = 0;
             messageID = 0;
+            tagID = 0;
         }
     };
 
@@ -310,42 +324,53 @@ public class CwmManager{
         int packet_length = 0;
         int packet_id_type = 0;
         int packet_message_id = 0;
+        int packet_tag = 0;
         byte[] packet = null;
 
         if(TYPE.ACK.ordinal() == jniMgr.getType(rxBuffer)){
+            Data data;
             packet_type = NON_PENDING;
             packet_length = ((rxBuffer[3] & 0xFF) << 8) | (rxBuffer[2] & 0xFF);
             packet_id_type = rxBuffer[4] & 0xFF;
             packet_message_id = rxBuffer[5] & 0xFF;
             packet = rxBuffer;
-            Data data = new Data(packet_type, packet_length, packet_id_type, packet_message_id, packet);
+            data = new Data(packet_type, packet_length, packet_id_type, packet_message_id, packet);
             enqueue(data);
         }
         else if(TYPE.MESSAGE.ordinal() == jniMgr.getType(rxBuffer)){
+            Data data;
             packet_type = NON_PENDING;
             packet_length = ((rxBuffer[3] & 0xFF) << 8) | (rxBuffer[2] & 0xFF);
             packet_id_type = rxBuffer[4] & 0xFF;
             packet_message_id = 0;
             packet = rxBuffer;
-            Data data = new Data(packet_type, packet_length, packet_id_type, packet_message_id, packet);
+            data = new Data(packet_type, packet_length, packet_id_type, packet_message_id, packet);
             enqueue(data);
         }
         else if(TYPE.LONG_MESSAGE.ordinal() == jniMgr.getType(rxBuffer)){
+            Data data;
             packet_type = LONE_MESSAGE;
             packet_length = ((rxBuffer[3] & 0xFF) << 8) | (rxBuffer[2] & 0xFF);
             packet_id_type = rxBuffer[4] & 0xFF;
             packet_message_id = 0;
             packet = rxBuffer;
-            Data data = new Data(packet_type, packet_length, packet_id_type, packet_message_id, packet);
+            if(packet_id_type == RECEIVED_FLASH_COMMAND_ID){
+                packet_tag = rxBuffer[5] & 0xFF;
+                data = new Data(packet_type, packet_length, packet_id_type, packet_message_id, packet_tag, packet);
+            }
+            else {
+                data = new Data(packet_type, packet_length, packet_id_type, packet_message_id, packet);
+            }
             enqueue(data);
         }
         else if(TYPE.PENDING.ordinal() == jniMgr.getType(rxBuffer)){
+            Data data;
             packet_type = PENDING;
             packet_length = rxBuffer.length;
             packet_id_type = 0;
             packet_message_id = 0;
             packet = rxBuffer;
-            Data data = new Data(packet_type, packet_length, packet_id_type, packet_message_id, packet);
+            data = new Data(packet_type, packet_length, packet_id_type, packet_message_id, packet);
             //Log.d("bernie","[0]:"+Byte.toString(rxBuffer[0])+" [1]:"+Byte.toString(rxBuffer[1])+" [2]:"+Byte.toString(rxBuffer[2])+" [3]:"+Byte.toString(rxBuffer[3]));
             enqueue(data);
         }
@@ -585,23 +610,59 @@ public class CwmManager{
         return SDK_VERSION;
     }
 
+    public void CwmFlashSyncStart(){
+        Task task = new Task(READ_FLASH_COMMAND_ID, 2); //ID, timer 2 sec
+        task.setSyncType(FLASH_SYNC_TYPE.SYNC_START.ordinal());
+        tagID = FLASH_SYNC_TYPE.SYNC_START.ordinal();
+        if(isTaskHasComplete == true) {
+            mCurrentTask = task;
+            mCurrentTask.doWork();
+            taskReceivedHandler.postDelayed(mCurrentTask, mCurrentTask.getTime());
+        }
+    }
+    public void CwmFlashSyncSuccess(){
+        Task task = new Task(READ_FLASH_COMMAND_ID, 2); //ID, timer 2 sec
+        task.setSyncType(FLASH_SYNC_TYPE.SYNC_SUCCESS.ordinal());
+        tagID = FLASH_SYNC_TYPE.SYNC_SUCCESS.ordinal();
+        if(isTaskHasComplete == true) {
+            mCurrentTask = task;
+            mCurrentTask.doWork();
+            taskReceivedHandler.postDelayed(mCurrentTask, mCurrentTask.getTime());
+        }
+    }
+    public void CwmFlashSyncFail(){
+        Task task = new Task(READ_FLASH_COMMAND_ID, 2); //ID, timer 2 sec
+        task.setSyncType(FLASH_SYNC_TYPE.SYNC_FAIL.ordinal());
+        tagID = FLASH_SYNC_TYPE.SYNC_FAIL.ordinal();
+        if(isTaskHasComplete == true) {
+            mCurrentTask = task;
+            mCurrentTask.doWork();
+            taskReceivedHandler.postDelayed(mCurrentTask, mCurrentTask.getTime());
+        }
+    }
+
 
 
     private void enqueue(Data data){
         if (data.type == NON_PENDING && data.length <= PACKET_SIZE) {
             //if we receive header in time, then cancle time out handler
             if(data.getMessageID() == mCurrentTask.getCommand()) {
+            if(!(data.getMessageID() == READ_FLASH_COMMAND_ID)) {
                 isTaskHasComplete = false;
                 taskReceivedHandler.removeCallbacks(mCurrentTask);
+            }
             }
             mOutPutQueue.add(data);
         }
         else if(data.type == LONE_MESSAGE){
             //if we receive header in time, then cancle time out handler
             if(data.getMessageID() == mCurrentTask.getCommand()) {
-                isTaskHasComplete = false;
-                taskReceivedHandler.removeCallbacks(mCurrentTask);
+              if(!(data.getMessageID() == READ_FLASH_COMMAND_ID)) {
+                  isTaskHasComplete = false;
+                  taskReceivedHandler.removeCallbacks(mCurrentTask);
+              }
             }
+
             hasLongMessage = true;
             targetLength = data.length - PACKET_SIZE;
             messageID = data.getMessageID();
@@ -642,6 +703,9 @@ public class CwmManager{
         if(mOutPutQueue.size() != 0){
             Data data = mOutPutQueue.poll();
             if(data.getMessageID() == mCurrentTask.getCommand()){
+                isTaskHasComplete = true;
+            }
+            if(data.getMessageID() == 0x21){
                 isTaskHasComplete = true;
             }
             if(data.getIdType() == ACK) {
@@ -725,6 +789,10 @@ public class CwmManager{
                     case SLEEP_REPORT_MESSAGE_ID:
                          cwmEvent = getInfomation(SLEEP_REPORT_MESSAGE_ID, value);
                          mListener.onEventArrival(cwmEvent);
+                        break;
+                    case RECEIVED_FLASH_COMMAND_ID:
+                        cwmEvent = getInfomation(RECEIVED_FLASH_COMMAND_ID, value);
+                        mListener.onEventArrival(cwmEvent);
                         break;
                     default:
                         break;
@@ -880,6 +948,11 @@ public class CwmManager{
 
             return cwmEvents;
         }
+        else if(messageId == RECEIVED_FLASH_COMMAND_ID){
+            CwmEvents cwmEvents = new CwmEvents();
+            cwmEvents.setId(SOFTWARE_VERSION_MESSAGE_ID);
+            return cwmEvents;
+        }
         return null;
     }
 
@@ -890,12 +963,21 @@ public class CwmManager{
           private int idType; // to differentiate between ack & nack and message id
           private int messageID;
           private byte[] value;
+          private int tag;
 
         private Data(int type, int length, int idType, int messageID, byte[] value) {
             this.type = type;
             this.length = length;
             this.idType = idType;
             this.messageID = messageID;
+            this.value = value;
+        }
+        private Data(int type, int length, int idType, int messageID, int tag, byte[] value) {
+            this.type = type;
+            this.length = length;
+            this.idType = idType;
+            this.messageID = messageID;
+            this.tag = tag;
             this.value = value;
         }
 
@@ -910,17 +992,24 @@ public class CwmManager{
                 return idType;
         }
 
+        public int getTag(){return tag;}
         public byte[] getValue(){return value;}
     }
     public class Task implements Runnable{
         int time_expected;
         int id;
+        int flashSyncType;
+
+        public void setSyncType(int type){
+            flashSyncType = type;
+        }
 
         @Override
         public void run(){
             ErrorEvents errorEvents = new ErrorEvents();
             errorEvents.setId(0x01); //header lost
             errorEvents.setCommand(mCurrentTask.getCommand());
+            mErrorListener.onErrorArrival(errorEvents);
             isTaskHasComplete = true;
         }
 
@@ -1082,6 +1171,28 @@ public class CwmManager{
                       mService.writeRXCharacteristic(command);
                      }
                     break;
+
+                case READ_FLASH_COMMAND_ID:
+                    command = new byte[6];
+                    if(flashSyncType == FLASH_SYNC_TYPE.SYNC_START.ordinal()){
+                        jniMgr.getReadFlashCommand(FLASH_SYNC_TYPE.SYNC_START.ordinal(), command);
+                    }
+                    else if(flashSyncType == FLASH_SYNC_TYPE.SYNC_SUCCESS.ordinal()){
+                        jniMgr.getReadFlashCommand(FLASH_SYNC_TYPE.SYNC_SUCCESS.ordinal(), command);
+                    }
+                    else if(flashSyncType == FLASH_SYNC_TYPE.SYNC_FAIL.ordinal()){
+                        jniMgr.getReadFlashCommand(FLASH_SYNC_TYPE.SYNC_FAIL.ordinal(), command);
+                    }
+                    else if(flashSyncType == FLASH_SYNC_TYPE.SYNC_ABORT.ordinal()){
+                        jniMgr.getReadFlashCommand(FLASH_SYNC_TYPE.SYNC_ABORT.ordinal(), command);
+                    }
+                    else if(flashSyncType == FLASH_SYNC_TYPE.SYNC_DONE.ordinal()){
+                        jniMgr.getReadFlashCommand(FLASH_SYNC_TYPE.SYNC_DONE.ordinal(), command);
+                    }
+                    if((mConnectStatus != false)){
+                        mService.writeRXCharacteristic(command);
+                    }
+                    break;
             }
         }
 
@@ -1091,6 +1202,7 @@ public class CwmManager{
         public Task(int command, int time){
             this.id = command;
             time_expected = time;
+            flashSyncType = 0;
         }
 
         public int getCommand(){
