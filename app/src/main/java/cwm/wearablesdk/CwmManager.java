@@ -657,6 +657,13 @@ public class CwmManager{
         }
     }
 
+    public void CwmTestRequest(){
+        byte[] command = new byte[1];
+        command[0] = 0xf;
+        if(mConnectStatus != false)
+            mService.writeRXCharacteristic(command);
+    }
+
     private void enqueue(Data data){
         if(data.type == NON_PENDING && data.length <= PACKET_SIZE && data.getIdType() == ACK){
             mOutPutQueue.add(data);
