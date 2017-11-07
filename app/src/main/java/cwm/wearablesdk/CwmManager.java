@@ -42,7 +42,7 @@ public class CwmManager{
 
     private final Queue<Data> mOutPutQueue = new LinkedList<>();
     private final Queue<Data> mPendingQueue = new LinkedList<>();
-    private Task mCurrentTask;
+    private Task mCurrentTask = new Task(0,0);
 
     public enum ITEMS{
         TABATA_INIT,
@@ -137,13 +137,13 @@ public class CwmManager{
     private Runnable mLongMessageTask = new Runnable() {
         @Override
         public void run() {
-            if(messageID == mCurrentTask.getCommand())
-                isTaskHasComplete = true;
             ErrorEvents errorEvents = new ErrorEvents();
             errorEvents.setId(0x02); //packets lost
             errorEvents.setCommand(messageID);
-            if(messageID == READ_FLASH_COMMAND_ID)
-               errorEvents.setTag(tagID);
+            isTaskHasComplete = true;
+            if(mCurrentTask.getCommand() == READ_FLASH_COMMAND_ID) {
+                errorEvents.setTag(tagID);
+            }
             mErrorListener.onErrorArrival(errorEvents);
             hasLongMessage = false;
             mPendingQueue.clear();
@@ -345,7 +345,13 @@ public class CwmManager{
             packet_id_type = rxBuffer[4] & 0xFF;
             packet_message_id = 0;
             packet = rxBuffer;
-            data = new Data(packet_type, packet_length, packet_id_type, packet_message_id, packet);
+            if(packet_id_type == READ_FLASH_COMMAND_ID){
+                packet_tag = rxBuffer[5] & 0xFF;
+                data = new Data(packet_type, packet_length, packet_id_type, packet_message_id, packet_tag, packet);
+            }
+            else {
+                data = new Data(packet_type, packet_length, packet_id_type, packet_message_id, packet);
+            }
             enqueue(data);
         }
         else if(TYPE.LONG_MESSAGE.ordinal() == jniMgr.getType(rxBuffer)){
@@ -355,7 +361,7 @@ public class CwmManager{
             packet_id_type = rxBuffer[4] & 0xFF;
             packet_message_id = 0;
             packet = rxBuffer;
-            if(packet_id_type == RECEIVED_FLASH_COMMAND_ID){
+            if(packet_id_type == READ_FLASH_COMMAND_ID){
                 packet_tag = rxBuffer[5] & 0xFF;
                 data = new Data(packet_type, packet_length, packet_id_type, packet_message_id, packet_tag, packet);
             }
@@ -651,29 +657,48 @@ public class CwmManager{
         }
     }
 
-
-
     private void enqueue(Data data){
-        if (data.type == NON_PENDING && data.length <= PACKET_SIZE) {
+        if(data.type == NON_PENDING && data.length <= PACKET_SIZE && data.getIdType() == ACK){
+            mOutPutQueue.add(data);
+        }
+        else if (data.type == NON_PENDING && data.length <= PACKET_SIZE && data.getIdType() != ACK) {
             //if we receive header in time, then cancle time out handler
+            //because we send 0x20, but band will feedback 0x21
             if(data.getMessageID() == mCurrentTask.getCommand()) {
-            if(!(data.getMessageID() == READ_FLASH_COMMAND_ID)) {
+                if(data.getMessageID() != READ_FLASH_COMMAND_ID){
+                    isTaskHasComplete = false;
+                    taskReceivedHandler.removeCallbacks(mCurrentTask);
+                }
+                if(data.getMessageID() == READ_FLASH_COMMAND_ID){
+                    isTaskHasComplete = true;
+                    taskReceivedHandler.removeCallbacks(mCurrentTask);
+                    if(data.getTag() == FLASH_SYNC_TYPE.SYNC_ABORT.ordinal()){
+                        ErrorEvents errorEvents = new ErrorEvents();
+                        errorEvents.setId(0x03); //flash sync aborted
+                        errorEvents.setCommand(mCurrentTask.getCommand());
+                        mErrorListener.onErrorArrival(errorEvents);
+                        Log.d("bernie","sync aborted");
+                    }
+                    else if(data.getTag() == FLASH_SYNC_TYPE.SYNC_DONE.ordinal()){
+                        Log.d("bernie","sync done");
+                    }
+                }
+            }
+            if( mCurrentTask.getCommand() == READ_FLASH_COMMAND_ID && data.getMessageID() == RECEIVED_FLASH_COMMAND_ID){
                 isTaskHasComplete = false;
                 taskReceivedHandler.removeCallbacks(mCurrentTask);
-            }
             }
             mOutPutQueue.add(data);
         }
         else if(data.type == LONE_MESSAGE){
             //if we receive header in time, then cancle time out handler
-            if(data.getMessageID() == mCurrentTask.getCommand()) {
-              if(!(data.getMessageID() == READ_FLASH_COMMAND_ID)) {
+            if(data.getMessageID() == mCurrentTask.getCommand() ||
+                    data.getMessageID() == RECEIVED_FLASH_COMMAND_ID) {
                   isTaskHasComplete = false;
                   taskReceivedHandler.removeCallbacks(mCurrentTask);
-              }
             }
-
             hasLongMessage = true;
+            Log.d("bernie","data length is"+Integer.toString(data.length));
             targetLength = data.length - PACKET_SIZE;
             messageID = data.getMessageID();
             data.length = PACKET_SIZE;
@@ -712,10 +737,8 @@ public class CwmManager{
     private void parser(){
         if(mOutPutQueue.size() != 0){
             Data data = mOutPutQueue.poll();
-            if(data.getMessageID() == mCurrentTask.getCommand()){
-                isTaskHasComplete = true;
-            }
-            if(data.getMessageID() == 0x21){
+            if(data.getMessageID() == mCurrentTask.getCommand() ||
+                    data.getMessageID() == RECEIVED_FLASH_COMMAND_ID){
                 isTaskHasComplete = true;
             }
             if(data.getIdType() == ACK) {
@@ -960,7 +983,7 @@ public class CwmManager{
         }
         else if(messageId == RECEIVED_FLASH_COMMAND_ID){
             CwmEvents cwmEvents = new CwmEvents();
-            cwmEvents.setId(SOFTWARE_VERSION_MESSAGE_ID);
+            cwmEvents.setId(RECEIVED_FLASH_COMMAND_ID);
             return cwmEvents;
         }
         return null;
@@ -981,6 +1004,7 @@ public class CwmManager{
             this.idType = idType;
             this.messageID = messageID;
             this.value = value;
+            this.tag = 0;
         }
         private Data(int type, int length, int idType, int messageID, int tag, byte[] value) {
             this.type = type;
