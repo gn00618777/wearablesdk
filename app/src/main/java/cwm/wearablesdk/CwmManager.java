@@ -93,6 +93,7 @@ public class CwmManager{
     private final int TABATA_COMMAND_ID = 0x17;
     private final int READ_FLASH_COMMAND_ID = 0x20;
     private final int RECEIVED_FLASH_COMMAND_ID = 0x21;
+    private final int REQUEST_MAX_LOG_PACKETS_ID = 0x22;
 
     private WearableService mService = null;
     private Context mContext = null;
@@ -133,6 +134,11 @@ public class CwmManager{
     private boolean isTaskHasComplete = true;
     private boolean hasLongMessage = false;
 
+    // flash max bytes
+    int maxBytes = 0;
+    // flash accumulation
+    int acculateByte = 0;
+
     private Handler longMessageHandler = new Handler();
     private Runnable mLongMessageTask = new Runnable() {
         @Override
@@ -143,6 +149,7 @@ public class CwmManager{
             isTaskHasComplete = true;
             if(mCurrentTask.getCommand() == READ_FLASH_COMMAND_ID) {
                 errorEvents.setTag(tagID);
+                CwmFlashSyncFail();
             }
             mErrorListener.onErrorArrival(errorEvents);
             hasLongMessage = false;
@@ -288,6 +295,7 @@ public class CwmManager{
                 mConnectStatus = true;
                 if(mService.enableTXNotification())
                    mStatusListener.onServiceDiscovery(deviceName, deviceAddress);
+                   CwmRequestMaxLogPackets();
             }
             //*********************//
             if (action.equals(WearableService.ACTION_DATA_AVAILABLE)) {
@@ -626,6 +634,15 @@ public class CwmManager{
         return SDK_VERSION;
     }
 
+    public void CwmRequestMaxLogPackets(){
+        Task task = new Task(REQUEST_MAX_LOG_PACKETS_ID, 2); //ID, timer 2 sec
+        if(isTaskHasComplete == true) {
+            mCurrentTask = task;
+            mCurrentTask.doWork();
+            taskReceivedHandler.postDelayed(mCurrentTask, mCurrentTask.getTime());
+        }
+    }
+
     public void CwmFlashSyncStart(){
         Task task = new Task(READ_FLASH_COMMAND_ID, 2); //ID, timer 2 sec
         task.setSyncType(FLASH_SYNC_TYPE.SYNC_START.ordinal());
@@ -705,7 +722,6 @@ public class CwmManager{
                   taskReceivedHandler.removeCallbacks(mCurrentTask);
             }
             hasLongMessage = true;
-            Log.d("bernie","data length is"+Integer.toString(data.length));
             targetLength = data.length - PACKET_SIZE;
             messageID = data.getMessageID();
             data.length = PACKET_SIZE;
@@ -832,7 +848,13 @@ public class CwmManager{
                         break;
                     case RECEIVED_FLASH_COMMAND_ID:
                         cwmEvent = getInfomation(RECEIVED_FLASH_COMMAND_ID, value);
-                        mListener.onEventArrival(cwmEvent);
+                        CwmFlashSyncSuccess();
+                        //mListener.onEventArrival(cwmEvent);
+                        break;
+                    case REQUEST_MAX_LOG_PACKETS_ID:
+                        cwmEvent = getInfomation(REQUEST_MAX_LOG_PACKETS_ID, value);
+                        maxBytes = cwmEvent.getMaxByte();
+                        CwmFlashSyncStart();
                         break;
                     default:
                         break;
@@ -991,6 +1013,22 @@ public class CwmManager{
         else if(messageId == RECEIVED_FLASH_COMMAND_ID){
             CwmEvents cwmEvents = new CwmEvents();
             cwmEvents.setId(RECEIVED_FLASH_COMMAND_ID);
+            acculateByte ++;
+            if (acculateByte == maxBytes){
+                Log.d("bernie","Flash Sync complete");
+                maxBytes = 0;
+                acculateByte = 0;
+            }
+            return cwmEvents;
+        }
+        else if(messageId == REQUEST_MAX_LOG_PACKETS_ID){
+            byte[] temp = new byte[4];
+            int max_packets = 0;
+            System.arraycopy(value, 5, temp, 0, 4);
+            max_packets = ByteBuffer.wrap(temp).order(ByteOrder.LITTLE_ENDIAN).getInt();
+            CwmEvents cwmEvents = new CwmEvents();
+            cwmEvents.setId(REQUEST_MAX_LOG_PACKETS_ID);
+            cwmEvents.setMaxByte(max_packets);
             return cwmEvents;
         }
         return null;
@@ -1047,11 +1085,16 @@ public class CwmManager{
 
         @Override
         public void run(){
-            ErrorEvents errorEvents = new ErrorEvents();
-            errorEvents.setId(0x01); //header lost
-            errorEvents.setCommand(mCurrentTask.getCommand());
-            mErrorListener.onErrorArrival(errorEvents);
-            isTaskHasComplete = true;
+            if(mCurrentTask.getCommand() != READ_FLASH_COMMAND_ID) {
+                ErrorEvents errorEvents = new ErrorEvents();
+                errorEvents.setId(0x01); //header lost
+                errorEvents.setCommand(mCurrentTask.getCommand());
+                mErrorListener.onErrorArrival(errorEvents);
+                isTaskHasComplete = true;
+            }
+            else if(mCurrentTask.getCommand() == READ_FLASH_COMMAND_ID){
+                CwmFlashSyncFail();
+            }
         }
 
         public void doWork(){
@@ -1233,6 +1276,12 @@ public class CwmManager{
                     if((mConnectStatus != false)){
                         mService.writeRXCharacteristic(command);
                     }
+                    break;
+
+                case REQUEST_MAX_LOG_PACKETS_ID:
+                    command = new byte[5];
+                    jniMgr.getRequestMaxLogPacketsCommand(command);
+                    mService.writeRXCharacteristic(command);
                     break;
             }
         }

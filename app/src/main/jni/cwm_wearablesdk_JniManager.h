@@ -111,6 +111,14 @@ JNIEXPORT void JNICALL Java_cwm_wearablesdk_JniManager_getSedentaryRemindTimeCom
 JNIEXPORT void JNICALL Java_cwm_wearablesdk_JniManager_getReadFlashCommand
   (JNIEnv *, jobject, jint, jbyteArray);
 
+/*
+ * Class:     cwm_wearablesdk_JniManager
+ * Method:    getRequestMaxLogPacketsCommand
+ * Signature: ([B)V
+ */
+JNIEXPORT void JNICALL Java_cwm_wearablesdk_JniManager_getRequestMaxLogPacketsCommand
+  (JNIEnv *, jobject, jbyteArray);
+
 #ifdef __cplusplus
 }
 #endif

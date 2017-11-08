@@ -22,4 +22,5 @@ public class JniManager {
     public native void getCwmSleepInfomation(int id, byte[] input, float[] output);
     public native void getSedentaryRemindTimeCommand(int time, byte[] command);
     public native void getReadFlashCommand(int type, byte[] command);
+    public native void getRequestMaxLogPacketsCommand(byte[] command);
 }
