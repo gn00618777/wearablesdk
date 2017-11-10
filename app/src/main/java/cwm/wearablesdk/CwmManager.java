@@ -1080,7 +1080,7 @@ public class CwmManager{
                     command = new byte[12];
                     boolean isFirstSunday;
                     Calendar c = Calendar.getInstance();
-                    time[0] = c.get(Calendar.YEAR);
+                    time[0] = c.get(Calendar.YEAR) - 2000;
                     time[1] = c.get(Calendar.MONTH);
                     time[2] = c.get(Calendar.DATE);
                     time[3] = c.get(Calendar.DAY_OF_WEEK);
