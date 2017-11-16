@@ -56,8 +56,8 @@ public class CwmManager{
         TABATA_ACTION_ITEM,
         TABATA_ACTION_START,
         TABATA_ACTION_END,
+        TABATA_REQUEST,
         TABATA_DONE,
-        TABATA_RESUME
     };
     enum FLASH_SYNC_TYPE{
         SYNC_START,
@@ -505,6 +505,7 @@ public class CwmManager{
            if(operate == ITEMS.TABATA_INIT.ordinal()){
                Task task = new Task(TABATA_COMMAND_ID, 2); //ID, timer 2 sec
                if(isTaskHasComplete == true) {
+                   Log.d("bernie","sdk0 tabata init");
                    mCurrentTask = task;
                    mCurrentTask.doWork();
                    taskReceivedHandler.postDelayed(mCurrentTask, mCurrentTask.getTime());
@@ -601,19 +602,19 @@ public class CwmManager{
                    mService.writeRXCharacteristic(command);
                }
            }
-           else if(operate == ITEMS.TABATA_DONE.ordinal()){
+           else if(operate == ITEMS.TABATA_REQUEST.ordinal()){
                byte[] command = new byte[9];
                /********************************************************************************/
-               jniMgr.getTabataCommand(ITEMS.TABATA_DONE.ordinal(), 0, 0, 0, command);
+               jniMgr.getTabataCommand(ITEMS.TABATA_REQUEST.ordinal(), 0, 0, 0, command);
                /********************************************************************************/
                if((mConnectStatus != false)){
                    mService.writeRXCharacteristic(command);
                }
            }
-           else if(operate == ITEMS.TABATA_RESUME.ordinal()){
+           else if(operate == ITEMS.TABATA_DONE.ordinal()){
                byte[] command = new byte[9];
                /********************************************************************************/
-               jniMgr.getTabataCommand(ITEMS.TABATA_RESUME.ordinal(), 0, 0, 0, command);
+               jniMgr.getTabataCommand(ITEMS.TABATA_DONE.ordinal(), 0, 0, 0, command);
                /********************************************************************************/
                if((mConnectStatus != false)){
                    mService.writeRXCharacteristic(command);
@@ -708,6 +709,10 @@ public class CwmManager{
                     }
                 }
             }
+            if(mCurrentTask.getCommand() == TABATA_COMMAND_ID && data.getMessageID() == TABATA_EVENT_MESSAGE_ID ){
+                isTaskHasComplete = false;
+                taskReceivedHandler.removeCallbacks(mCurrentTask);
+            }
             if( mCurrentTask.getCommand() == READ_FLASH_COMMAND_ID && data.getMessageID() == RECEIVED_FLASH_COMMAND_ID){
                 isTaskHasComplete = false;
                 taskReceivedHandler.removeCallbacks(mCurrentTask);
@@ -762,6 +767,10 @@ public class CwmManager{
             Data data = mOutPutQueue.poll();
             if(data.getMessageID() == mCurrentTask.getCommand() ||
                     data.getMessageID() == RECEIVED_FLASH_COMMAND_ID){
+                isTaskHasComplete = true;
+            }
+            else if(data.getMessageID() == TABATA_EVENT_MESSAGE_ID &&
+                    mCurrentTask.getCommand() == TABATA_COMMAND_ID){
                 isTaskHasComplete = true;
             }
             if(data.getIdType() == ACK) {
@@ -854,7 +863,7 @@ public class CwmManager{
                     case REQUEST_MAX_LOG_PACKETS_ID:
                         cwmEvent = getInfomation(REQUEST_MAX_LOG_PACKETS_ID, value);
                         maxBytes = cwmEvent.getMaxByte();
-                        CwmFlashSyncStart();
+                        //CwmFlashSyncStart();
                         break;
                     default:
                         break;
