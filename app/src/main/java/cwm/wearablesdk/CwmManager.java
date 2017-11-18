@@ -402,6 +402,7 @@ public class CwmManager{
         if(mActivity != null) {
             LocalBroadcastManager.getInstance(mActivity).unregisterReceiver(UARTStatusChangeReceiver);
             mActivity.unbindService(mServiceConnection);
+            taskReceivedHandler.removeCallbacks(mCurrentTask);
             mActivity = null;
             mStatusListener = null;
             mListener = null;
