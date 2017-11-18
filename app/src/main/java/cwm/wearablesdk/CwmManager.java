@@ -398,6 +398,18 @@ public class CwmManager{
             return false;
     }
 
+    public void CwmReleaseResource(){
+        if(mActivity != null) {
+            LocalBroadcastManager.getInstance(mActivity).unregisterReceiver(UARTStatusChangeReceiver);
+            mActivity.unbindService(mServiceConnection);
+            mActivity = null;
+            mStatusListener = null;
+            mListener = null;
+            mAckListener = null;
+            mErrorListener = null;
+        }
+    }
+
     public void CwmBleSearch() {
         if(mBluetoothAdapter.isEnabled()){
             Intent newIntent = new Intent(mActivity, DeviceListActivity.class);
@@ -505,7 +517,6 @@ public class CwmManager{
            if(operate == ITEMS.TABATA_INIT.ordinal()){
                Task task = new Task(TABATA_COMMAND_ID, 2); //ID, timer 2 sec
                if(isTaskHasComplete == true) {
-                   Log.d("bernie","sdk0 tabata init");
                    mCurrentTask = task;
                    mCurrentTask.doWork();
                    taskReceivedHandler.postDelayed(mCurrentTask, mCurrentTask.getTime());
