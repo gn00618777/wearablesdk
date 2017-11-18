@@ -458,7 +458,6 @@ public class CwmManager{
         if(isTaskHasComplete == true) {
             mCurrentTask = task;
             mCurrentTask.doWork();
-            taskReceivedHandler.postDelayed(mCurrentTask, mCurrentTask.getTime());
         }
     }
 
@@ -467,7 +466,6 @@ public class CwmManager{
         if(isTaskHasComplete == true) {
             mCurrentTask = task;
             mCurrentTask.doWork();
-            taskReceivedHandler.postDelayed(mCurrentTask, mCurrentTask.getTime());
         }
     }
 
@@ -476,7 +474,6 @@ public class CwmManager{
         if(isTaskHasComplete == true) {
             mCurrentTask = task;
             mCurrentTask.doWork();
-            taskReceivedHandler.postDelayed(mCurrentTask, mCurrentTask.getTime());
         }
     }
 
@@ -485,7 +482,6 @@ public class CwmManager{
         if(isTaskHasComplete == true) {
             mCurrentTask = task;
             mCurrentTask.doWork();
-            taskReceivedHandler.postDelayed(mCurrentTask, mCurrentTask.getTime());
         }
     }
 
@@ -494,7 +490,6 @@ public class CwmManager{
         if(isTaskHasComplete == true) {
             mCurrentTask = task;
             mCurrentTask.doWork();
-            taskReceivedHandler.postDelayed(mCurrentTask, mCurrentTask.getTime());
         }
     }
 
@@ -503,7 +498,6 @@ public class CwmManager{
         if(isTaskHasComplete == true) {
             mCurrentTask = task;
             mCurrentTask.doWork();
-            taskReceivedHandler.postDelayed(mCurrentTask, mCurrentTask.getTime());
         }
         //byte[] command = new byte[5];
         /*******************************************************************************/
@@ -520,7 +514,6 @@ public class CwmManager{
                if(isTaskHasComplete == true) {
                    mCurrentTask = task;
                    mCurrentTask.doWork();
-                   taskReceivedHandler.postDelayed(mCurrentTask, mCurrentTask.getTime());
                }
            }
            else if(operate == ITEMS.TABATA_PREPARE_START.ordinal()){
@@ -639,7 +632,6 @@ public class CwmManager{
         if(isTaskHasComplete == true) {
             mCurrentTask = task;
             mCurrentTask.doWork();
-            taskReceivedHandler.postDelayed(mCurrentTask, mCurrentTask.getTime());
         }
     }
 
@@ -652,7 +644,6 @@ public class CwmManager{
         if(isTaskHasComplete == true) {
             mCurrentTask = task;
             mCurrentTask.doWork();
-            taskReceivedHandler.postDelayed(mCurrentTask, mCurrentTask.getTime());
         }
     }
 
@@ -663,7 +654,6 @@ public class CwmManager{
         if(isTaskHasComplete == true) {
             mCurrentTask = task;
             mCurrentTask.doWork();
-            taskReceivedHandler.postDelayed(mCurrentTask, mCurrentTask.getTime());
         }
     }
     public void CwmFlashSyncSuccess(){
@@ -673,7 +663,6 @@ public class CwmManager{
         if(isTaskHasComplete == true) {
             mCurrentTask = task;
             mCurrentTask.doWork();
-            taskReceivedHandler.postDelayed(mCurrentTask, mCurrentTask.getTime());
         }
     }
     public void CwmFlashSyncFail(){
@@ -683,7 +672,6 @@ public class CwmManager{
         if(isTaskHasComplete == true) {
             mCurrentTask = task;
             mCurrentTask.doWork();
-            taskReceivedHandler.postDelayed(mCurrentTask, mCurrentTask.getTime());
         }
     }
 
@@ -1129,6 +1117,7 @@ public class CwmManager{
                     /******************************************************************************/
                     if(mConnectStatus != false) {
                         mService.writeRXCharacteristic(command);
+                        taskReceivedHandler.postDelayed(mCurrentTask, mCurrentTask.getTime());
                     }
                     break;
                 case SOFTWARE_VERSION_MESSAGE_ID:
@@ -1136,8 +1125,10 @@ public class CwmManager{
                     /*******************************************************************************/
                     jniMgr.getRequestSwVersionCommand(command);
                     /*******************************************************************************/
-                    if(mConnectStatus != false)
-                       mService.writeRXCharacteristic(command);
+                    if(mConnectStatus != false) {
+                        mService.writeRXCharacteristic(command);
+                        taskReceivedHandler.postDelayed(mCurrentTask, mCurrentTask.getTime());
+                    }
                     break;
                 case SYNC_TIME_RESPONSE_ID:
                     int[] time = new int[7];
@@ -1201,8 +1192,10 @@ public class CwmManager{
                    /****************************************/
                    jniMgr.getSyncCurrentCommand(time, command);
                    /****************************************/
-                   if(mConnectStatus != false)
+                   if(mConnectStatus != false) {
                        mService.writeRXCharacteristic(command);
+                       taskReceivedHandler.postDelayed(mCurrentTask, mCurrentTask.getTime());
+                   }
                    break;
 
                 case BODY_PARAMETER_RESPONSE_ID:
@@ -1221,8 +1214,10 @@ public class CwmManager{
                         /*******************************************************/
                         jniMgr.getSyncBodyCommandCommand(body,command);
                         /*********************************************************/
-                        if(mConnectStatus != false)
+                        if(mConnectStatus != false) {
                             mService.writeRXCharacteristic(command);
+                            taskReceivedHandler.postDelayed(mCurrentTask, mCurrentTask.getTime());
+                        }
                     }
                     break;
                 case INTELLIGENT_FEATURE_RESPONSE_ID:
@@ -1247,6 +1242,7 @@ public class CwmManager{
                         if(mConnectStatus != false) {
                             mService.writeRXCharacteristic(command1);
                             mService.writeRXCharacteristic(command);
+                            taskReceivedHandler.postDelayed(mCurrentTask, mCurrentTask.getTime());
                         }
                     }
                     break;
@@ -1254,8 +1250,10 @@ public class CwmManager{
                 case SLEEP_REPORT_MESSAGE_ID:
                     command = new byte[5];
                     jniMgr.getSleepLogCommand(command);
-                    if(mConnectStatus != false)
+                    if(mConnectStatus != false) {
                         mService.writeRXCharacteristic(command);
+                        taskReceivedHandler.postDelayed(mCurrentTask, mCurrentTask.getTime());
+                    }
                     break;
 
                 case SWITCH_OTA_ID:
@@ -1263,8 +1261,10 @@ public class CwmManager{
                     /*******************************************************************************/
                     jniMgr.getSwitchOTACommand(command);
                     /*******************************************************************************/
-                    if(mConnectStatus != false)
-                       mService.writeRXCharacteristic(command);
+                    if(mConnectStatus != false) {
+                        mService.writeRXCharacteristic(command);
+                        taskReceivedHandler.postDelayed(mCurrentTask, mCurrentTask.getTime());
+                    }
                     break;
 
                 case TABATA_COMMAND_ID:
@@ -1274,6 +1274,7 @@ public class CwmManager{
                     /********************************************************************************/
                     if((mConnectStatus != false)){
                       mService.writeRXCharacteristic(command);
+                        taskReceivedHandler.postDelayed(mCurrentTask, mCurrentTask.getTime());
                      }
                     break;
 
@@ -1296,13 +1297,17 @@ public class CwmManager{
                     }
                     if((mConnectStatus != false)){
                         mService.writeRXCharacteristic(command);
+                        taskReceivedHandler.postDelayed(mCurrentTask, mCurrentTask.getTime());
                     }
                     break;
 
                 case REQUEST_MAX_LOG_PACKETS_ID:
                     command = new byte[5];
                     jniMgr.getRequestMaxLogPacketsCommand(command);
-                    mService.writeRXCharacteristic(command);
+                    if(mConnectStatus != false) {
+                        mService.writeRXCharacteristic(command);
+                        taskReceivedHandler.postDelayed(mCurrentTask, mCurrentTask.getTime());
+                    }
                     break;
             }
         }
