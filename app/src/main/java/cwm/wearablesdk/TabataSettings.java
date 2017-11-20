@@ -74,7 +74,7 @@ public class TabataSettings {
         }
     }
     public void setActionTimes(int actionTimes){
-        if(actionTimes >= 5 && actionTimes <= 65535 && actionType == COUNT_UP){
+        if(actionTimes >= 3 && actionTimes <= 65535 && actionType == COUNT_UP){
             this.actionTimes = actionTimes;
         }
     }
