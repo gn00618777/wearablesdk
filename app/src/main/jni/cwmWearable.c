@@ -309,9 +309,9 @@ JNIEXPORT jint JNICALL Java_cwm_wearablesdk_JniManager_getType
 
          if(((rxData[0] == HEADER1) && (rxData[1] == HEADER2)) && ((rxData[4] == ACK) || (rxData[4] == NACK)))
             type = 0;
-         else if(rxData[0] == HEADER1 && rxData[1] == HEADER2 && rxData[4] != ACK && rxData[4] != NACK && data_length <= BLE_SIZE )
+         else if(((rxData[0] == HEADER1) && (rxData[1] == HEADER2)) && ((rxData[4] != ACK) && (rxData[4] != NACK)) && data_length <= BLE_SIZE )
             type = 1;
-         else if(rxData[0] == HEADER1 && rxData[1] == HEADER2 && rxData[4] != ACK && rxData[4] != NACK && data_length > BLE_SIZE)
+         else if(((rxData[0] == HEADER1) && (rxData[1] == HEADER2)) && ((rxData[4] != ACK) && (rxData[4] != NACK)) && data_length > BLE_SIZE)
             type = 2;
          else if(rxData[0] != HEADER1 || rxData[1] != HEADER2)
             type = 3;

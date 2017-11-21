@@ -40,6 +40,7 @@
 -keep class cwm.wearablesdk.CwmManager$BleScannerListener{*;}
 -keep class cwm.wearablesdk.CwmManager$AckListener{*;}
 -keep class cwm.wearablesdk.CwmManager$ErrorListener{*;}
+-keep class cwm.wearablesdk.CwmManager$LogSyncListener{*;}
 
 
 -keepclassmembers class cwm.wearablesdk.CwmManager {
@@ -63,6 +64,8 @@
   public byte[] getSleepCombined();
   public int[] getSleepParser();
   public int getParserLength();
+ public int getMaxByte();
+ public int getDeviceCurrent();
 }
 -keepclassmembers class cwm.wearablesdk.AckEvents{
 public *;

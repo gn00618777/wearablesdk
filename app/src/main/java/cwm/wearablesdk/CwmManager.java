@@ -64,6 +64,9 @@ public class CwmManager{
         SYNC_SUCCESS,
         SYNC_FAIL,
         SYNC_ABORT,
+        SYNC_RESUME,
+        SYNC_ERASE,
+        SYNC_ERASE_DONE,
         SYNC_DONE
     };
 
@@ -102,6 +105,7 @@ public class CwmManager{
     private AckListener mAckListener = null;
     private ErrorListener mErrorListener = null;
     private EventListener mListener = null;
+    private LogSyncListener mLogListener = null;
 
     private final int REQUEST_ENABLE_BT = 1;
     private final int REQUEST_SELECT_DEVICE = 2;
@@ -113,6 +117,7 @@ public class CwmManager{
     private BluetoothManager mBluetoothManager = null;
 
     private boolean mConnectStatus = false;
+    private boolean skipClassify = false;
 
     private Handler taskReceivedHandler = new Handler();
 
@@ -143,13 +148,15 @@ public class CwmManager{
     private Runnable mLongMessageTask = new Runnable() {
         @Override
         public void run() {
+            skipClassify = false;
             ErrorEvents errorEvents = new ErrorEvents();
             errorEvents.setId(0x02); //packets lost
             errorEvents.setCommand(messageID);
             isTaskHasComplete = true;
             if(mCurrentTask.getCommand() == READ_FLASH_COMMAND_ID) {
+                Log.d("bernie","sync failed");
                 errorEvents.setTag(tagID);
-                CwmFlashSyncFail();
+                //CwmFlashSyncFail();
             }
             mErrorListener.onErrorArrival(errorEvents);
             hasLongMessage = false;
@@ -182,14 +189,22 @@ public class CwmManager{
         void onErrorArrival(ErrorEvents errorEvents);
     }
 
+    public interface LogSyncListener{
+        void onSyncFailed();
+        void onProgressChanged(int currentpart, int partsTotal);
+        void onSyncDone();
+    }
+
     public CwmManager(Activity activity, WearableServiceListener wListener,
-                      EventListener iLlistener, AckListener ackListener, ErrorListener errorListener){
+                      EventListener iLlistener, AckListener ackListener, ErrorListener errorListener,
+                      LogSyncListener logSyncListener){
 
         mActivity = activity;
         mStatusListener = wListener;
         mListener = iLlistener;
         mAckListener = ackListener;
         mErrorListener = errorListener;
+        mLogListener = logSyncListener;
 
         jniMgr = new JniManager();
 
@@ -295,7 +310,6 @@ public class CwmManager{
                 mConnectStatus = true;
                 if(mService.enableTXNotification())
                    mStatusListener.onServiceDiscovery(deviceName, deviceAddress);
-                   CwmRequestMaxLogPackets();
             }
             //*********************//
             if (action.equals(WearableService.ACTION_DATA_AVAILABLE)) {
@@ -336,49 +350,7 @@ public class CwmManager{
         int packet_tag = 0;
         byte[] packet = null;
 
-        if(TYPE.ACK.ordinal() == jniMgr.getType(rxBuffer)){
-            Data data;
-            packet_type = NON_PENDING;
-            packet_length = ((rxBuffer[3] & 0xFF) << 8) | (rxBuffer[2] & 0xFF);
-            packet_id_type = rxBuffer[4] & 0xFF;
-            packet_message_id = rxBuffer[5] & 0xFF;
-            packet = rxBuffer;
-            data = new Data(packet_type, packet_length, packet_id_type, packet_message_id, packet);
-            enqueue(data);
-        }
-        else if(TYPE.MESSAGE.ordinal() == jniMgr.getType(rxBuffer)){
-            Data data;
-            packet_type = NON_PENDING;
-            packet_length = ((rxBuffer[3] & 0xFF) << 8) | (rxBuffer[2] & 0xFF);
-            packet_id_type = rxBuffer[4] & 0xFF;
-            packet_message_id = 0;
-            packet = rxBuffer;
-            if(packet_id_type == READ_FLASH_COMMAND_ID){
-                packet_tag = rxBuffer[5] & 0xFF;
-                data = new Data(packet_type, packet_length, packet_id_type, packet_message_id, packet_tag, packet);
-            }
-            else {
-                data = new Data(packet_type, packet_length, packet_id_type, packet_message_id, packet);
-            }
-            enqueue(data);
-        }
-        else if(TYPE.LONG_MESSAGE.ordinal() == jniMgr.getType(rxBuffer)){
-            Data data;
-            packet_type = LONE_MESSAGE;
-            packet_length = ((rxBuffer[3] & 0xFF) << 8) | (rxBuffer[2] & 0xFF);
-            packet_id_type = rxBuffer[4] & 0xFF;
-            packet_message_id = 0;
-            packet = rxBuffer;
-            if(packet_id_type == READ_FLASH_COMMAND_ID){
-                packet_tag = rxBuffer[5] & 0xFF;
-                data = new Data(packet_type, packet_length, packet_id_type, packet_message_id, packet_tag, packet);
-            }
-            else {
-                data = new Data(packet_type, packet_length, packet_id_type, packet_message_id, packet);
-            }
-            enqueue(data);
-        }
-        else if(TYPE.PENDING.ordinal() == jniMgr.getType(rxBuffer)){
+        if(skipClassify){
             Data data;
             packet_type = PENDING;
             packet_length = rxBuffer.length;
@@ -386,8 +358,60 @@ public class CwmManager{
             packet_message_id = 0;
             packet = rxBuffer;
             data = new Data(packet_type, packet_length, packet_id_type, packet_message_id, packet);
-            //Log.d("bernie","[0]:"+Byte.toString(rxBuffer[0])+" [1]:"+Byte.toString(rxBuffer[1])+" [2]:"+Byte.toString(rxBuffer[2])+" [3]:"+Byte.toString(rxBuffer[3]));
             enqueue(data);
+            parser();
+            return;
+        }
+        else {
+            if (TYPE.ACK.ordinal() == jniMgr.getType(rxBuffer)) {
+                Data data;
+                packet_type = NON_PENDING;
+                packet_length = ((rxBuffer[3] & 0xFF) << 8) | (rxBuffer[2] & 0xFF);
+                packet_id_type = rxBuffer[4] & 0xFF;
+                packet_message_id = rxBuffer[5] & 0xFF;
+                packet = rxBuffer;
+                data = new Data(packet_type, packet_length, packet_id_type, packet_message_id, packet);
+                enqueue(data);
+            } else if (TYPE.MESSAGE.ordinal() == jniMgr.getType(rxBuffer)) {
+                Data data;
+                packet_type = NON_PENDING;
+                packet_length = ((rxBuffer[3] & 0xFF) << 8) | (rxBuffer[2] & 0xFF);
+                packet_id_type = rxBuffer[4] & 0xFF;
+                packet_message_id = 0;
+                packet = rxBuffer;
+                if (packet_id_type == READ_FLASH_COMMAND_ID) {
+                    packet_tag = rxBuffer[5] & 0xFF;
+                    data = new Data(packet_type, packet_length, packet_id_type, packet_message_id, packet_tag, packet);
+                } else {
+                    data = new Data(packet_type, packet_length, packet_id_type, packet_message_id, packet);
+                }
+                enqueue(data);
+            } else if (TYPE.LONG_MESSAGE.ordinal() == jniMgr.getType(rxBuffer)) {
+                skipClassify = true;
+                Data data;
+                packet_type = LONE_MESSAGE;
+                packet_length = ((rxBuffer[3] & 0xFF) << 8) | (rxBuffer[2] & 0xFF);
+                packet_id_type = rxBuffer[4] & 0xFF;
+                packet_message_id = 0;
+                packet = rxBuffer;
+                if (packet_id_type == READ_FLASH_COMMAND_ID) {
+                    packet_tag = rxBuffer[5] & 0xFF;
+                    data = new Data(packet_type, packet_length, packet_id_type, packet_message_id, packet_tag, packet);
+                } else {
+                    data = new Data(packet_type, packet_length, packet_id_type, packet_message_id, packet);
+                }
+                enqueue(data);
+            } else if (TYPE.PENDING.ordinal() == jniMgr.getType(rxBuffer)) {
+                Data data;
+                packet_type = PENDING;
+                packet_length = rxBuffer.length;
+                packet_id_type = 0;
+                packet_message_id = 0;
+                packet = rxBuffer;
+                data = new Data(packet_type, packet_length, packet_id_type, packet_message_id, packet);
+                //Log.d("bernie","[0]:"+Byte.toString(rxBuffer[0])+" [1]:"+Byte.toString(rxBuffer[1])+" [2]:"+Byte.toString(rxBuffer[2])+" [3]:"+Byte.toString(rxBuffer[3]));
+                enqueue(data);
+            }
         }
         parser();
     }
@@ -706,6 +730,7 @@ public class CwmManager{
                     }
                     else if(data.getTag() == FLASH_SYNC_TYPE.SYNC_DONE.ordinal()){
                         Log.d("bernie","sync done");
+                        mLogListener.onSyncDone();
                     }
                 }
             }
@@ -740,6 +765,7 @@ public class CwmManager{
             mPendingQueue.add(data);
             Log.d("bernie","lengthMeasure:"+Integer.toString(lengthMeasure)+" targetLength:"+Integer.toString(targetLength));
             if(lengthMeasure == targetLength){
+                skipClassify = false;
                 longMessageHandler.removeCallbacks(mLongMessageTask);
                 hasLongMessage = false; //long message has been received completely.
                 byte[] value = new byte[targetLength+PACKET_SIZE];
@@ -857,13 +883,20 @@ public class CwmManager{
                         break;
                     case RECEIVED_FLASH_COMMAND_ID:
                         cwmEvent = getInfomation(RECEIVED_FLASH_COMMAND_ID, value);
-                        CwmFlashSyncSuccess();
+                        acculateByte ++;
+                        if(maxBytes > 0) {
+                            mLogListener.onProgressChanged(acculateByte, maxBytes);
+                            if (acculateByte == maxBytes) {
+                                acculateByte = 0;
+                            }
+                        }
                         //mListener.onEventArrival(cwmEvent);
                         break;
                     case REQUEST_MAX_LOG_PACKETS_ID:
                         cwmEvent = getInfomation(REQUEST_MAX_LOG_PACKETS_ID, value);
                         maxBytes = cwmEvent.getMaxByte();
                         //CwmFlashSyncStart();
+                        mListener.onEventArrival(cwmEvent);
                         break;
                     default:
                         break;
@@ -1022,18 +1055,12 @@ public class CwmManager{
         else if(messageId == RECEIVED_FLASH_COMMAND_ID){
             CwmEvents cwmEvents = new CwmEvents();
             cwmEvents.setId(RECEIVED_FLASH_COMMAND_ID);
-            acculateByte ++;
-            if (acculateByte == maxBytes){
-                Log.d("bernie","Flash Sync complete");
-                maxBytes = 0;
-                acculateByte = 0;
-            }
             return cwmEvents;
         }
         else if(messageId == REQUEST_MAX_LOG_PACKETS_ID){
             byte[] temp = new byte[4];
             int max_packets = 0;
-            System.arraycopy(value, 5, temp, 0, 4);
+            System.arraycopy(value, 9, temp, 0, 4);
             max_packets = ByteBuffer.wrap(temp).order(ByteOrder.LITTLE_ENDIAN).getInt();
             CwmEvents cwmEvents = new CwmEvents();
             cwmEvents.setId(REQUEST_MAX_LOG_PACKETS_ID);
