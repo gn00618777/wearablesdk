@@ -824,6 +824,9 @@ JNIEXPORT void JNICALL Java_cwm_wearablesdk_JniManager_getReadFlashCommand
       else if(type == 4){ //sync done
           txData[4] = (jbyte)0x4;
       }
+       else if(type == 5){ //sync erase
+          txData[4] = (jbyte)0x5;
+        }
 
        checksum = txData[0]+txData[1]+txData[2]+txData[3]+txData[4];
 

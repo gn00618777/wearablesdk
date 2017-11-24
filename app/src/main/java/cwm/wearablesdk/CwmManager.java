@@ -40,6 +40,8 @@ public class CwmManager{
 
     final static int PACKET_SIZE = 20;
 
+    private Parser mParser = new Parser();
+
     private final Queue<Data> mOutPutQueue = new LinkedList<>();
     private final Queue<Data> mPendingQueue = new LinkedList<>();
     private Task mCurrentTask = new Task(0,0);
@@ -719,6 +721,17 @@ public class CwmManager{
         }
     }
 
+    public void CwmFlashErase(){
+        Log.d("berne","press erase");
+        Task task = new Task(READ_FLASH_COMMAND_ID, 2); //ID, timer 2 sec
+        task.setSyncType(FLASH_SYNC_TYPE.SYNC_ERASE.ordinal());
+        tagID = FLASH_SYNC_TYPE.SYNC_ERASE.ordinal();
+        if(isTaskHasComplete == true) {
+            mCurrentTask = task;
+            mCurrentTask.doWork();
+        }
+    }
+
     public void CwmTestRequest(){
         byte[] command = new byte[1];
         command[0] = 0xf;
@@ -903,6 +916,7 @@ public class CwmManager{
                         break;
                     case RECEIVED_FLASH_COMMAND_ID:
                         cwmEvent = getInfomation(RECEIVED_FLASH_COMMAND_ID, value);
+                        mParser.parseFlashInformation(data);
                         acculateByte ++;
                         if(maxBytes > 0) {
                             mLogListener.onProgressChanged(acculateByte, maxBytes);
@@ -912,6 +926,10 @@ public class CwmManager{
                         }
                         //mListener.onEventArrival(cwmEvent);
                         break;
+                    case READ_FLASH_COMMAND_ID:
+                        cwmEvent = getInfomation(READ_FLASH_COMMAND_ID, value);
+                        mListener.onEventArrival(cwmEvent);
+                        break;
                     case REQUEST_MAX_LOG_PACKETS_ID:
                         cwmEvent = getInfomation(REQUEST_MAX_LOG_PACKETS_ID, value);
                         maxBytes = cwmEvent.getMaxByte();
@@ -920,7 +938,6 @@ public class CwmManager{
                         break;
                     case GESUTRE_EVENT_MESSAGE_ID:
                         cwmEvent = getInfomation(GESUTRE_EVENT_MESSAGE_ID, value);
-
                         mListener.onEventArrival(cwmEvent);
                         break;
                     default:
@@ -1075,6 +1092,12 @@ public class CwmManager{
             cwmEvents.setSleepParser(convert);
             cwmEvents.setParserLength(convert.length);
 
+            return cwmEvents;
+        }
+        else if(messageId == READ_FLASH_COMMAND_ID){
+            CwmEvents cwmEvents = new CwmEvents();
+            cwmEvents.setId(READ_FLASH_COMMAND_ID);
+            cwmEvents.setFlashSyncStatus(value[5] & 0xFF);
             return cwmEvents;
         }
         else if(messageId == RECEIVED_FLASH_COMMAND_ID){
@@ -1356,6 +1379,10 @@ public class CwmManager{
                     }
                     else if(flashSyncType == FLASH_SYNC_TYPE.SYNC_DONE.ordinal()){
                         jniMgr.getReadFlashCommand(FLASH_SYNC_TYPE.SYNC_DONE.ordinal(), command);
+                    }
+                    else if(flashSyncType == FLASH_SYNC_TYPE.SYNC_ERASE.ordinal()){
+                        Log.d("bernie","get sync erase command");
+                        jniMgr.getReadFlashCommand(FLASH_SYNC_TYPE.SYNC_ERASE.ordinal(), command);
                     }
                     if((mConnectStatus != false)){
                         mService.writeRXCharacteristic(command);

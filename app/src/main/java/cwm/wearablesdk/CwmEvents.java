@@ -26,6 +26,7 @@ public class CwmEvents extends Information{
     private int maxByte;
     private int deviceCurrent;
     private int[] mGestureList;
+    private int syncStatus;
 
 
     /**************heart beat*************/
@@ -65,6 +66,7 @@ public class CwmEvents extends Information{
     public void setParserLength(int length){ mParserLength = length;}
     public void setMaxByte(int max){maxByte = max;}
     public void setGestureList(int[] gesture) {mGestureList = gesture;}
+    public void setFlashSyncStatus(int status){syncStatus = status;}
     public void setDeviceRecord(int current){deviceCurrent = current;}
     public int getWalkStep(){
        return mWalkStep;
@@ -91,6 +93,7 @@ public class CwmEvents extends Information{
     public int getMaxByte(){return maxByte;}
     public int getDeviceCurrent(){return deviceCurrent;}
     public int[] getGestureList(){return mGestureList;}
+    public int getSyncStatus(){return syncStatus;}
 
     public int getId() {
         return mId;

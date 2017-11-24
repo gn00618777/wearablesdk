@@ -67,6 +67,7 @@
  public int getMaxByte();
  public int getDeviceCurrent();
  public int[] getGestureList();
+ public int getSyncStatus();
 }
 -keepclassmembers class cwm.wearablesdk.AckEvents{
 public *;
