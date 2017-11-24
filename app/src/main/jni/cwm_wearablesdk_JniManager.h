@@ -119,6 +119,22 @@ JNIEXPORT void JNICALL Java_cwm_wearablesdk_JniManager_getReadFlashCommand
 JNIEXPORT void JNICALL Java_cwm_wearablesdk_JniManager_getRequestMaxLogPacketsCommand
   (JNIEnv *, jobject, jbyteArray);
 
+/*
+ * Class:     cwm_wearablesdk_JniManager
+ * Method:    getGestureListCommand
+ * Signature: ([B)V
+ */
+JNIEXPORT void JNICALL Java_cwm_wearablesdk_JniManager_getGestureListCommand
+  (JNIEnv *, jobject, jbyteArray);
+
+/*
+ * Class:     cwm_wearablesdk_JniManager
+ * Method:    getGestureListInfomation
+ * Signature: (I[B[I)V
+ */
+JNIEXPORT void JNICALL Java_cwm_wearablesdk_JniManager_getGestureListInfomation
+  (JNIEnv *, jobject, jint, jbyteArray, jintArray);
+
 #ifdef __cplusplus
 }
 #endif

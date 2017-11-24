@@ -66,6 +66,7 @@
   public int getParserLength();
  public int getMaxByte();
  public int getDeviceCurrent();
+ public int[] getGestureList();
 }
 -keepclassmembers class cwm.wearablesdk.AckEvents{
 public *;

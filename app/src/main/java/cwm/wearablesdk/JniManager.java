@@ -23,4 +23,6 @@ public class JniManager {
     public native void getSedentaryRemindTimeCommand(int time, byte[] command);
     public native void getReadFlashCommand(int type, byte[] command);
     public native void getRequestMaxLogPacketsCommand(byte[] command);
+    public native void getGestureListCommand(byte[] command);
+    public native void getGestureListInfomation(int id, byte[] input, int[] gesture);
 }

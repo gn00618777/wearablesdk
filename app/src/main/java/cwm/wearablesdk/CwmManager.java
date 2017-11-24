@@ -98,6 +98,8 @@ public class CwmManager{
     private final int READ_FLASH_COMMAND_ID = 0x20;
     private final int RECEIVED_FLASH_COMMAND_ID = 0x21;
     private final int REQUEST_MAX_LOG_PACKETS_ID = 0x22;
+    private final int REQUEST_GESTURE_LIST = 0x18;
+    private final int GESUTRE_EVENT_MESSAGE_ID = 0x0B;
 
     private WearableService mService = null;
     private Context mContext = null;
@@ -681,6 +683,14 @@ public class CwmManager{
         }
     }
 
+    public void CwmRequestGestureList(){
+        Task task = new Task(REQUEST_GESTURE_LIST, 2); //ID, timer 2 sec
+        if(isTaskHasComplete == true) {
+            mCurrentTask = task;
+            mCurrentTask.doWork();
+        }
+    }
+
     public void CwmFlashSyncStart(){
         Task task = new Task(READ_FLASH_COMMAND_ID, 2); //ID, timer 2 sec
         task.setSyncType(FLASH_SYNC_TYPE.SYNC_START.ordinal());
@@ -908,6 +918,11 @@ public class CwmManager{
                         //CwmFlashSyncStart();
                         mListener.onEventArrival(cwmEvent);
                         break;
+                    case GESUTRE_EVENT_MESSAGE_ID:
+                        cwmEvent = getInfomation(GESUTRE_EVENT_MESSAGE_ID, value);
+
+                        mListener.onEventArrival(cwmEvent);
+                        break;
                     default:
                         break;
                 }
@@ -1075,6 +1090,14 @@ public class CwmManager{
             CwmEvents cwmEvents = new CwmEvents();
             cwmEvents.setId(REQUEST_MAX_LOG_PACKETS_ID);
             cwmEvents.setMaxByte(max_packets);
+            return cwmEvents;
+        }
+        else if(messageId == GESUTRE_EVENT_MESSAGE_ID){
+            int[] output = new int[7];
+            CwmEvents cwmEvents = new CwmEvents();
+            cwmEvents.setId(GESUTRE_EVENT_MESSAGE_ID);
+            jniMgr.getGestureListInfomation(GESUTRE_EVENT_MESSAGE_ID,value,output);
+            cwmEvents.setGestureList(output);
             return cwmEvents;
         }
         return null;
@@ -1344,6 +1367,15 @@ public class CwmManager{
                     command = new byte[5];
                     jniMgr.getRequestMaxLogPacketsCommand(command);
                     if(mConnectStatus != false) {
+                        mService.writeRXCharacteristic(command);
+                        taskReceivedHandler.postDelayed(mCurrentTask, mCurrentTask.getTime());
+                    }
+                    break;
+
+                case REQUEST_GESTURE_LIST:
+                    command = new byte[5];
+                    jniMgr.getGestureListCommand(command);
+                    if(mConnectStatus != false){
                         mService.writeRXCharacteristic(command);
                         taskReceivedHandler.postDelayed(mCurrentTask, mCurrentTask.getTime());
                     }

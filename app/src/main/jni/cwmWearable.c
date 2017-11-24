@@ -849,4 +849,75 @@ JNIEXPORT void JNICALL Java_cwm_wearablesdk_JniManager_getRequestMaxLogPacketsCo
       (*env)->SetByteArrayRegion(env, output, 0, 5, txData);
       free(txData);
 }
+JNIEXPORT void JNICALL Java_cwm_wearablesdk_JniManager_getGestureListCommand
+(JNIEnv *env, jobject jobj, jbyteArray output)
+{
+       jint checksum = 0xE6+0x90+0x05+0x18;
+       jbyte *txData = malloc(sizeof(jbyte)*5);
 
+       txData[0] = (jbyte)0xE6;
+       txData[1] = (jbyte)0x90;
+       txData[2] = (jbyte)0x05;
+       txData[3] = (jbyte)0x18;
+       txData[4] = (jbyte)checksum;
+
+       (*env)->SetByteArrayRegion(env, output, 0, 5, txData);
+       free(txData);
+}
+JNIEXPORT void JNICALL Java_cwm_wearablesdk_JniManager_getGestureListInfomation
+(JNIEnv *env, jobject jobj, jint id, jbyteArray input, jintArray gestureOutput)
+{
+
+
+    jbyte *rxData = (*env)->GetByteArrayElements(env, input, 0);
+    jbyte features, features1;
+    jint onWearMask = 32;
+    jint shakeMask  = 64;
+    jint significantMask = 1;
+    jint sedentaryRemindMask = 8;
+    jint handUpMask = 4;
+    jint tapMask = 2;
+    jint wristMask = 1;
+
+     features = rxData[5];
+     features1 = rxData[6];
+
+     jint *txData = malloc(sizeof(jint)*7);
+
+     for(int i = 0 ; i < 7 ; i++)
+         txData[0] = 0;
+
+     if(features & wristMask)
+         txData[0]=1;
+     else
+         txData[0]=0;
+     if(features & tapMask)
+         txData[1]=1;
+     else
+         txData[1]=0;
+     if(features & handUpMask)
+        txData[2]=1;
+     else
+        txData[2]=0;
+     if(features & sedentaryRemindMask)
+        txData[3]=1;
+     else
+        txData[3]=0;
+     if(features & onWearMask)
+       txData[4]=1;
+     else
+       txData[4]=0;
+     if(features & shakeMask)
+       txData[5]=1;
+     else
+       txData[5]=0;
+     if(features1 & significantMask)
+       txData[6]=1;
+     else
+        txData[6]=0;
+
+     (*env)->SetIntArrayRegion(env, gestureOutput, 0, 7, txData);
+     (*env)->ReleaseByteArrayElements(env, input, rxData, 0);
+     free(txData);
+
+}

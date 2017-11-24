@@ -25,6 +25,7 @@ public class CwmEvents extends Information{
     private int[] parser;
     private int maxByte;
     private int deviceCurrent;
+    private int[] mGestureList;
 
 
     /**************heart beat*************/
@@ -63,6 +64,7 @@ public class CwmEvents extends Information{
     public void setSleepParser(int[] parser){this.parser = parser;}
     public void setParserLength(int length){ mParserLength = length;}
     public void setMaxByte(int max){maxByte = max;}
+    public void setGestureList(int[] gesture) {mGestureList = gesture;}
     public void setDeviceRecord(int current){deviceCurrent = current;}
     public int getWalkStep(){
        return mWalkStep;
@@ -88,6 +90,7 @@ public class CwmEvents extends Information{
     public int getParserLength(){return mParserLength;}
     public int getMaxByte(){return maxByte;}
     public int getDeviceCurrent(){return deviceCurrent;}
+    public int[] getGestureList(){return mGestureList;}
 
     public int getId() {
         return mId;
