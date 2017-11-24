@@ -58,6 +58,7 @@ public class CwmManager{
         TABATA_ACTION_END,
         TABATA_REQUEST,
         TABATA_DONE,
+        TABATA_RESUME
     };
     enum FLASH_SYNC_TYPE{
         SYNC_START,
@@ -649,6 +650,15 @@ public class CwmManager{
                    mService.writeRXCharacteristic(command);
                }
            }
+           else if(operate == ITEMS.TABATA_RESUME.ordinal()){
+               byte[] command = new byte[9];
+               /********************************************************************************/
+               jniMgr.getTabataCommand(ITEMS.TABATA_RESUME.ordinal(), 0, 0, 0, command);
+               /********************************************************************************/
+               if((mConnectStatus != false)){
+                   mService.writeRXCharacteristic(command);
+               }
+           }
     }
 
     public void CwmRequestSleepLog(){
@@ -1095,6 +1105,8 @@ public class CwmManager{
             this.tag = tag;
             this.value = value;
         }
+
+        public int getLength(){return length;}
 
         public int getIdType(){
             return idType;

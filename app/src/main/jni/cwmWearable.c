@@ -777,6 +777,25 @@ JNIEXPORT void JNICALL Java_cwm_wearablesdk_JniManager_getTabataCommand
                  (*env)->SetByteArrayRegion(env, output, 0, 9, txData);
                  free(txData);
           }
+          else if(operate == 13){ //tabata resume
+
+                 txData[0] = (jbyte)0xE6;
+                 txData[1] = (jbyte)0x90;
+                 txData[2] = (jbyte)0x09;
+                 txData[3] = (jbyte)0x17;
+                 txData[4] = (jbyte)0xD; // tabata flag
+                 txData[5] = (jbyte)0x00;
+                 txData[6] = (jbyte)0x00;
+                 txData[7] = (jbyte)0x00;
+
+                 jint checksum = txData[0]+txData[1]+txData[2]+txData[3]+txData[4]+txData[5]+
+                       txData[6]+txData[7];
+
+                  txData[8] = (jbyte)checksum;
+
+                (*env)->SetByteArrayRegion(env, output, 0, 9, txData);
+               free(txData);
+         }
 
 }
 JNIEXPORT void JNICALL Java_cwm_wearablesdk_JniManager_getReadFlashCommand
