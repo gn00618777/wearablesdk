@@ -924,3 +924,39 @@ JNIEXPORT void JNICALL Java_cwm_wearablesdk_JniManager_getGestureListInfomation
      free(txData);
 
 }
+JNIEXPORT void JNICALL Java_cwm_wearablesdk_JniManager_getRecordSensorToFlashCommand
+(JNIEnv *env, jobject jobj, jint sensorType, jint odrType, jint sensorStatus, jbyteArray output)
+{
+
+      int checksum = 0;
+      jbyte *txData = malloc(sizeof(jbyte)*8);
+
+      txData[0] = 0xE6;
+      txData[1] = 0x90;
+      txData[2] = 0x8;
+      txData[3] = 0x82;
+
+      if(sensorType == 0x01)
+         txData[4] = 0x01;
+      else if(sensorType == 0x02)
+         txData[4] = 0x02;
+
+      if(odrType == 0x01)
+         txData[5] = 0x01;
+      else if(odrType == 0x02)
+         txData[5] = 0x02;
+      else if(odrType == 0x03)
+         txData[5] = 0x03;
+
+      if(sensorStatus == 0x0)
+         txData[6] = 0x0;
+      else if(sensorStatus == 0x01)
+         txData[6] = 0x01;
+
+      checksum = txData[0]+txData[1]+txData[2]+txData[3]+txData[4]+txData[5]+txData[6];
+      txData[7] = (jbyte)checksum;
+
+       (*env)->SetByteArrayRegion(env, output, 0, 8, txData);
+       free(txData);
+
+}

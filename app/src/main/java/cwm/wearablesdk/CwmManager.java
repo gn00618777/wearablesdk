@@ -44,7 +44,7 @@ public class CwmManager{
 
     private final Queue<Data> mOutPutQueue = new LinkedList<>();
     private final Queue<Data> mPendingQueue = new LinkedList<>();
-    private Task mCurrentTask = new Task(0,0);
+    private Task mCurrentTask = new Task(0,0,0);
 
     public enum ITEMS{
         TABATA_INIT,
@@ -72,6 +72,10 @@ public class CwmManager{
         SYNC_ERASE_DONE,
         SYNC_DONE
     };
+    enum PARAMETERS_TYPE{
+        A,
+        SENSORREQUEST
+    }
 
     /******** protoco l************/
     private enum TYPE{ ACK, MESSAGE, LONG_MESSAGE, PENDING };
@@ -102,6 +106,7 @@ public class CwmManager{
     private final int REQUEST_MAX_LOG_PACKETS_ID = 0x22;
     private final int REQUEST_GESTURE_LIST = 0x18;
     private final int GESUTRE_EVENT_MESSAGE_ID = 0x0B;
+    private final int RECORD_SENSOR_ID = 0x82;
 
     private WearableService mService = null;
     private Context mContext = null;
@@ -483,7 +488,7 @@ public class CwmManager{
     }
 
     public void CwmSyncBodySettings(){
-        Task task = new Task(BODY_PARAMETER_RESPONSE_ID, 2);
+        Task task = new Task(BODY_PARAMETER_RESPONSE_ID, 2, 0);
         if(isTaskHasComplete == true) {
             mCurrentTask = task;
             mCurrentTask.doWork();
@@ -491,7 +496,7 @@ public class CwmManager{
     }
 
     public void CwmSyncIntelligentSettings(){
-        Task task = new Task(INTELLIGENT_FEATURE_RESPONSE_ID, 2);
+        Task task = new Task(INTELLIGENT_FEATURE_RESPONSE_ID, 2, 0);
         if(isTaskHasComplete == true) {
             mCurrentTask = task;
             mCurrentTask.doWork();
@@ -499,7 +504,7 @@ public class CwmManager{
     }
 
     public void CwmSyncCurrentTime(){
-        Task task = new Task(SYNC_TIME_RESPONSE_ID, 2);
+        Task task = new Task(SYNC_TIME_RESPONSE_ID, 2, 0);
         if(isTaskHasComplete == true) {
             mCurrentTask = task;
             mCurrentTask.doWork();
@@ -507,7 +512,7 @@ public class CwmManager{
     }
 
     public void CwmRequestBattery(){
-        Task task = new Task(BATTERY_STATUS_REPORT_MESSAGE_ID, 2); //ID, timer 2 sec
+        Task task = new Task(BATTERY_STATUS_REPORT_MESSAGE_ID, 2, 0); //ID, timer 2 sec
         if(isTaskHasComplete == true) {
             mCurrentTask = task;
             mCurrentTask.doWork();
@@ -515,7 +520,16 @@ public class CwmManager{
     }
 
     public void CwmRequestSwVersion(){
-        Task task = new Task(SOFTWARE_VERSION_MESSAGE_ID, 2); //ID, timer 2 sec
+        Task task = new Task(SOFTWARE_VERSION_MESSAGE_ID, 2, 0); //ID, timer 2 sec
+        if(isTaskHasComplete == true) {
+            mCurrentTask = task;
+            mCurrentTask.doWork();
+        }
+    }
+
+    public void CwmRecordSensorToFlash(int sensorType, int odrType, int sensorStatus){
+        Task task = new Task(RECORD_SENSOR_ID, 2, 1); //ID, timer 2 sec
+        task.getParametersObj().setParameters(sensorType, odrType, sensorStatus);
         if(isTaskHasComplete == true) {
             mCurrentTask = task;
             mCurrentTask.doWork();
@@ -523,7 +537,7 @@ public class CwmManager{
     }
 
     public void CwmSwitchOTA(){
-        Task task = new Task(SWITCH_OTA_ID, 2); //ID, timer 2 sec
+        Task task = new Task(SWITCH_OTA_ID, 2, 0); //ID, timer 2 sec
         if(isTaskHasComplete == true) {
             mCurrentTask = task;
             mCurrentTask.doWork();
@@ -539,7 +553,7 @@ public class CwmManager{
     public void CwmTabataCommand(int operate, int prepare, int interval, int action_item){
 
            if(operate == ITEMS.TABATA_INIT.ordinal()){
-               Task task = new Task(TABATA_COMMAND_ID, 2); //ID, timer 2 sec
+               Task task = new Task(TABATA_COMMAND_ID, 2, 0); //ID, timer 2 sec
                if(isTaskHasComplete == true) {
                    mCurrentTask = task;
                    mCurrentTask.doWork();
@@ -666,7 +680,7 @@ public class CwmManager{
     }
 
     public void CwmRequestSleepLog(){
-        Task task = new Task(SLEEP_REPORT_MESSAGE_ID, 5); //ID, timer 2 sec
+        Task task = new Task(SLEEP_REPORT_MESSAGE_ID, 5, 0); //ID, timer 2 sec
         if(isTaskHasComplete == true) {
             mCurrentTask = task;
             mCurrentTask.doWork();
@@ -678,7 +692,7 @@ public class CwmManager{
     }
 
     public void CwmRequestMaxLogPackets(){
-        Task task = new Task(REQUEST_MAX_LOG_PACKETS_ID, 2); //ID, timer 2 sec
+        Task task = new Task(REQUEST_MAX_LOG_PACKETS_ID, 2, 0); //ID, timer 2 sec
         if(isTaskHasComplete == true) {
             mCurrentTask = task;
             mCurrentTask.doWork();
@@ -686,7 +700,7 @@ public class CwmManager{
     }
 
     public void CwmRequestGestureList(){
-        Task task = new Task(REQUEST_GESTURE_LIST, 2); //ID, timer 2 sec
+        Task task = new Task(REQUEST_GESTURE_LIST, 2, 0); //ID, timer 2 sec
         if(isTaskHasComplete == true) {
             mCurrentTask = task;
             mCurrentTask.doWork();
@@ -694,7 +708,7 @@ public class CwmManager{
     }
 
     public void CwmFlashSyncStart(){
-        Task task = new Task(READ_FLASH_COMMAND_ID, 2); //ID, timer 2 sec
+        Task task = new Task(READ_FLASH_COMMAND_ID, 2, 0); //ID, timer 2 sec
         task.setSyncType(FLASH_SYNC_TYPE.SYNC_START.ordinal());
         tagID = FLASH_SYNC_TYPE.SYNC_START.ordinal();
         if(isTaskHasComplete == true) {
@@ -703,7 +717,7 @@ public class CwmManager{
         }
     }
     public void CwmFlashSyncSuccess(){
-        Task task = new Task(READ_FLASH_COMMAND_ID, 2); //ID, timer 2 sec
+        Task task = new Task(READ_FLASH_COMMAND_ID, 2, 0); //ID, timer 2 sec
         task.setSyncType(FLASH_SYNC_TYPE.SYNC_SUCCESS.ordinal());
         tagID = FLASH_SYNC_TYPE.SYNC_SUCCESS.ordinal();
         if(isTaskHasComplete == true) {
@@ -712,7 +726,7 @@ public class CwmManager{
         }
     }
     public void CwmFlashSyncFail(){
-        Task task = new Task(READ_FLASH_COMMAND_ID, 2); //ID, timer 2 sec
+        Task task = new Task(READ_FLASH_COMMAND_ID, 2, 0); //ID, timer 2 sec
         task.setSyncType(FLASH_SYNC_TYPE.SYNC_FAIL.ordinal());
         tagID = FLASH_SYNC_TYPE.SYNC_FAIL.ordinal();
         if(isTaskHasComplete == true) {
@@ -723,7 +737,7 @@ public class CwmManager{
 
     public void CwmFlashErase(){
         Log.d("berne","press erase");
-        Task task = new Task(READ_FLASH_COMMAND_ID, 2); //ID, timer 2 sec
+        Task task = new Task(READ_FLASH_COMMAND_ID, 2, 0); //ID, timer 2 sec
         task.setSyncType(FLASH_SYNC_TYPE.SYNC_ERASE.ordinal());
         tagID = FLASH_SYNC_TYPE.SYNC_ERASE.ordinal();
         if(isTaskHasComplete == true) {
@@ -856,6 +870,10 @@ public class CwmManager{
                         break;
                     case TABATA_COMMAND_ID:
                         ackEvents.setId(TABATA_EVENT_MESSAGE_ID);
+                        mAckListener.onAckArrival(ackEvents);
+                        break;
+                    case RECORD_SENSOR_ID:
+                        ackEvents.setId(RECORD_SENSOR_ID);
                         mAckListener.onAckArrival(ackEvents);
                         break;
                     default:
@@ -1172,6 +1190,11 @@ public class CwmManager{
         int time_expected;
         int id;
         int flashSyncType;
+        SensorsRequestParameters sensorRequestObj;
+
+        public SensorsRequestParameters getParametersObj(){
+            return sensorRequestObj;
+        }
 
         public void setSyncType(int type){
             flashSyncType = type;
@@ -1407,16 +1430,30 @@ public class CwmManager{
                         taskReceivedHandler.postDelayed(mCurrentTask, mCurrentTask.getTime());
                     }
                     break;
+                case RECORD_SENSOR_ID:
+                    int sensorType = sensorRequestObj.getSensorType();
+                    int odrType = sensorRequestObj.getOdrType();
+                    int sensorStatus = sensorRequestObj.getSensorStatus();
+                    command = new byte[8];
+                    jniMgr.getRecordSensorToFlashCommand(sensorType, odrType, sensorStatus, command);
+                    if(mConnectStatus != false){
+                        mService.writeRXCharacteristic(command);
+                        taskReceivedHandler.postDelayed(mCurrentTask, mCurrentTask.getTime());
+                    }
+                    break;
             }
         }
 
         public int getTime(){
             return time_expected*1000;
         }
-        public Task(int command, int time){
+        public Task(int command, int time, int type){
             this.id = command;
             time_expected = time;
             flashSyncType = 0;
+            if(type == PARAMETERS_TYPE.SENSORREQUEST.ordinal())
+                sensorRequestObj = new SensorsRequestParameters();
+
         }
 
         public int getCommand(){
