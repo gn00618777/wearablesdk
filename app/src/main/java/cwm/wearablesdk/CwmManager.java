@@ -12,12 +12,14 @@ import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.BroadcastReceiver;
 import android.content.pm.PackageManager;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.IBinder;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.widget.Toast;
 
+import java.io.File;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.Calendar;
@@ -359,6 +361,8 @@ public class CwmManager{
         int packet_message_id = 0;
         int packet_tag = 0;
         byte[] packet = null;
+
+        Log.d("bernie","rxBuffer id: "+Integer.toHexString(rxBuffer[4] & 0xff)+" flash cmd: "+Integer.toHexString(rxBuffer[5] & 0xff));
 
         if(skipClassify){
             Data data;
@@ -707,6 +711,13 @@ public class CwmManager{
         }
     }
 
+    public void CwmRemoveLog(){
+        File file = new File(Environment.getExternalStorageDirectory().toString() + "/Download/CwmLog.txt");
+        if(file.exists()){
+            file.delete();
+        }
+    }
+
     public void CwmFlashSyncStart(){
         Task task = new Task(READ_FLASH_COMMAND_ID, 2, 0); //ID, timer 2 sec
         task.setSyncType(FLASH_SYNC_TYPE.SYNC_START.ordinal());
@@ -736,7 +747,6 @@ public class CwmManager{
     }
 
     public void CwmFlashErase(){
-        Log.d("berne","press erase");
         Task task = new Task(READ_FLASH_COMMAND_ID, 2, 0); //ID, timer 2 sec
         task.setSyncType(FLASH_SYNC_TYPE.SYNC_ERASE.ordinal());
         tagID = FLASH_SYNC_TYPE.SYNC_ERASE.ordinal();
@@ -766,6 +776,7 @@ public class CwmManager{
                     taskReceivedHandler.removeCallbacks(mCurrentTask);
                 }
                 if(data.getMessageID() == READ_FLASH_COMMAND_ID){
+                    Log.d("bernie","remove call back");
                     isTaskHasComplete = true;
                     taskReceivedHandler.removeCallbacks(mCurrentTask);
                     if(data.getTag() == FLASH_SYNC_TYPE.SYNC_ABORT.ordinal()){
@@ -1210,7 +1221,7 @@ public class CwmManager{
                 isTaskHasComplete = true;
             }
             else if(mCurrentTask.getCommand() == READ_FLASH_COMMAND_ID){
-                CwmFlashSyncFail();
+                //CwmFlashSyncFail();
             }
         }
 
