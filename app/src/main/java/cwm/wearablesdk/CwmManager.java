@@ -94,9 +94,6 @@ public class CwmManager{
     private final int REQUEST_ENABLE_BT = 1;
     private final int REQUEST_SELECT_DEVICE = 2;
 
-    private final int TIMESTAMP_BYTE_LENGTH = 4;
-    private final int HEADER_AND_CHECKSUM_LENGTH = 6;
-
     private BluetoothAdapter mBluetoothAdapter = null;
     private BluetoothManager mBluetoothManager = null;
 
@@ -737,10 +734,10 @@ public class CwmManager{
     }
 
     private void enqueue(Data data){
-        if(data.type == NON_PENDING && data.length <= PACKET_SIZE && data.getIdType() == ID.ACK){
+        if(data.getDataType() == NON_PENDING && data.getLength() <= PACKET_SIZE && data.getIdType() == ID.ACK){
             mOutPutQueue.add(data);
         }
-        else if (data.type == NON_PENDING && data.length <= PACKET_SIZE && data.getIdType() != ID.ACK) {
+        else if (data.getDataType() == NON_PENDING && data.getLength() <= PACKET_SIZE && data.getIdType() != ID.ACK) {
             //if we receive header in time, then cancle time out handler
             //because we send 0x20, but band will feedback 0x21
             if(data.getMessageID() == mCurrentTask.getCommand()) {
@@ -775,7 +772,7 @@ public class CwmManager{
             }
             mOutPutQueue.add(data);
         }
-        else if(data.type == LONE_MESSAGE){
+        else if(data.getDataType() == LONE_MESSAGE){
             //if we receive header in time, then cancle time out handler
             if(data.getMessageID() == mCurrentTask.getCommand() ||
                     data.getMessageID() == ID.RECEIVED_FLASH_COMMAND_ID) {
@@ -783,16 +780,16 @@ public class CwmManager{
                   taskReceivedHandler.removeCallbacks(mCurrentTask);
             }
             hasLongMessage = true;
-            targetLength = data.length - PACKET_SIZE;
+            targetLength = data.getLength() - PACKET_SIZE;
             messageID = data.getMessageID();
-            data.length = PACKET_SIZE;
+            data.setLength(PACKET_SIZE);
             mPendingQueue.add(data);
 
             //The timer for receiving long message
             longMessageHandler.postDelayed(mLongMessageTask,5000);
         }
-        else if((data.type == PENDING) && (hasLongMessage == true)){
-            lengthMeasure += data.length;
+        else if((data.getDataType() == PENDING) && (hasLongMessage == true)){
+            lengthMeasure += data.getLength();
             mPendingQueue.add(data);
             Log.d("bernie","lengthMeasure:"+Integer.toString(lengthMeasure)+" targetLength:"+Integer.toString(targetLength));
             if(lengthMeasure == targetLength){
@@ -807,8 +804,8 @@ public class CwmManager{
 
                 for(int i = 0 ; i < queueSize ; i++) {
                     Data entry = mPendingQueue.poll();
-                    System.arraycopy(entry.getValue(), 0, value, desPos, entry.length);
-                    desPos += entry.length;
+                    System.arraycopy(entry.getValue(), 0, value, desPos, entry.getLength());
+                    desPos += entry.getLength();
                 }
 
                 mOutPutQueue.add(new Data(LONE_MESSAGE, (targetLength+PACKET_SIZE), messageID, 0, value));
@@ -1127,48 +1124,4 @@ public class CwmManager{
         }
         return null;
     }
-
-    public class Data{
-
-          private int type;
-          private int length;
-          private int idType; // to differentiate between ack & nack and message id
-          private int messageID;
-          private byte[] value;
-          private int tag;
-
-        private Data(int type, int length, int idType, int messageID, byte[] value) {
-            this.type = type;
-            this.length = length;
-            this.idType = idType;
-            this.messageID = messageID;
-            this.value = value;
-            this.tag = 0;
-        }
-        private Data(int type, int length, int idType, int messageID, int tag, byte[] value) {
-            this.type = type;
-            this.length = length;
-            this.idType = idType;
-            this.messageID = messageID;
-            this.tag = tag;
-            this.value = value;
-        }
-
-        public int getLength(){return length;}
-
-        public int getIdType(){
-            return idType;
-        }
-
-        public int getMessageID(){
-            if(idType == ID.ACK ||  idType == ID.NACK)
-                return messageID;
-            else
-                return idType;
-        }
-
-        public int getTag(){return tag;}
-        public byte[] getValue(){return value;}
-    }
-
 }

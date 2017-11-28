@@ -37,7 +37,7 @@ public class Parser {
     final  int dataTypeByte = 5;
     final  int dataStart = 6;
 
-    public void parseFlashInformation(CwmManager.Data aPackage){
+    public void parseFlashInformation(Data aPackage){
         int packageLength = aPackage.getLength();
         byte[] value = aPackage.getValue();
         int dataType = (int)value[dataTypeByte];
