@@ -48,7 +48,6 @@ public class Parser {
         float n_element;
         if(dataType == DataType.BMI160.ordinal()) {
             StringBuilder builder = new StringBuilder();
-            builder.append("BMI16\n");
             //int checksum = 0;
            // for(int i = 0 ; i < value.length-1 ; i++){
              //   checksum += (value[i] & 0xFF);
@@ -57,8 +56,8 @@ public class Parser {
                 for (int i = dataStart; i <= (packageLength - 17); i += 16) {
                     System.arraycopy(value, i, timeTemp, 0, 4);
                     timeStamp = ByteBuffer.wrap(timeTemp).order(ByteOrder.LITTLE_ENDIAN).getInt();
-
-                    builder.append(Integer.toString(timeStamp & 0xFFFFFFFF) + " ");
+                    builder.append("BMI16 ");
+                    builder.append(Integer.toString(timeStamp & 0xFFFFFFFF) + ",");
 
                     System.arraycopy(value, i + 4, elementTemp, 0, 2);
                     element = ByteBuffer.wrap(elementTemp).order(ByteOrder.LITTLE_ENDIAN).getShort();
@@ -76,7 +75,7 @@ public class Parser {
                     element = ByteBuffer.wrap(elementTemp).order(ByteOrder.LITTLE_ENDIAN).getShort();
                     n_element = ((float) element) * ACC_RANGE_16G_CONVERT;
 
-                    builder.append(Float.toString(n_element) + "  /  ");
+                    builder.append(Float.toString(n_element) + ",");
 
                     System.arraycopy(value, i + 10, elementTemp, 0, 2);
                     element = ByteBuffer.wrap(elementTemp).order(ByteOrder.LITTLE_ENDIAN).getShort();
@@ -92,7 +91,6 @@ public class Parser {
                     element = ByteBuffer.wrap(elementTemp).order(ByteOrder.LITTLE_ENDIAN).getShort();
                     n_element = ((float) element) * GYRO_CONVERT_2000DPS;
                     builder.append(n_element + "\n");
-                    builder.append("BMI16\n");
                 }
            // }
             try {
@@ -109,7 +107,6 @@ public class Parser {
         }
         else if(dataType == DataType.DEBUG_MSG.ordinal()) {
             StringBuilder builder = new StringBuilder();
-            builder.append("DEBUG MSG\n");
             try{
             File file = new File(Environment.getExternalStorageDirectory().toString() + "/Download/CwmLog.txt");
             FileWriter txt = new FileWriter(file, true);
