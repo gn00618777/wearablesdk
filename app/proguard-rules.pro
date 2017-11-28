@@ -41,7 +41,11 @@
 -keep class cwm.wearablesdk.CwmManager$AckListener{*;}
 -keep class cwm.wearablesdk.CwmManager$ErrorListener{*;}
 -keep class cwm.wearablesdk.CwmManager$LogSyncListener{*;}
+-keep class cwm.wearablesdk.Task
 
+-keepclassmembers class cwm.wearablesdk.Task {
+   public *;
+}
 
 -keepclassmembers class cwm.wearablesdk.CwmManager {
    public *;

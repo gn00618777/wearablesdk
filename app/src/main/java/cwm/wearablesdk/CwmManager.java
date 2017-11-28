@@ -46,7 +46,7 @@ public class CwmManager{
 
     private final Queue<Data> mOutPutQueue = new LinkedList<>();
     private final Queue<Data> mPendingQueue = new LinkedList<>();
-    private Task mCurrentTask = new Task(0,0,0);
+    public static Task mCurrentTask = new Task(0,0,0);
 
     public enum ITEMS{
         TABATA_INIT,
@@ -81,41 +81,13 @@ public class CwmManager{
 
     /******** protoco l************/
     private enum TYPE{ ACK, MESSAGE, LONG_MESSAGE, PENDING };
-    private final int ACK = 0xAC;
-    private final int NACK = 0x15;
     /***************************/
-    //response id received from ring
-    private final int SYNC_TIME_RESPONSE_ID = 0x02;
-    private final int BODY_PARAMETER_RESPONSE_ID = 0x14;
-    private final int INTELLIGENT_FEATURE_RESPONSE_ID = 0x12;
-    private final int CLEAN_BOND_RESPONSE_ID = 0x70;
-    // message id recevied from ring.
-    private final int MOTION_DATA_REPORT_MESSAGE_ID = 0xAF;
-    private final int BATTERY_STATUS_REPORT_MESSAGE_ID = 0xED;
-    private final int TAP_EVENT_MESSAGE_ID = 0x01;
-    private final int WRIST_SCROLL_EVENT_MESSAGE_ID = 0x02;
-    private final int SEDENTARY_EVENT_MESSAGE_ID = 0x03;
-    private final int HART_RATE_EVENT_MESSAGE_ID = 0x04;
-    private final int TABATA_EVENT_MESSAGE_ID = 0x05;
-    private final int SHAKE_EVENT_MESSAGE_ID = 0x06;
-    private final int SIGNIFICANT_EVENT_MESSAGE_ID = 0x08;
-    private final int SOFTWARE_VERSION_MESSAGE_ID = 0x90;
-    private final int SLEEP_REPORT_MESSAGE_ID = 0xBE;
-    private final int SWITCH_OTA_ID = 0x1F;
-    private final int TABATA_COMMAND_ID = 0x17;
-    private final int READ_FLASH_COMMAND_ID = 0x20;
-    private final int RECEIVED_FLASH_COMMAND_ID = 0x21;
-    private final int REQUEST_MAX_LOG_PACKETS_ID = 0x22;
-    private final int REQUEST_GESTURE_LIST = 0x18;
-    private final int GESUTRE_EVENT_MESSAGE_ID = 0x0B;
-    private final int RECORD_SENSOR_ID = 0x82;
-
-    private WearableService mService = null;
+    public static WearableService mService = null;
     private Context mContext = null;
     private Activity mActivity = null;
     private WearableServiceListener mStatusListener = null;
     private AckListener mAckListener = null;
-    private ErrorListener mErrorListener = null;
+    public static ErrorListener mErrorListener = null;
     private EventListener mListener = null;
     private LogSyncListener mLogListener = null;
 
@@ -128,19 +100,19 @@ public class CwmManager{
     private BluetoothAdapter mBluetoothAdapter = null;
     private BluetoothManager mBluetoothManager = null;
 
-    private boolean mConnectStatus = false;
+    public static boolean mConnectStatus = false;
     private boolean skipClassify = false;
 
-    private Handler taskReceivedHandler = new Handler();
+    public static Handler taskReceivedHandler = new Handler();
 
     // Keep Settings
     public final static int BODY = 1;
     public final static int INTELLIGENT = 2;
-    private BodySettings bodySettings;
-    private IntelligentSettings  intelligentSettings;
+    public static BodySettings bodySettings;
+    public static IntelligentSettings  intelligentSettings;
 
     //JNI
-    JniManager jniMgr;
+    public static JniManager jniMgr;
 
     //the usage for combining packets to one packet
     private int lengthMeasure = 0;
@@ -148,7 +120,7 @@ public class CwmManager{
     private int messageID = 0;
     private int tagID = 0;
 
-    private boolean isTaskHasComplete = true;
+    public static boolean isTaskHasComplete = true;
     private boolean hasLongMessage = false;
 
     // flash max bytes
@@ -165,7 +137,7 @@ public class CwmManager{
             errorEvents.setId(0x02); //packets lost
             errorEvents.setCommand(messageID);
             isTaskHasComplete = true;
-            if(mCurrentTask.getCommand() == READ_FLASH_COMMAND_ID) {
+            if(mCurrentTask.getCommand() == ID.READ_FLASH_COMMAND_ID) {
                 Log.d("bernie","sync failed");
                 errorEvents.setTag(tagID);
                 //CwmFlashSyncFail();
@@ -322,6 +294,7 @@ public class CwmManager{
                 mConnectStatus = true;
                 if(mService.enableTXNotification())
                    mStatusListener.onServiceDiscovery(deviceName, deviceAddress);
+                CwmRemoveLog();
             }
             //*********************//
             if (action.equals(WearableService.ACTION_DATA_AVAILABLE)) {
@@ -393,7 +366,7 @@ public class CwmManager{
                 packet_id_type = rxBuffer[4] & 0xFF;
                 packet_message_id = 0;
                 packet = rxBuffer;
-                if (packet_id_type == READ_FLASH_COMMAND_ID) {
+                if (packet_id_type == ID.READ_FLASH_COMMAND_ID) {
                     packet_tag = rxBuffer[5] & 0xFF;
                     data = new Data(packet_type, packet_length, packet_id_type, packet_message_id, packet_tag, packet);
                 } else {
@@ -408,7 +381,7 @@ public class CwmManager{
                 packet_id_type = rxBuffer[4] & 0xFF;
                 packet_message_id = 0;
                 packet = rxBuffer;
-                if (packet_id_type == READ_FLASH_COMMAND_ID) {
+                if (packet_id_type == ID.READ_FLASH_COMMAND_ID) {
                     packet_tag = rxBuffer[5] & 0xFF;
                     data = new Data(packet_type, packet_length, packet_id_type, packet_message_id, packet_tag, packet);
                 } else {
@@ -492,7 +465,7 @@ public class CwmManager{
     }
 
     public void CwmSyncBodySettings(){
-        Task task = new Task(BODY_PARAMETER_RESPONSE_ID, 2, 0);
+        Task task = new Task(ID.BODY_PARAMETER_RESPONSE_ID, 2, 0);
         if(isTaskHasComplete == true) {
             mCurrentTask = task;
             mCurrentTask.doWork();
@@ -500,7 +473,7 @@ public class CwmManager{
     }
 
     public void CwmSyncIntelligentSettings(){
-        Task task = new Task(INTELLIGENT_FEATURE_RESPONSE_ID, 2, 0);
+        Task task = new Task(ID.INTELLIGENT_FEATURE_RESPONSE_ID, 2, 0);
         if(isTaskHasComplete == true) {
             mCurrentTask = task;
             mCurrentTask.doWork();
@@ -508,7 +481,7 @@ public class CwmManager{
     }
 
     public void CwmSyncCurrentTime(){
-        Task task = new Task(SYNC_TIME_RESPONSE_ID, 2, 0);
+        Task task = new Task(ID.SYNC_TIME_RESPONSE_ID, 2, 0);
         if(isTaskHasComplete == true) {
             mCurrentTask = task;
             mCurrentTask.doWork();
@@ -516,7 +489,7 @@ public class CwmManager{
     }
 
     public void CwmRequestBattery(){
-        Task task = new Task(BATTERY_STATUS_REPORT_MESSAGE_ID, 2, 0); //ID, timer 2 sec
+        Task task = new Task(ID.BATTERY_STATUS_REPORT_MESSAGE_ID, 2, 0); //ID, timer 2 sec
         if(isTaskHasComplete == true) {
             mCurrentTask = task;
             mCurrentTask.doWork();
@@ -524,7 +497,7 @@ public class CwmManager{
     }
 
     public void CwmRequestSwVersion(){
-        Task task = new Task(SOFTWARE_VERSION_MESSAGE_ID, 2, 0); //ID, timer 2 sec
+        Task task = new Task(ID.SOFTWARE_VERSION_MESSAGE_ID, 2, 0); //ID, timer 2 sec
         if(isTaskHasComplete == true) {
             mCurrentTask = task;
             mCurrentTask.doWork();
@@ -532,7 +505,7 @@ public class CwmManager{
     }
 
     public void CwmRecordSensorToFlash(int sensorType, int odrType, int sensorStatus){
-        Task task = new Task(RECORD_SENSOR_ID, 2, 1); //ID, timer 2 sec
+        Task task = new Task(ID.RECORD_SENSOR_ID, 2, 1); //ID, timer 2 sec
         task.getParametersObj().setParameters(sensorType, odrType, sensorStatus);
         if(isTaskHasComplete == true) {
             mCurrentTask = task;
@@ -541,7 +514,7 @@ public class CwmManager{
     }
 
     public void CwmSwitchOTA(){
-        Task task = new Task(SWITCH_OTA_ID, 2, 0); //ID, timer 2 sec
+        Task task = new Task(ID.SWITCH_OTA_ID, 2, 0); //ID, timer 2 sec
         if(isTaskHasComplete == true) {
             mCurrentTask = task;
             mCurrentTask.doWork();
@@ -557,7 +530,7 @@ public class CwmManager{
     public void CwmTabataCommand(int operate, int prepare, int interval, int action_item){
 
            if(operate == ITEMS.TABATA_INIT.ordinal()){
-               Task task = new Task(TABATA_COMMAND_ID, 2, 0); //ID, timer 2 sec
+               Task task = new Task(ID.TABATA_COMMAND_ID, 2, 0); //ID, timer 2 sec
                if(isTaskHasComplete == true) {
                    mCurrentTask = task;
                    mCurrentTask.doWork();
@@ -684,7 +657,7 @@ public class CwmManager{
     }
 
     public void CwmRequestSleepLog(){
-        Task task = new Task(SLEEP_REPORT_MESSAGE_ID, 5, 0); //ID, timer 2 sec
+        Task task = new Task(ID.SLEEP_REPORT_MESSAGE_ID, 5, 0); //ID, timer 2 sec
         if(isTaskHasComplete == true) {
             mCurrentTask = task;
             mCurrentTask.doWork();
@@ -696,7 +669,7 @@ public class CwmManager{
     }
 
     public void CwmRequestMaxLogPackets(){
-        Task task = new Task(REQUEST_MAX_LOG_PACKETS_ID, 2, 0); //ID, timer 2 sec
+        Task task = new Task(ID.REQUEST_MAX_LOG_PACKETS_ID, 2, 0); //ID, timer 2 sec
         if(isTaskHasComplete == true) {
             mCurrentTask = task;
             mCurrentTask.doWork();
@@ -704,7 +677,7 @@ public class CwmManager{
     }
 
     public void CwmRequestGestureList(){
-        Task task = new Task(REQUEST_GESTURE_LIST, 2, 0); //ID, timer 2 sec
+        Task task = new Task(ID.REQUEST_GESTURE_LIST, 2, 0); //ID, timer 2 sec
         if(isTaskHasComplete == true) {
             mCurrentTask = task;
             mCurrentTask.doWork();
@@ -719,7 +692,7 @@ public class CwmManager{
     }
 
     public void CwmFlashSyncStart(){
-        Task task = new Task(READ_FLASH_COMMAND_ID, 2, 0); //ID, timer 2 sec
+        Task task = new Task(ID.READ_FLASH_COMMAND_ID, 2, 0); //ID, timer 2 sec
         task.setSyncType(FLASH_SYNC_TYPE.SYNC_START.ordinal());
         tagID = FLASH_SYNC_TYPE.SYNC_START.ordinal();
         if(isTaskHasComplete == true) {
@@ -728,7 +701,7 @@ public class CwmManager{
         }
     }
     public void CwmFlashSyncSuccess(){
-        Task task = new Task(READ_FLASH_COMMAND_ID, 2, 0); //ID, timer 2 sec
+        Task task = new Task(ID.READ_FLASH_COMMAND_ID, 2, 0); //ID, timer 2 sec
         task.setSyncType(FLASH_SYNC_TYPE.SYNC_SUCCESS.ordinal());
         tagID = FLASH_SYNC_TYPE.SYNC_SUCCESS.ordinal();
         if(isTaskHasComplete == true) {
@@ -737,7 +710,7 @@ public class CwmManager{
         }
     }
     public void CwmFlashSyncFail(){
-        Task task = new Task(READ_FLASH_COMMAND_ID, 2, 0); //ID, timer 2 sec
+        Task task = new Task(ID.READ_FLASH_COMMAND_ID, 2, 0); //ID, timer 2 sec
         task.setSyncType(FLASH_SYNC_TYPE.SYNC_FAIL.ordinal());
         tagID = FLASH_SYNC_TYPE.SYNC_FAIL.ordinal();
         if(isTaskHasComplete == true) {
@@ -747,7 +720,7 @@ public class CwmManager{
     }
 
     public void CwmFlashErase(){
-        Task task = new Task(READ_FLASH_COMMAND_ID, 2, 0); //ID, timer 2 sec
+        Task task = new Task(ID.READ_FLASH_COMMAND_ID, 2, 0); //ID, timer 2 sec
         task.setSyncType(FLASH_SYNC_TYPE.SYNC_ERASE.ordinal());
         tagID = FLASH_SYNC_TYPE.SYNC_ERASE.ordinal();
         if(isTaskHasComplete == true) {
@@ -764,18 +737,18 @@ public class CwmManager{
     }
 
     private void enqueue(Data data){
-        if(data.type == NON_PENDING && data.length <= PACKET_SIZE && data.getIdType() == ACK){
+        if(data.type == NON_PENDING && data.length <= PACKET_SIZE && data.getIdType() == ID.ACK){
             mOutPutQueue.add(data);
         }
-        else if (data.type == NON_PENDING && data.length <= PACKET_SIZE && data.getIdType() != ACK) {
+        else if (data.type == NON_PENDING && data.length <= PACKET_SIZE && data.getIdType() != ID.ACK) {
             //if we receive header in time, then cancle time out handler
             //because we send 0x20, but band will feedback 0x21
             if(data.getMessageID() == mCurrentTask.getCommand()) {
-                if(data.getMessageID() != READ_FLASH_COMMAND_ID){
+                if(data.getMessageID() != ID.READ_FLASH_COMMAND_ID){
                     isTaskHasComplete = false;
                     taskReceivedHandler.removeCallbacks(mCurrentTask);
                 }
-                if(data.getMessageID() == READ_FLASH_COMMAND_ID){
+                if(data.getMessageID() == ID.READ_FLASH_COMMAND_ID){
                     Log.d("bernie","remove call back");
                     isTaskHasComplete = true;
                     taskReceivedHandler.removeCallbacks(mCurrentTask);
@@ -792,11 +765,11 @@ public class CwmManager{
                     }
                 }
             }
-            if(mCurrentTask.getCommand() == TABATA_COMMAND_ID && data.getMessageID() == TABATA_EVENT_MESSAGE_ID ){
+            if(mCurrentTask.getCommand() == ID.TABATA_COMMAND_ID && data.getMessageID() == ID.TABATA_EVENT_MESSAGE_ID ){
                 isTaskHasComplete = false;
                 taskReceivedHandler.removeCallbacks(mCurrentTask);
             }
-            if( mCurrentTask.getCommand() == READ_FLASH_COMMAND_ID && data.getMessageID() == RECEIVED_FLASH_COMMAND_ID){
+            if( mCurrentTask.getCommand() == ID.READ_FLASH_COMMAND_ID && data.getMessageID() == ID.RECEIVED_FLASH_COMMAND_ID){
                 isTaskHasComplete = false;
                 taskReceivedHandler.removeCallbacks(mCurrentTask);
             }
@@ -805,7 +778,7 @@ public class CwmManager{
         else if(data.type == LONE_MESSAGE){
             //if we receive header in time, then cancle time out handler
             if(data.getMessageID() == mCurrentTask.getCommand() ||
-                    data.getMessageID() == RECEIVED_FLASH_COMMAND_ID) {
+                    data.getMessageID() == ID.RECEIVED_FLASH_COMMAND_ID) {
                   isTaskHasComplete = false;
                   taskReceivedHandler.removeCallbacks(mCurrentTask);
             }
@@ -850,48 +823,48 @@ public class CwmManager{
         if(mOutPutQueue.size() != 0){
             Data data = mOutPutQueue.poll();
             if(data.getMessageID() == mCurrentTask.getCommand() ||
-                    data.getMessageID() == RECEIVED_FLASH_COMMAND_ID){
+                    data.getMessageID() == ID.RECEIVED_FLASH_COMMAND_ID){
                 isTaskHasComplete = true;
             }
-            else if(data.getMessageID() == TABATA_EVENT_MESSAGE_ID &&
-                    mCurrentTask.getCommand() == TABATA_COMMAND_ID){
+            else if(data.getMessageID() == ID.TABATA_EVENT_MESSAGE_ID &&
+                    mCurrentTask.getCommand() == ID.TABATA_COMMAND_ID){
                 isTaskHasComplete = true;
             }
-            if(data.getIdType() == ACK) {
+            if(data.getIdType() == ID.ACK) {
                 int id = data.getMessageID();
                 AckEvents ackEvents = new AckEvents();
                 switch (id) {
-                    case SYNC_TIME_RESPONSE_ID:
-                        ackEvents.setId(SYNC_TIME_RESPONSE_ID);
+                    case ID.SYNC_TIME_RESPONSE_ID:
+                        ackEvents.setId(ID.SYNC_TIME_RESPONSE_ID);
                         mAckListener.onAckArrival(ackEvents);
                         break;
-                    case BODY_PARAMETER_RESPONSE_ID:
-                        ackEvents.setId(BODY_PARAMETER_RESPONSE_ID);
+                    case ID.BODY_PARAMETER_RESPONSE_ID:
+                        ackEvents.setId(ID.BODY_PARAMETER_RESPONSE_ID);
                         mAckListener.onAckArrival(ackEvents);
                         break;
-                    case INTELLIGENT_FEATURE_RESPONSE_ID:
-                        ackEvents.setId(INTELLIGENT_FEATURE_RESPONSE_ID);
+                    case ID.INTELLIGENT_FEATURE_RESPONSE_ID:
+                        ackEvents.setId(ID.INTELLIGENT_FEATURE_RESPONSE_ID);
                         mAckListener.onAckArrival(ackEvents);
                         break;
-                    case CLEAN_BOND_RESPONSE_ID:
+                    case ID.CLEAN_BOND_RESPONSE_ID:
                         break;
-                    case SLEEP_REPORT_MESSAGE_ID:
-                        ackEvents.setId(SLEEP_REPORT_MESSAGE_ID);
+                    case ID.SLEEP_REPORT_MESSAGE_ID:
+                        ackEvents.setId(ID.SLEEP_REPORT_MESSAGE_ID);
                         mAckListener.onAckArrival(ackEvents);
                         break;
-                    case TABATA_COMMAND_ID:
-                        ackEvents.setId(TABATA_EVENT_MESSAGE_ID);
+                    case ID.TABATA_COMMAND_ID:
+                        ackEvents.setId(ID.TABATA_EVENT_MESSAGE_ID);
                         mAckListener.onAckArrival(ackEvents);
                         break;
-                    case RECORD_SENSOR_ID:
-                        ackEvents.setId(RECORD_SENSOR_ID);
+                    case ID.RECORD_SENSOR_ID:
+                        ackEvents.setId(ID.RECORD_SENSOR_ID);
                         mAckListener.onAckArrival(ackEvents);
                         break;
                     default:
                         break;
                 }
             }
-            else if(data.getIdType() == NACK){
+            else if(data.getIdType() == ID.NACK){
 
             }
             else{
@@ -899,52 +872,52 @@ public class CwmManager{
                 byte[] value = data.getValue();
                 CwmEvents cwmEvent;
                 switch (id){
-                    case MOTION_DATA_REPORT_MESSAGE_ID:
-                         cwmEvent = getInfomation(MOTION_DATA_REPORT_MESSAGE_ID, value);
+                    case ID.MOTION_DATA_REPORT_MESSAGE_ID:
+                         cwmEvent = getInfomation(ID.MOTION_DATA_REPORT_MESSAGE_ID, value);
                         mListener.onEventArrival(cwmEvent);
                         break;
-                    case BATTERY_STATUS_REPORT_MESSAGE_ID:
-                        cwmEvent = getInfomation(BATTERY_STATUS_REPORT_MESSAGE_ID, value);
+                    case ID.BATTERY_STATUS_REPORT_MESSAGE_ID:
+                        cwmEvent = getInfomation(ID.BATTERY_STATUS_REPORT_MESSAGE_ID, value);
                         mListener.onEventArrival(cwmEvent);
                         break;
-                    case TAP_EVENT_MESSAGE_ID:
-                        cwmEvent = getInfomation(TAP_EVENT_MESSAGE_ID, value);
+                    case ID.TAP_EVENT_MESSAGE_ID:
+                        cwmEvent = getInfomation(ID.TAP_EVENT_MESSAGE_ID, value);
                         mListener.onEventArrival(cwmEvent);
                         break;
-                    case WRIST_SCROLL_EVENT_MESSAGE_ID:
-                        cwmEvent = getInfomation(WRIST_SCROLL_EVENT_MESSAGE_ID, value);
+                    case ID.WRIST_SCROLL_EVENT_MESSAGE_ID:
+                        cwmEvent = getInfomation(ID.WRIST_SCROLL_EVENT_MESSAGE_ID, value);
                         mListener.onEventArrival(cwmEvent);
                         break;
-                    case SEDENTARY_EVENT_MESSAGE_ID:
-                        cwmEvent = getInfomation(SEDENTARY_EVENT_MESSAGE_ID, value);
+                    case ID.SEDENTARY_EVENT_MESSAGE_ID:
+                        cwmEvent = getInfomation(ID.SEDENTARY_EVENT_MESSAGE_ID, value);
                         mListener.onEventArrival(cwmEvent);
                         break;
-                    case SHAKE_EVENT_MESSAGE_ID:
-                        cwmEvent = getInfomation(SHAKE_EVENT_MESSAGE_ID, value);
+                    case ID.SHAKE_EVENT_MESSAGE_ID:
+                        cwmEvent = getInfomation(ID.SHAKE_EVENT_MESSAGE_ID, value);
                         mListener.onEventArrival(cwmEvent);
                         break;
-                    case SIGNIFICANT_EVENT_MESSAGE_ID:
-                        cwmEvent = getInfomation(SIGNIFICANT_EVENT_MESSAGE_ID, value);
+                    case ID.SIGNIFICANT_EVENT_MESSAGE_ID:
+                        cwmEvent = getInfomation(ID.SIGNIFICANT_EVENT_MESSAGE_ID, value);
                         mListener.onEventArrival(cwmEvent);
                         break;
-                    case HART_RATE_EVENT_MESSAGE_ID:
-                        cwmEvent = getInfomation(HART_RATE_EVENT_MESSAGE_ID, value);
+                    case ID.HART_RATE_EVENT_MESSAGE_ID:
+                        cwmEvent = getInfomation(ID.HART_RATE_EVENT_MESSAGE_ID, value);
                         mListener.onEventArrival(cwmEvent);
                         break;
-                    case TABATA_EVENT_MESSAGE_ID:
-                        cwmEvent = getInfomation(TABATA_EVENT_MESSAGE_ID, value);
+                    case ID.TABATA_EVENT_MESSAGE_ID:
+                        cwmEvent = getInfomation(ID.TABATA_EVENT_MESSAGE_ID, value);
                         mListener.onEventArrival(cwmEvent);
                         break;
-                    case SOFTWARE_VERSION_MESSAGE_ID:
-                        cwmEvent = getInfomation(SOFTWARE_VERSION_MESSAGE_ID, value);
+                    case ID.SOFTWARE_VERSION_MESSAGE_ID:
+                        cwmEvent = getInfomation(ID.SOFTWARE_VERSION_MESSAGE_ID, value);
                         mListener.onEventArrival(cwmEvent);
                         break;
-                    case SLEEP_REPORT_MESSAGE_ID:
-                         cwmEvent = getInfomation(SLEEP_REPORT_MESSAGE_ID, value);
+                    case ID.SLEEP_REPORT_MESSAGE_ID:
+                         cwmEvent = getInfomation(ID.SLEEP_REPORT_MESSAGE_ID, value);
                          mListener.onEventArrival(cwmEvent);
                         break;
-                    case RECEIVED_FLASH_COMMAND_ID:
-                        cwmEvent = getInfomation(RECEIVED_FLASH_COMMAND_ID, value);
+                    case ID.RECEIVED_FLASH_COMMAND_ID:
+                        cwmEvent = getInfomation(ID.RECEIVED_FLASH_COMMAND_ID, value);
                         mParser.parseFlashInformation(data);
                         acculateByte ++;
                         if(maxBytes > 0) {
@@ -955,18 +928,18 @@ public class CwmManager{
                         }
                         //mListener.onEventArrival(cwmEvent);
                         break;
-                    case READ_FLASH_COMMAND_ID:
-                        cwmEvent = getInfomation(READ_FLASH_COMMAND_ID, value);
+                    case ID.READ_FLASH_COMMAND_ID:
+                        cwmEvent = getInfomation(ID.READ_FLASH_COMMAND_ID, value);
                         mListener.onEventArrival(cwmEvent);
                         break;
-                    case REQUEST_MAX_LOG_PACKETS_ID:
-                        cwmEvent = getInfomation(REQUEST_MAX_LOG_PACKETS_ID, value);
+                    case ID.REQUEST_MAX_LOG_PACKETS_ID:
+                        cwmEvent = getInfomation(ID.REQUEST_MAX_LOG_PACKETS_ID, value);
                         maxBytes = cwmEvent.getMaxByte();
                         //CwmFlashSyncStart();
                         mListener.onEventArrival(cwmEvent);
                         break;
-                    case GESUTRE_EVENT_MESSAGE_ID:
-                        cwmEvent = getInfomation(GESUTRE_EVENT_MESSAGE_ID, value);
+                    case ID.GESUTRE_EVENT_MESSAGE_ID:
+                        cwmEvent = getInfomation(ID.GESUTRE_EVENT_MESSAGE_ID, value);
                         mListener.onEventArrival(cwmEvent);
                         break;
                     default:
@@ -976,75 +949,75 @@ public class CwmManager{
         }
     }
     private CwmEvents getInfomation(int messageId, byte[] value){
-        if(messageId == MOTION_DATA_REPORT_MESSAGE_ID ){
+        if(messageId == ID.MOTION_DATA_REPORT_MESSAGE_ID ){
            int[] output = new int[4];
             int walkStep = 0;
             int distance = 0;
             int calories = 0;
             int status = 0;
             /***********************************************************************/
-            jniMgr.getCwmInformation(MOTION_DATA_REPORT_MESSAGE_ID,value,output);
+            jniMgr.getCwmInformation(ID.MOTION_DATA_REPORT_MESSAGE_ID,value,output);
             /***********************************************************************/
              walkStep = output[0];
              distance = output[1];
              calories = output[2];
              status = output[3];
             CwmEvents cwmEvents = new CwmEvents();
-            cwmEvents.setId(MOTION_DATA_REPORT_MESSAGE_ID);
+            cwmEvents.setId(ID.MOTION_DATA_REPORT_MESSAGE_ID);
             cwmEvents.setWalkStep(walkStep);
             cwmEvents.setDistance(distance);
             cwmEvents.setCalories(calories);
             cwmEvents.setStatus(status);
             return cwmEvents;
         }
-        else if(messageId == BATTERY_STATUS_REPORT_MESSAGE_ID){
+        else if(messageId == ID.BATTERY_STATUS_REPORT_MESSAGE_ID){
             int[] output = new int[1];
             int battery = 0;
-            jniMgr.getCwmInformation(BATTERY_STATUS_REPORT_MESSAGE_ID,value,output);
+            jniMgr.getCwmInformation(ID.BATTERY_STATUS_REPORT_MESSAGE_ID,value,output);
             battery = output[0];
             CwmEvents cwmEvents = new CwmEvents();
             /*******************************************************/
-            cwmEvents.setId(BATTERY_STATUS_REPORT_MESSAGE_ID);
+            cwmEvents.setId(ID.BATTERY_STATUS_REPORT_MESSAGE_ID);
             cwmEvents.setBattery(battery);
             return cwmEvents;
         }
-        else if(messageId == TAP_EVENT_MESSAGE_ID){
+        else if(messageId == ID.TAP_EVENT_MESSAGE_ID){
             CwmEvents cwmEvents = new CwmEvents();
-            cwmEvents.setId(TAP_EVENT_MESSAGE_ID);
+            cwmEvents.setId(ID.TAP_EVENT_MESSAGE_ID);
             return cwmEvents;
         }
-        else if(messageId == WRIST_SCROLL_EVENT_MESSAGE_ID){
+        else if(messageId == ID.WRIST_SCROLL_EVENT_MESSAGE_ID){
             CwmEvents cwmEvents = new CwmEvents();
-            cwmEvents.setId(WRIST_SCROLL_EVENT_MESSAGE_ID);
+            cwmEvents.setId(ID.WRIST_SCROLL_EVENT_MESSAGE_ID);
             return cwmEvents;
         }
-        else if(messageId == SHAKE_EVENT_MESSAGE_ID){
+        else if(messageId == ID.SHAKE_EVENT_MESSAGE_ID){
             CwmEvents cwmEvents = new CwmEvents();
-            cwmEvents.setId(SHAKE_EVENT_MESSAGE_ID);
+            cwmEvents.setId(ID.SHAKE_EVENT_MESSAGE_ID);
             return cwmEvents;
         }
-        else if(messageId == SIGNIFICANT_EVENT_MESSAGE_ID){
+        else if(messageId == ID.SIGNIFICANT_EVENT_MESSAGE_ID){
             CwmEvents cwmEvents = new CwmEvents();
-            cwmEvents.setId(SIGNIFICANT_EVENT_MESSAGE_ID);
+            cwmEvents.setId(ID.SIGNIFICANT_EVENT_MESSAGE_ID);
             return cwmEvents;
         }
-        else if(messageId == HART_RATE_EVENT_MESSAGE_ID){
+        else if(messageId == ID.HART_RATE_EVENT_MESSAGE_ID){
             int[] output = new int[2];
             int heartBeat = 0;
 
-            jniMgr.getCwmInformation(HART_RATE_EVENT_MESSAGE_ID,value,output);
+            jniMgr.getCwmInformation(ID.HART_RATE_EVENT_MESSAGE_ID,value,output);
             heartBeat = output[0];
             CwmEvents cwmEvents = new CwmEvents();
-            cwmEvents.setId(HART_RATE_EVENT_MESSAGE_ID);
+            cwmEvents.setId(ID.HART_RATE_EVENT_MESSAGE_ID);
             cwmEvents.setHeartBeat(heartBeat);
             return cwmEvents;
         }
-        else if(messageId == SEDENTARY_EVENT_MESSAGE_ID){
+        else if(messageId == ID.SEDENTARY_EVENT_MESSAGE_ID){
             CwmEvents cwmEvents = new CwmEvents();
-            cwmEvents.setId(SEDENTARY_EVENT_MESSAGE_ID);
+            cwmEvents.setId(ID.SEDENTARY_EVENT_MESSAGE_ID);
             return cwmEvents;
     }
-        else if(messageId == TABATA_EVENT_MESSAGE_ID){
+        else if(messageId == ID.TABATA_EVENT_MESSAGE_ID){
             int[] output = new int[6];
             int items = 0;
             int count = 0;
@@ -1054,9 +1027,9 @@ public class CwmManager{
             int status = 0;
 
             CwmEvents cwmEvents = new CwmEvents();
-            cwmEvents.setId(TABATA_EVENT_MESSAGE_ID);
+            cwmEvents.setId(ID.TABATA_EVENT_MESSAGE_ID);
             /***************************************************************/
-            jniMgr.getCwmInformation(TABATA_EVENT_MESSAGE_ID, value, output);
+            jniMgr.getCwmInformation(ID.TABATA_EVENT_MESSAGE_ID, value, output);
             /***************************************************************/
 
             //byte[] dest = new byte[4];
@@ -1080,22 +1053,22 @@ public class CwmManager{
 
             return cwmEvents;
 
-        } else if(messageId == SOFTWARE_VERSION_MESSAGE_ID){
+        } else if(messageId == ID.SOFTWARE_VERSION_MESSAGE_ID){
             int[] output = new int[2];
             float main = 0;
             float sub = 0;
             /***************************************************************/
-            jniMgr.getCwmInformation(SOFTWARE_VERSION_MESSAGE_ID,value,output);
+            jniMgr.getCwmInformation(ID.SOFTWARE_VERSION_MESSAGE_ID,value,output);
             /***************************************************************/
             main = (float)output[0];
             sub = (((float)output[1]) / 100);
 
             CwmEvents cwmEvents = new CwmEvents();
-            cwmEvents.setId(SOFTWARE_VERSION_MESSAGE_ID);
+            cwmEvents.setId(ID.SOFTWARE_VERSION_MESSAGE_ID);
             cwmEvents.setSwVersion(main+sub);
 
             return cwmEvents;
-        } else if(messageId == SLEEP_REPORT_MESSAGE_ID){
+        } else if(messageId == ID.SLEEP_REPORT_MESSAGE_ID){
             int startPos = 5;
             int unit_sleep_log = 4;//byte
             int checksum_byte = 1;//byte
@@ -1115,7 +1088,7 @@ public class CwmManager{
                 j++;
             }
             CwmEvents cwmEvents = new CwmEvents();
-            cwmEvents.setId(SLEEP_REPORT_MESSAGE_ID);
+            cwmEvents.setId(ID.SLEEP_REPORT_MESSAGE_ID);
             cwmEvents.setSleepLogLength(value.length);
             cwmEvents.setSleepCombined(value);
             cwmEvents.setSleepParser(convert);
@@ -1123,32 +1096,32 @@ public class CwmManager{
 
             return cwmEvents;
         }
-        else if(messageId == READ_FLASH_COMMAND_ID){
+        else if(messageId == ID.READ_FLASH_COMMAND_ID){
             CwmEvents cwmEvents = new CwmEvents();
-            cwmEvents.setId(READ_FLASH_COMMAND_ID);
+            cwmEvents.setId(ID.READ_FLASH_COMMAND_ID);
             cwmEvents.setFlashSyncStatus(value[5] & 0xFF);
             return cwmEvents;
         }
-        else if(messageId == RECEIVED_FLASH_COMMAND_ID){
+        else if(messageId == ID.RECEIVED_FLASH_COMMAND_ID){
             CwmEvents cwmEvents = new CwmEvents();
-            cwmEvents.setId(RECEIVED_FLASH_COMMAND_ID);
+            cwmEvents.setId(ID.RECEIVED_FLASH_COMMAND_ID);
             return cwmEvents;
         }
-        else if(messageId == REQUEST_MAX_LOG_PACKETS_ID){
+        else if(messageId == ID.REQUEST_MAX_LOG_PACKETS_ID){
             byte[] temp = new byte[4];
             int max_packets = 0;
             System.arraycopy(value, 9, temp, 0, 4);
             max_packets = ByteBuffer.wrap(temp).order(ByteOrder.LITTLE_ENDIAN).getInt();
             CwmEvents cwmEvents = new CwmEvents();
-            cwmEvents.setId(REQUEST_MAX_LOG_PACKETS_ID);
+            cwmEvents.setId(ID.REQUEST_MAX_LOG_PACKETS_ID);
             cwmEvents.setMaxByte(max_packets);
             return cwmEvents;
         }
-        else if(messageId == GESUTRE_EVENT_MESSAGE_ID){
+        else if(messageId == ID.GESUTRE_EVENT_MESSAGE_ID){
             int[] output = new int[7];
             CwmEvents cwmEvents = new CwmEvents();
-            cwmEvents.setId(GESUTRE_EVENT_MESSAGE_ID);
-            jniMgr.getGestureListInfomation(GESUTRE_EVENT_MESSAGE_ID,value,output);
+            cwmEvents.setId(ID.GESUTRE_EVENT_MESSAGE_ID);
+            jniMgr.getGestureListInfomation(ID.GESUTRE_EVENT_MESSAGE_ID,value,output);
             cwmEvents.setGestureList(output);
             return cwmEvents;
         }
@@ -1188,7 +1161,7 @@ public class CwmManager{
         }
 
         public int getMessageID(){
-            if(idType == ACK ||  idType == NACK)
+            if(idType == ID.ACK ||  idType == ID.NACK)
                 return messageID;
             else
                 return idType;
@@ -1197,281 +1170,5 @@ public class CwmManager{
         public int getTag(){return tag;}
         public byte[] getValue(){return value;}
     }
-    public class Task implements Runnable{
-        int time_expected;
-        int id;
-        int flashSyncType;
-        SensorsRequestParameters sensorRequestObj;
-
-        public SensorsRequestParameters getParametersObj(){
-            return sensorRequestObj;
-        }
-
-        public void setSyncType(int type){
-            flashSyncType = type;
-        }
-
-        @Override
-        public void run(){
-            if(mCurrentTask.getCommand() != READ_FLASH_COMMAND_ID) {
-                ErrorEvents errorEvents = new ErrorEvents();
-                errorEvents.setId(0x01); //header lost
-                errorEvents.setCommand(mCurrentTask.getCommand());
-                mErrorListener.onErrorArrival(errorEvents);
-                isTaskHasComplete = true;
-            }
-            else if(mCurrentTask.getCommand() == READ_FLASH_COMMAND_ID){
-                //CwmFlashSyncFail();
-            }
-        }
-
-        public void doWork(){
-            byte[] command;
-            byte[] command1;
-            switch (id){
-                case BATTERY_STATUS_REPORT_MESSAGE_ID:
-                    command = new byte[5];
-                    /*******************************************************************************/
-                    jniMgr.getRequestBatteryCommand(command);
-                    /******************************************************************************/
-                    if(mConnectStatus != false) {
-                        mService.writeRXCharacteristic(command);
-                        taskReceivedHandler.postDelayed(mCurrentTask, mCurrentTask.getTime());
-                    }
-                    break;
-                case SOFTWARE_VERSION_MESSAGE_ID:
-                     command = new byte[5];
-                    /*******************************************************************************/
-                    jniMgr.getRequestSwVersionCommand(command);
-                    /*******************************************************************************/
-                    if(mConnectStatus != false) {
-                        mService.writeRXCharacteristic(command);
-                        taskReceivedHandler.postDelayed(mCurrentTask, mCurrentTask.getTime());
-                    }
-                    break;
-                case SYNC_TIME_RESPONSE_ID:
-                    int[] time = new int[7];
-                    command = new byte[12];
-                    boolean isFirstSunday;
-                    Calendar c = Calendar.getInstance();
-                    time[0] = c.get(Calendar.YEAR) - 2000;
-                    time[1] = c.get(Calendar.MONTH);
-                    time[2] = c.get(Calendar.DATE);
-                    time[3] = c.get(Calendar.DAY_OF_WEEK);
-                    time[4] = c.get(Calendar.HOUR_OF_DAY);
-                    time[5] = c.get(Calendar.MINUTE);
-                    time[6] = c.get(Calendar.SECOND);
-
-                    switch(time[1]) {
-                       case Calendar.JANUARY:
-                           time[1] = 1;
-                       break;
-                       case Calendar.FEBRUARY:
-                           time[1] = 2;
-                        break;
-                       case Calendar.MARCH:
-                           time[1] = 3;
-                        break;
-                       case Calendar.APRIL:
-                           time[1] = 4;
-                         break;
-                       case Calendar.MAY:
-                           time[1] = 5;
-                        break;
-                       case Calendar.JUNE:
-                           time[1] = 6;
-                        break;
-                       case Calendar.JULY:
-                           time[1] = 7;
-                        break;
-                       case Calendar.AUGUST:
-                           time[1] = 8;
-                        break;
-                       case Calendar.SEPTEMBER:
-                           time[1] = 9;
-                        break;
-                       case Calendar.OCTOBER:
-                           time[1] = 10;
-                        break;
-                       case Calendar.NOVEMBER:
-                           time[1] = 11;
-                        break;
-                       case Calendar.DECEMBER:
-                           time[1] = 12;
-                        break;
-                   }
-
-                   isFirstSunday = (c.getFirstDayOfWeek() == Calendar.SUNDAY);
-                   if(isFirstSunday){
-                       time[3] = time[3] - 1;
-                       if(time[3] == 0){
-                           time[3] = 7;
-                       }
-                   }
-                   /****************************************/
-                   jniMgr.getSyncCurrentCommand(time, command);
-                   /****************************************/
-                   if(mConnectStatus != false) {
-                       mService.writeRXCharacteristic(command);
-                       taskReceivedHandler.postDelayed(mCurrentTask, mCurrentTask.getTime());
-                   }
-                   break;
-
-                case BODY_PARAMETER_RESPONSE_ID:
-                    if(mConnectStatus == true) {
-                        command = new byte[9];
-                        int[] body = new int[4];
-
-                        body[0] = bodySettings.getOld();
-                        body[1] = bodySettings.getHight();
-                        if (bodySettings.getSex() == 'm' || bodySettings.getSex() == 'M')
-                            body[2] = 1;
-                        else
-                            body[2] = 2;
-                        body[3] = bodySettings.getWeight();
-
-                        /*******************************************************/
-                        jniMgr.getSyncBodyCommandCommand(body,command);
-                        /*********************************************************/
-                        if(mConnectStatus != false) {
-                            mService.writeRXCharacteristic(command);
-                            taskReceivedHandler.postDelayed(mCurrentTask, mCurrentTask.getTime());
-                        }
-                    }
-                    break;
-                case INTELLIGENT_FEATURE_RESPONSE_ID:
-                    if(mConnectStatus == true) {
-                        command = new byte[9];
-                        command1 = new byte[7];
-                        boolean[] feature = new boolean[7];
-                        int goal = intelligentSettings.getGoal();
-                        int remindTIme = intelligentSettings.getTime();
-                        feature[0] = intelligentSettings.getSedtentary();
-                        feature[1] = intelligentSettings.getHangUp();
-                        feature[2] = intelligentSettings.getOnWear();
-                        feature[3] = intelligentSettings.getDoubleTap();
-                        feature[4] = intelligentSettings.getWristSwitch();
-                        feature[5] = intelligentSettings.getShakeSwitch();
-                        feature[6] = intelligentSettings.getSignificant();
-
-                        /***************************************************************/
-                        jniMgr.getSyncIntelligentCommand(feature, goal, command);
-                        jniMgr.getSedentaryRemindTimeCommand(remindTIme, command1);
-                        /***********************************************************************************/
-                        if(mConnectStatus != false) {
-                            mService.writeRXCharacteristic(command1);
-                            mService.writeRXCharacteristic(command);
-                            taskReceivedHandler.postDelayed(mCurrentTask, mCurrentTask.getTime());
-                        }
-                    }
-                    break;
-
-                case SLEEP_REPORT_MESSAGE_ID:
-                    command = new byte[5];
-                    jniMgr.getSleepLogCommand(command);
-                    if(mConnectStatus != false) {
-                        mService.writeRXCharacteristic(command);
-                        taskReceivedHandler.postDelayed(mCurrentTask, mCurrentTask.getTime());
-                    }
-                    break;
-
-                case SWITCH_OTA_ID:
-                    command = new byte[5];
-                    /*******************************************************************************/
-                    jniMgr.getSwitchOTACommand(command);
-                    /*******************************************************************************/
-                    if(mConnectStatus != false) {
-                        mService.writeRXCharacteristic(command);
-                        taskReceivedHandler.postDelayed(mCurrentTask, mCurrentTask.getTime());
-                    }
-                    break;
-
-                case TABATA_COMMAND_ID:
-                    command = new byte[9];
-                    /********************************************************************************/
-                     jniMgr.getTabataCommand(ITEMS.TABATA_INIT.ordinal(), 0, 0, 0, command);
-                    /********************************************************************************/
-                    if((mConnectStatus != false)){
-                      mService.writeRXCharacteristic(command);
-                        taskReceivedHandler.postDelayed(mCurrentTask, mCurrentTask.getTime());
-                     }
-                    break;
-
-                case READ_FLASH_COMMAND_ID:
-                    command = new byte[6];
-                    if(flashSyncType == FLASH_SYNC_TYPE.SYNC_START.ordinal()){
-                        jniMgr.getReadFlashCommand(FLASH_SYNC_TYPE.SYNC_START.ordinal(), command);
-                    }
-                    else if(flashSyncType == FLASH_SYNC_TYPE.SYNC_SUCCESS.ordinal()){
-                        jniMgr.getReadFlashCommand(FLASH_SYNC_TYPE.SYNC_SUCCESS.ordinal(), command);
-                    }
-                    else if(flashSyncType == FLASH_SYNC_TYPE.SYNC_FAIL.ordinal()){
-                        jniMgr.getReadFlashCommand(FLASH_SYNC_TYPE.SYNC_FAIL.ordinal(), command);
-                    }
-                    else if(flashSyncType == FLASH_SYNC_TYPE.SYNC_ABORT.ordinal()){
-                        jniMgr.getReadFlashCommand(FLASH_SYNC_TYPE.SYNC_ABORT.ordinal(), command);
-                    }
-                    else if(flashSyncType == FLASH_SYNC_TYPE.SYNC_DONE.ordinal()){
-                        jniMgr.getReadFlashCommand(FLASH_SYNC_TYPE.SYNC_DONE.ordinal(), command);
-                    }
-                    else if(flashSyncType == FLASH_SYNC_TYPE.SYNC_ERASE.ordinal()){
-                        Log.d("bernie","get sync erase command");
-                        jniMgr.getReadFlashCommand(FLASH_SYNC_TYPE.SYNC_ERASE.ordinal(), command);
-                    }
-                    if((mConnectStatus != false)){
-                        mService.writeRXCharacteristic(command);
-                        taskReceivedHandler.postDelayed(mCurrentTask, mCurrentTask.getTime());
-                    }
-                    break;
-
-                case REQUEST_MAX_LOG_PACKETS_ID:
-                    command = new byte[5];
-                    jniMgr.getRequestMaxLogPacketsCommand(command);
-                    if(mConnectStatus != false) {
-                        mService.writeRXCharacteristic(command);
-                        taskReceivedHandler.postDelayed(mCurrentTask, mCurrentTask.getTime());
-                    }
-                    break;
-
-                case REQUEST_GESTURE_LIST:
-                    command = new byte[5];
-                    jniMgr.getGestureListCommand(command);
-                    if(mConnectStatus != false){
-                        mService.writeRXCharacteristic(command);
-                        taskReceivedHandler.postDelayed(mCurrentTask, mCurrentTask.getTime());
-                    }
-                    break;
-                case RECORD_SENSOR_ID:
-                    int sensorType = sensorRequestObj.getSensorType();
-                    int odrType = sensorRequestObj.getOdrType();
-                    int sensorStatus = sensorRequestObj.getSensorStatus();
-                    command = new byte[8];
-                    jniMgr.getRecordSensorToFlashCommand(sensorType, odrType, sensorStatus, command);
-                    if(mConnectStatus != false){
-                        mService.writeRXCharacteristic(command);
-                        taskReceivedHandler.postDelayed(mCurrentTask, mCurrentTask.getTime());
-                    }
-                    break;
-            }
-        }
-
-        public int getTime(){
-            return time_expected*1000;
-        }
-        public Task(int command, int time, int type){
-            this.id = command;
-            time_expected = time;
-            flashSyncType = 0;
-            if(type == PARAMETERS_TYPE.SENSORREQUEST.ordinal())
-                sensorRequestObj = new SensorsRequestParameters();
-
-        }
-
-        public int getCommand(){
-            return id;
-        }
-
-    }
-
 
 }
