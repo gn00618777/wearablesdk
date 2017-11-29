@@ -143,6 +143,14 @@ JNIEXPORT void JNICALL Java_cwm_wearablesdk_JniManager_getGestureListInfomation
 JNIEXPORT void JNICALL Java_cwm_wearablesdk_JniManager_getRecordSensorToFlashCommand
   (JNIEnv *, jobject, jint, jint, jint, jbyteArray);
 
+/*
+ * Class:     cwm_wearablesdk_JniManager
+ * Method:    getRequestEraseProgressCommand
+ * Signature: ([B)V
+ */
+JNIEXPORT void JNICALL Java_cwm_wearablesdk_JniManager_getRequestEraseProgressCommand
+  (JNIEnv *, jobject, jbyteArray);
+
 #ifdef __cplusplus
 }
 #endif

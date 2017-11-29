@@ -262,6 +262,14 @@ public class Task implements Runnable{
                     CwmManager.taskReceivedHandler.postDelayed(CwmManager.mCurrentTask, CwmManager.mCurrentTask.getTime());
                 }
                 break;
+            case ID.REQUEST_ERASE_PROGRESS_ID:
+                command = new byte[5];
+                if(CwmManager.mConnectStatus != false){
+                    CwmManager.mService.writeRXCharacteristic(command);
+                    CwmManager.taskReceivedHandler.postDelayed(CwmManager.mCurrentTask, CwmManager.mCurrentTask.getTime());
+                }
+                break;
+
         }
     }
 

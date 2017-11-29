@@ -72,6 +72,7 @@
  public int getDeviceCurrent();
  public int[] getGestureList();
  public int getSyncStatus();
+ public int getEraseProgress();
 }
 -keepclassmembers class cwm.wearablesdk.AckEvents{
 public *;

@@ -501,6 +501,14 @@ public class CwmManager{
         }
     }
 
+    public void CwmRequestEraseProgress(){
+        Task task = new Task(ID.REQUEST_ERASE_PROGRESS_ID, 2, 0);
+        if(isTaskHasComplete == true) {
+            mCurrentTask = task;
+            mCurrentTask.doWork();
+        }
+    }
+
     public void CwmRecordSensorToFlash(int sensorType, int odrType, int sensorStatus){
         Task task = new Task(ID.RECORD_SENSOR_ID, 2, 1); //ID, timer 2 sec
         task.getParametersObj().setParameters(sensorType, odrType, sensorStatus);
@@ -939,6 +947,10 @@ public class CwmManager{
                         cwmEvent = getInfomation(ID.GESUTRE_EVENT_MESSAGE_ID, value);
                         mListener.onEventArrival(cwmEvent);
                         break;
+                    case ID.REQUEST_ERASE_EVENT_MESSAGE_ID:
+                        cwmEvent = getInfomation(ID.REQUEST_ERASE_EVENT_MESSAGE_ID, value);
+                        mListener.onEventArrival(cwmEvent);
+                        break;
                     default:
                         break;
                 }
@@ -1120,6 +1132,14 @@ public class CwmManager{
             cwmEvents.setId(ID.GESUTRE_EVENT_MESSAGE_ID);
             jniMgr.getGestureListInfomation(ID.GESUTRE_EVENT_MESSAGE_ID,value,output);
             cwmEvents.setGestureList(output);
+            return cwmEvents;
+        }
+        else if(messageId == ID.REQUEST_ERASE_EVENT_MESSAGE_ID){
+            int[] output = new int[1];
+            CwmEvents cwmEvents = new CwmEvents();
+            cwmEvents.setId(ID.REQUEST_ERASE_EVENT_MESSAGE_ID);
+            jniMgr.getCwmInformation(ID.REQUEST_ERASE_EVENT_MESSAGE_ID,value,output);
+            cwmEvents.setEraseProgress(output[0]);
             return cwmEvents;
         }
         return null;

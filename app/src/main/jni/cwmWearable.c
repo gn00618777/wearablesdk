@@ -296,6 +296,12 @@ JNIEXPORT void JNICALL Java_cwm_wearablesdk_JniManager_getCwmInformation
                 (*env)->SetIntArrayRegion(env, output, 0, 2, txData);
                 free(txData);
          }
+         else if(messageId == 0x23){
+               jint *txData = malloc(sizeof(jint)*1);
+               txData[0] = (jint)rxData[5];
+               (*env)->SetIntArrayRegion(env, output, 0, 1, txData);
+               free(txData);
+         }
          (*env)->ReleaseByteArrayElements(env, input, rxData, 0);
 }
 
@@ -959,4 +965,22 @@ JNIEXPORT void JNICALL Java_cwm_wearablesdk_JniManager_getRecordSensorToFlashCom
        (*env)->SetByteArrayRegion(env, output, 0, 8, txData);
        free(txData);
 
+}
+JNIEXPORT void JNICALL Java_cwm_wearablesdk_JniManager_getRequestEraseProgressCommand
+(JNIEnv *env, jobject jobj, jbyteArray output)
+{
+
+      int checksum = 0;
+      jbyte *txData = malloc(sizeof(jbyte)*5);
+
+      txData[0] = 0xE6;
+      txData[1] = 0x90;
+      txData[2] = 0x5;
+      txData[3] = 0x23;
+
+      checksum = txData[0] + txData[1] + txData[2] + txData[3];
+
+      txData[4] = (jbyte)checksum;
+      (*env)->SetByteArrayRegion(env, output, 0, 5, txData);
+      free(txData);
 }

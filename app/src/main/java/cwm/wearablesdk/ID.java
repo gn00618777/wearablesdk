@@ -28,6 +28,8 @@ public class ID {
     public static final int READ_FLASH_COMMAND_ID = 0x20;
     public static final int RECEIVED_FLASH_COMMAND_ID = 0x21;
     public static final int REQUEST_MAX_LOG_PACKETS_ID = 0x22;
+    public static final int REQUEST_ERASE_PROGRESS_ID = 0x23;
+    public static final int REQUEST_ERASE_EVENT_MESSAGE_ID = 0x23;
     public static final int REQUEST_GESTURE_LIST = 0x18;
     public static final int GESUTRE_EVENT_MESSAGE_ID = 0x0B;
     public static final int RECORD_SENSOR_ID = 0x82;
