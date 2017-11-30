@@ -28,6 +28,7 @@ public class CwmEvents extends Information{
     private int[] mGestureList;
     private int syncStatus;
     private int mProgress;
+    private byte[] mRawByte;
 
 
     /**************heart beat*************/
@@ -69,6 +70,7 @@ public class CwmEvents extends Information{
     public void setGestureList(int[] gesture) {mGestureList = gesture;}
     public void setFlashSyncStatus(int status){syncStatus = status;}
     public void setEraseProgress(int progress){mProgress = progress;}
+    public void setmRawByte(byte[] raw){mRawByte = raw;}
     public void setDeviceRecord(int current){deviceCurrent = current;}
     public int getWalkStep(){
        return mWalkStep;
@@ -99,5 +101,8 @@ public class CwmEvents extends Information{
     public int getEraseProgress(){return mProgress;}
     public int getId() {
         return mId;
+    }
+    public byte[] getRawBytes(){
+        return mRawByte;
     }
 }

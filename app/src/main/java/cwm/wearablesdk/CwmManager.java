@@ -90,6 +90,7 @@ public class CwmManager{
     public static ErrorListener mErrorListener = null;
     private EventListener mListener = null;
     private LogSyncListener mLogListener = null;
+    private RawDataListener mRawListener = null;
 
     private final int REQUEST_ENABLE_BT = 1;
     private final int REQUEST_SELECT_DEVICE = 2;
@@ -99,6 +100,7 @@ public class CwmManager{
 
     public static boolean mConnectStatus = false;
     private boolean skipClassify = false;
+    private boolean calibrate = false;
 
     public static Handler taskReceivedHandler = new Handler();
 
@@ -175,10 +177,13 @@ public class CwmManager{
         void onProgressChanged(int currentpart, int partsTotal);
         void onSyncDone();
     }
+    public interface RawDataListener{
+        void onRawDataArrival(byte[] rawByte);
+    }
 
     public CwmManager(Activity activity, WearableServiceListener wListener,
                       EventListener iLlistener, AckListener ackListener, ErrorListener errorListener,
-                      LogSyncListener logSyncListener){
+                      LogSyncListener logSyncListener, RawDataListener rawDataListener ){
 
         mActivity = activity;
         mStatusListener = wListener;
@@ -186,6 +191,7 @@ public class CwmManager{
         mAckListener = ackListener;
         mErrorListener = errorListener;
         mLogListener = logSyncListener;
+        mRawListener = rawDataListener;
 
         jniMgr = new JniManager();
 
@@ -332,7 +338,11 @@ public class CwmManager{
         int packet_tag = 0;
         byte[] packet = null;
 
-        Log.d("bernie","rxBuffer id: "+Integer.toHexString(rxBuffer[4] & 0xff)+" flash cmd: "+Integer.toHexString(rxBuffer[5] & 0xff));
+        Log.d("bernie","rxBuffer[0] "+Integer.toHexString(rxBuffer[0] & 0xff)+" rxBuffer[1] "+Integer.toHexString(rxBuffer[1] & 0xff)+
+                " rxBuffer[2] "+Integer.toHexString(rxBuffer[2] & 0xff)+" rxBuffer[3] "+
+                Integer.toHexString(rxBuffer[3] & 0xff)+" rxBuffer[4]: "+Integer.toHexString(rxBuffer[4] & 0xff)+" rxBuffer[5]: "+Integer.toHexString(rxBuffer[5] & 0xff));
+
+        mRawListener.onRawDataArrival(rxBuffer);
 
         if(skipClassify){
             Data data;
@@ -375,6 +385,7 @@ public class CwmManager{
                 Data data;
                 packet_type = LONE_MESSAGE;
                 packet_length = ((rxBuffer[3] & 0xFF) << 8) | (rxBuffer[2] & 0xFF);
+                Log.d("bernie","packet length "+Integer.toString(packet_length));
                 packet_id_type = rxBuffer[4] & 0xFF;
                 packet_message_id = 0;
                 packet = rxBuffer;
@@ -503,6 +514,15 @@ public class CwmManager{
 
     public void CwmRequestEraseProgress(){
         Task task = new Task(ID.REQUEST_ERASE_PROGRESS_ID, 2, 0);
+        if(isTaskHasComplete == true) {
+            mCurrentTask = task;
+            mCurrentTask.doWork();
+        }
+    }
+
+    public void CwmCalibrate(int sensor){
+        Task task = new Task(ID.CALIBRATE_COMMAND_ID, 2, 1);
+        task.getParametersObj().setParameters(sensor, 0, 0);
         if(isTaskHasComplete == true) {
             mCurrentTask = task;
             mCurrentTask.doWork();
@@ -744,6 +764,10 @@ public class CwmManager{
     private void enqueue(Data data){
         if(data.getDataType() == NON_PENDING && data.getLength() <= PACKET_SIZE && data.getIdType() == ID.ACK){
             mOutPutQueue.add(data);
+            if(data.getMessageID() == mCurrentTask.getCommand()) {
+                isTaskHasComplete = false;
+                taskReceivedHandler.removeCallbacks(mCurrentTask);
+            }
         }
         else if (data.getDataType() == NON_PENDING && data.getLength() <= PACKET_SIZE && data.getIdType() != ID.ACK) {
             //if we receive header in time, then cancle time out handler
@@ -825,6 +849,7 @@ public class CwmManager{
         }
     }
     private void parser(){
+        Log.d("bernie","parser");
         if(mOutPutQueue.size() != 0){
             Data data = mOutPutQueue.poll();
             if(data.getMessageID() == mCurrentTask.getCommand() ||
@@ -863,6 +888,10 @@ public class CwmManager{
                         break;
                     case ID.RECORD_SENSOR_ID:
                         ackEvents.setId(ID.RECORD_SENSOR_ID);
+                        mAckListener.onAckArrival(ackEvents);
+                        break;
+                    case ID.CALIBRATE_COMMAND_ID:
+                        ackEvents.setId(ID.CALIBRATE_COMMAND_ID);
                         mAckListener.onAckArrival(ackEvents);
                         break;
                     default:
@@ -949,6 +978,10 @@ public class CwmManager{
                         break;
                     case ID.REQUEST_ERASE_EVENT_MESSAGE_ID:
                         cwmEvent = getInfomation(ID.REQUEST_ERASE_EVENT_MESSAGE_ID, value);
+                        mListener.onEventArrival(cwmEvent);
+                        break;
+                    case ID.CALIBRATE_DONE_MESSAGE_ID:
+                        cwmEvent = getInfomation(ID.CALIBRATE_DONE_MESSAGE_ID, value);
                         mListener.onEventArrival(cwmEvent);
                         break;
                     default:
@@ -1140,6 +1173,11 @@ public class CwmManager{
             cwmEvents.setId(ID.REQUEST_ERASE_EVENT_MESSAGE_ID);
             jniMgr.getCwmInformation(ID.REQUEST_ERASE_EVENT_MESSAGE_ID,value,output);
             cwmEvents.setEraseProgress(output[0]);
+            return cwmEvents;
+        }
+        else if(messageId == ID.CALIBRATE_DONE_MESSAGE_ID){
+            CwmEvents cwmEvents = new CwmEvents();
+            cwmEvents.setId(ID.CALIBRATE_DONE_MESSAGE_ID);
             return cwmEvents;
         }
         return null;

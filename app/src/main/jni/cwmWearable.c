@@ -984,3 +984,24 @@ JNIEXPORT void JNICALL Java_cwm_wearablesdk_JniManager_getRequestEraseProgressCo
       (*env)->SetByteArrayRegion(env, output, 0, 5, txData);
       free(txData);
 }
+JNIEXPORT void JNICALL Java_cwm_wearablesdk_JniManager_getEnableCalibrateCommand
+(JNIEnv *env, jobject jobj, jint sensor_type, jbyteArray output)
+{
+      int checksum = 0;
+      jbyte *txData = malloc(sizeof(jbyte)*6);
+
+      txData[0] = 0xE6;
+      txData[1] = 0x90;
+      txData[2] = 0x6;
+      txData[3] = 0x11;
+      if(sensor_type == 1)
+         txData[4] = 0x1;
+      else
+         txData[4] = 0x2;
+
+      checksum = txData[0] + txData[1] + txData[2] + txData[3] + txData[4];
+
+      txData[5] = (jbyte)checksum;
+      (*env)->SetByteArrayRegion(env, output, 0, 6, txData);
+      free(txData);
+}

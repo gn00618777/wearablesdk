@@ -41,6 +41,7 @@
 -keep class cwm.wearablesdk.CwmManager$AckListener{*;}
 -keep class cwm.wearablesdk.CwmManager$ErrorListener{*;}
 -keep class cwm.wearablesdk.CwmManager$LogSyncListener{*;}
+-keep class cwm.wearablesdk.CwmManager$RrawDataListener{*;}
 -keep class cwm.wearablesdk.Task
 
 -keepclassmembers class cwm.wearablesdk.Task {
@@ -73,6 +74,8 @@
  public int[] getGestureList();
  public int getSyncStatus();
  public int getEraseProgress();
+ public int getTag();
+ public byte[] getRawBytes();
 }
 -keepclassmembers class cwm.wearablesdk.AckEvents{
 public *;

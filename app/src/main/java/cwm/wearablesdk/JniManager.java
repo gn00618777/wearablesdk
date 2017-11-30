@@ -27,4 +27,5 @@ public class JniManager {
     public native void getGestureListInfomation(int id, byte[] input, int[] gesture);
     public native void getRecordSensorToFlashCommand(int sensorType, int odrType, int sensorStatus, byte[] command);
     public native void getRequestEraseProgressCommand(byte[] command);
+    public native void getEnableCalibrateCommand(int type, byte[] command);
 }

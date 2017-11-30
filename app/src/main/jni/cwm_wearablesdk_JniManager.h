@@ -151,6 +151,14 @@ JNIEXPORT void JNICALL Java_cwm_wearablesdk_JniManager_getRecordSensorToFlashCom
 JNIEXPORT void JNICALL Java_cwm_wearablesdk_JniManager_getRequestEraseProgressCommand
   (JNIEnv *, jobject, jbyteArray);
 
+/*
+ * Class:     cwm_wearablesdk_JniManager
+ * Method:    getEnableCalibrateCommand
+ * Signature: (I[B)V
+ */
+JNIEXPORT void JNICALL Java_cwm_wearablesdk_JniManager_getEnableCalibrateCommand
+  (JNIEnv *, jobject, jint, jbyteArray);
+
 #ifdef __cplusplus
 }
 #endif

@@ -33,5 +33,7 @@ public class ID {
     public static final int REQUEST_GESTURE_LIST = 0x18;
     public static final int GESUTRE_EVENT_MESSAGE_ID = 0x0B;
     public static final int RECORD_SENSOR_ID = 0x82;
+    public static final int CALIBRATE_COMMAND_ID = 0x11;
+    public static final int CALIBRATE_DONE_MESSAGE_ID = 0x91;
 
 }

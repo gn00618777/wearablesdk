@@ -269,6 +269,15 @@ public class Task implements Runnable{
                     CwmManager.taskReceivedHandler.postDelayed(CwmManager.mCurrentTask, CwmManager.mCurrentTask.getTime());
                 }
                 break;
+            case ID.CALIBRATE_COMMAND_ID:
+                command = new byte[6];
+                /********************************************************************************/
+                CwmManager.jniMgr.getEnableCalibrateCommand(sensorRequestObj.getSensorType(), command);
+                /********************************************************************************/
+                if((CwmManager.mConnectStatus != false)){
+                    CwmManager.mService.writeRXCharacteristic(command);
+                }
+                break;
 
         }
     }

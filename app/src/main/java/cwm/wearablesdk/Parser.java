@@ -106,12 +106,11 @@ public class Parser {
 
         }
         else if(dataType == DataType.DEBUG_MSG.ordinal()) {
-            StringBuilder builder = new StringBuilder();
             try{
             File file = new File(Environment.getExternalStorageDirectory().toString() + "/Download/CwmLog.txt");
             FileWriter txt = new FileWriter(file, true);
             BufferedWriter bw = new BufferedWriter(txt);
-            String log = new String(aPackage.getValue(), "UTF-8");
+            String log = aPackage.getValue().toString();
             bw.write(log);
             bw.newLine();
             bw.close();
