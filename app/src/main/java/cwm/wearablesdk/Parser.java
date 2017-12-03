@@ -19,8 +19,8 @@ public class Parser {
     final  float M_PI = 3.14159265358979323846f;
     final float GYRO_CONVERT_2000DPS = (float)(M_PI/((float)16.4 * (float)180));
 
-    final float GRAVITY_EARTH = 9.8066f;
-    final float ACC_RANGE_16G_CONVERT = (GRAVITY_EARTH*(1.0f/2048.0f));
+    float GRAVITY_EARTH = 9.8066f;
+    float ACC_RANGE_16G_CONVERT = (GRAVITY_EARTH*(1.0f/2048.0f));
 
     public enum DataType{
         CALIBRATION,
