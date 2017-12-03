@@ -48,6 +48,12 @@ public class CwmManager{
     private final Queue<Data> mPendingQueue = new LinkedList<>();
     public static Task mCurrentTask = new Task(0,0,0);
 
+    final float M_PI = 3.14159265358979323846f;
+    final float GYRO_CONVERT_2000DPS = (float)(M_PI/((float)16.4 * (float)180));
+    final float GRAVITY_EARTH = 9.8066f;
+    final float ACC_RANGE_16G_CONVERT  = GRAVITY_EARTH*(1.0f/2048.0f);
+    final float ADXL362_8G_CONVERTER = GRAVITY_EARTH*(1.0f/250.0f);
+
     public enum ITEMS{
         TABATA_INIT,
         TABATA_PAUSE,
@@ -415,6 +421,16 @@ public class CwmManager{
           return true;
         else
             return false;
+    }
+
+    public void CwmSensorReport(int sensorType){
+        byte[] command = new byte[10];
+        /********************************************************************************/
+        CwmManager.jniMgr.getEnaableSensorCommand(sensorType, command);
+        /********************************************************************************/
+        if((CwmManager.mConnectStatus != false)){
+            CwmManager.mService.writeRXCharacteristic(command);
+        }
     }
 
     public void CwmReleaseResource(){
@@ -849,7 +865,6 @@ public class CwmManager{
         }
     }
     private void parser(){
-        Log.d("bernie","parser");
         if(mOutPutQueue.size() != 0){
             Data data = mOutPutQueue.poll();
             if(data.getMessageID() == mCurrentTask.getCommand() ||
@@ -982,6 +997,10 @@ public class CwmManager{
                         break;
                     case ID.CALIBRATE_DONE_MESSAGE_ID:
                         cwmEvent = getInfomation(ID.CALIBRATE_DONE_MESSAGE_ID, value);
+                        mListener.onEventArrival(cwmEvent);
+                        break;
+                    case ID.SENSOR_REPORT_MESSAGE_ID:
+                        cwmEvent = getInfomation(ID.SENSOR_REPORT_MESSAGE_ID, value);
                         mListener.onEventArrival(cwmEvent);
                         break;
                     default:
@@ -1178,6 +1197,67 @@ public class CwmManager{
         else if(messageId == ID.CALIBRATE_DONE_MESSAGE_ID){
             CwmEvents cwmEvents = new CwmEvents();
             cwmEvents.setId(ID.CALIBRATE_DONE_MESSAGE_ID);
+            return cwmEvents;
+        }
+        else if(messageId == ID.SENSOR_REPORT_MESSAGE_ID){
+            short[] output_16 = new short[6];
+            float[] output_32_acc = new float[3];
+            float[] output_32_gyro = new float[3];
+            int trustLevel = 0;
+            int heartBeat = 0;
+            short signalGrade = 0;
+            float temperature = 0;
+            float pressure = 0;
+            byte[] temp = new byte[2];
+            byte[] temp1 = new byte[4];
+            int j = 0;
+            CwmEvents cwmEvents = new CwmEvents();
+            cwmEvents.setId(ID.SENSOR_REPORT_MESSAGE_ID);
+            cwmEvents.setSensorType(value[5]);
+            if(value[5] == 0x02) { //BMI160
+                for (int i = 6; i < 18; i += 2) {
+                    System.arraycopy(value, i, temp, 0, 2);
+                    output_16[j] = ByteBuffer.wrap(temp).order(ByteOrder.LITTLE_ENDIAN).getShort();
+                    j++;
+                }
+                output_32_acc[0] = (float) output_16[0] * ACC_RANGE_16G_CONVERT;
+                output_32_acc[1] = (float) output_16[1] * ACC_RANGE_16G_CONVERT;
+                output_32_acc[2] = (float) output_16[2] * ACC_RANGE_16G_CONVERT;
+
+                output_32_gyro[0] = (float) output_16[3] * GYRO_CONVERT_2000DPS;
+                output_32_gyro[1] = (float) output_16[4] * GYRO_CONVERT_2000DPS;
+                output_32_gyro[2] = (float) output_16[5] * GYRO_CONVERT_2000DPS;
+            }
+            else if(value[5] == 0x01) { //ADXL
+                for (int i = 6; i < 12; i += 2) {
+                    System.arraycopy(value, i, temp, 0, 2);
+                    output_16[j] = ByteBuffer.wrap(temp).order(ByteOrder.LITTLE_ENDIAN).getShort();
+                    j++;
+                }
+                output_32_acc[0] = (float) output_16[0] * ADXL362_8G_CONVERTER;
+                output_32_acc[1] = (float) output_16[1] * ADXL362_8G_CONVERTER;
+                output_32_acc[2] = (float) output_16[2] * ADXL362_8G_CONVERTER;
+            }
+            else if(value[5] == 0x03){ //HEART
+                    System.arraycopy(value, 6, temp1, 0, 4);
+                    trustLevel = ByteBuffer.wrap(temp1).order(ByteOrder.LITTLE_ENDIAN).getInt();
+                    System.arraycopy(value, 10, temp1, 0, 4);
+                    heartBeat = (int)ByteBuffer.wrap(temp1).order(ByteOrder.LITTLE_ENDIAN).getFloat();
+                    System.arraycopy(value, 14, temp, 0, 2);
+                    signalGrade = ByteBuffer.wrap(temp).order(ByteOrder.LITTLE_ENDIAN).getShort();
+            }
+            else if(value[5] == 0x04) { //Pressure
+                System.arraycopy(value, 6, temp1, 0, 4);
+                temperature = ByteBuffer.wrap(temp1).order(ByteOrder.LITTLE_ENDIAN).getFloat();
+                System.arraycopy(value, 10, temp1, 0, 4);
+                pressure = (int)ByteBuffer.wrap(temp1).order(ByteOrder.LITTLE_ENDIAN).getFloat();
+            }
+            cwmEvents.setSensors(output_32_acc, output_32_gyro);
+            cwmEvents.setTrustLevel(trustLevel);
+            cwmEvents.setSignalGrade(signalGrade);
+            cwmEvents.setHeartBeat(heartBeat);
+            cwmEvents.setTemperature(temperature);
+            cwmEvents.setPressure(pressure);
             return cwmEvents;
         }
         return null;

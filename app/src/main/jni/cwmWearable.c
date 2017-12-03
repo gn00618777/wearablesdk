@@ -1005,3 +1005,29 @@ JNIEXPORT void JNICALL Java_cwm_wearablesdk_JniManager_getEnableCalibrateCommand
       (*env)->SetByteArrayRegion(env, output, 0, 6, txData);
       free(txData);
 }
+JNIEXPORT void JNICALL Java_cwm_wearablesdk_JniManager_getEnaableSensorCommand
+(JNIEnv *env, jobject jobj, jint sensor_type, jbyteArray output)
+{
+
+      int checksum = 0;
+      int adxlMask = 1;
+      int bmiMask = 2;
+      jbyte *txData = malloc(sizeof(jbyte)*10);
+
+      txData[0] = 0xE6;
+      txData[1] = 0x90;
+      txData[2] = 0xa;
+      txData[3] = 0x80;
+      txData[4] = (jbyte)sensor_type;
+      txData[5] = 0x0;
+      txData[6] = 0x0;
+      txData[7] = 0x0;
+      txData[8] = 0x0;
+
+      checksum = txData[0]+txData[1]+txData[2]+txData[3]+txData[4]+txData[5]+txData[6]+txData[7]+
+                                                                                       txData[8];
+      txData[9] = (jbyte)checksum;
+
+      (*env)->SetByteArrayRegion(env, output, 0, 10, txData);
+      free(txData);
+}

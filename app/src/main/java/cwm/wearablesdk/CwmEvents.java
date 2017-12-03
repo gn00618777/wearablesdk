@@ -29,6 +29,13 @@ public class CwmEvents extends Information{
     private int syncStatus;
     private int mProgress;
     private byte[] mRawByte;
+    private float[] mSensor_acc;
+    private float[] mSensor_gyro;
+    private int sensorType;
+    private int mTrustLevel;
+    private short mSignalGrade;
+    private float mTemperature;
+    private float mPressure;
 
 
     /**************heart beat*************/
@@ -48,6 +55,7 @@ public class CwmEvents extends Information{
           mStrength = 0;
           mLength = 0;
          mParserLength = 0;
+         sensorType = 0;
     }
 
     public void setId(int id){mId = id;}
@@ -70,6 +78,15 @@ public class CwmEvents extends Information{
     public void setGestureList(int[] gesture) {mGestureList = gesture;}
     public void setFlashSyncStatus(int status){syncStatus = status;}
     public void setEraseProgress(int progress){mProgress = progress;}
+    public void setSensors(float[] sensor_acc, float[] sensor_gyro){
+        mSensor_acc = sensor_acc;
+        mSensor_gyro = sensor_gyro;
+    }
+    public void setTrustLevel(int trustLevel){mTrustLevel = trustLevel;}
+    public void setSignalGrade(short signal){mSignalGrade = signal;}
+    public void setSensorType(int type){sensorType = type;}
+    public void setTemperature(float temperature){mTemperature = temperature;}
+    public void setPressure(float pressure){mPressure = pressure;}
     public void setmRawByte(byte[] raw){mRawByte = raw;}
     public void setDeviceRecord(int current){deviceCurrent = current;}
     public int getWalkStep(){
@@ -105,4 +122,11 @@ public class CwmEvents extends Information{
     public byte[] getRawBytes(){
         return mRawByte;
     }
+    public float[] getSensorAccData(){return mSensor_acc;}
+    public float[] getSensorGyroData(){return mSensor_gyro;}
+    public int getSensorType(){return sensorType;}
+    public int getTrustLevel(){return mTrustLevel;}
+    public short getSignalGrade(){return mSignalGrade;}
+    public float getTemperature(){return mTemperature;}
+    public float getPressure(){return mPressure;}
 }

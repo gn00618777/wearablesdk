@@ -28,4 +28,5 @@ public class JniManager {
     public native void getRecordSensorToFlashCommand(int sensorType, int odrType, int sensorStatus, byte[] command);
     public native void getRequestEraseProgressCommand(byte[] command);
     public native void getEnableCalibrateCommand(int type, byte[] command);
+    public native void getEnaableSensorCommand(int type, byte[] command);
 }

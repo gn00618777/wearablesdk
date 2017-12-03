@@ -41,7 +41,7 @@
 -keep class cwm.wearablesdk.CwmManager$AckListener{*;}
 -keep class cwm.wearablesdk.CwmManager$ErrorListener{*;}
 -keep class cwm.wearablesdk.CwmManager$LogSyncListener{*;}
--keep class cwm.wearablesdk.CwmManager$RrawDataListener{*;}
+-keep class cwm.wearablesdk.CwmManager$RawDataListener{*;}
 -keep class cwm.wearablesdk.Task
 
 -keepclassmembers class cwm.wearablesdk.Task {
@@ -76,6 +76,13 @@
  public int getEraseProgress();
  public int getTag();
  public byte[] getRawBytes();
+public float[] getSensorAccData();
+public float[] getSensorGyroData();
+ public int getSensorType();
+ public int getTrustLevel();
+ public short getSignalGrade();
+ public float getTemperature();
+ public float getPressure();
 }
 -keepclassmembers class cwm.wearablesdk.AckEvents{
 public *;
