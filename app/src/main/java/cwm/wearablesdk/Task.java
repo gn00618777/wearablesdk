@@ -3,11 +3,7 @@ package cwm.wearablesdk;
 /**
  * Created by user on 2017/11/27.
  */
-import android.util.Log;
-
 import java.util.Calendar;
-
-import cwm.wearablesdk.CwmManager.ErrorListener;
 
 public class Task implements Runnable{
     static int id;
@@ -200,7 +196,7 @@ public class Task implements Runnable{
             case ID.TABATA_COMMAND_ID:
                 command = new byte[9];
                 /********************************************************************************/
-                CwmManager.jniMgr.getTabataCommand(CwmManager.ITEMS.TABATA_INIT.ordinal(), 0, 0, 0, command);
+                CwmManager.jniMgr.getTabataCommand(Type.ITEMS.TABATA_INIT.ordinal(), 0, 0, 0, command);
                 /********************************************************************************/
                 if((CwmManager.mConnectStatus != false)){
                     CwmManager.mService.writeRXCharacteristic(command);
@@ -210,23 +206,23 @@ public class Task implements Runnable{
 
             case ID.READ_FLASH_COMMAND_ID:
                 command = new byte[6];
-                if(flashSyncType == CwmManager.FLASH_SYNC_TYPE.SYNC_START.ordinal()){
-                    CwmManager.jniMgr.getReadFlashCommand(CwmManager.FLASH_SYNC_TYPE.SYNC_START.ordinal(), command);
+                if(flashSyncType == Type.FLASH_SYNC_TYPE.SYNC_START.ordinal()){
+                    CwmManager.jniMgr.getReadFlashCommand(Type.FLASH_SYNC_TYPE.SYNC_START.ordinal(), command);
                 }
-                else if(flashSyncType == CwmManager.FLASH_SYNC_TYPE.SYNC_SUCCESS.ordinal()){
-                    CwmManager.jniMgr.getReadFlashCommand(CwmManager.FLASH_SYNC_TYPE.SYNC_SUCCESS.ordinal(), command);
+                else if(flashSyncType == Type.FLASH_SYNC_TYPE.SYNC_SUCCESS.ordinal()){
+                    CwmManager.jniMgr.getReadFlashCommand(Type.FLASH_SYNC_TYPE.SYNC_SUCCESS.ordinal(), command);
                 }
-                else if(flashSyncType == CwmManager.FLASH_SYNC_TYPE.SYNC_FAIL.ordinal()){
-                    CwmManager.jniMgr.getReadFlashCommand(CwmManager.FLASH_SYNC_TYPE.SYNC_FAIL.ordinal(), command);
+                else if(flashSyncType == Type.FLASH_SYNC_TYPE.SYNC_FAIL.ordinal()){
+                    CwmManager.jniMgr.getReadFlashCommand(Type.FLASH_SYNC_TYPE.SYNC_FAIL.ordinal(), command);
                 }
-                else if(flashSyncType == CwmManager.FLASH_SYNC_TYPE.SYNC_ABORT.ordinal()){
-                    CwmManager.jniMgr.getReadFlashCommand(CwmManager.FLASH_SYNC_TYPE.SYNC_ABORT.ordinal(), command);
+                else if(flashSyncType == Type.FLASH_SYNC_TYPE.SYNC_ABORT.ordinal()){
+                    CwmManager.jniMgr.getReadFlashCommand(Type.FLASH_SYNC_TYPE.SYNC_ABORT.ordinal(), command);
                 }
-                else if(flashSyncType == CwmManager.FLASH_SYNC_TYPE.SYNC_DONE.ordinal()){
-                    CwmManager.jniMgr.getReadFlashCommand(CwmManager.FLASH_SYNC_TYPE.SYNC_DONE.ordinal(), command);
+                else if(flashSyncType == Type.FLASH_SYNC_TYPE.SYNC_DONE.ordinal()){
+                    CwmManager.jniMgr.getReadFlashCommand(Type.FLASH_SYNC_TYPE.SYNC_DONE.ordinal(), command);
                 }
-                else if(flashSyncType == CwmManager.FLASH_SYNC_TYPE.SYNC_ERASE.ordinal()){
-                    CwmManager.jniMgr.getReadFlashCommand(CwmManager.FLASH_SYNC_TYPE.SYNC_ERASE.ordinal(), command);
+                else if(flashSyncType == Type.FLASH_SYNC_TYPE.SYNC_ERASE.ordinal()){
+                    CwmManager.jniMgr.getReadFlashCommand(Type.FLASH_SYNC_TYPE.SYNC_ERASE.ordinal(), command);
                 }
                 if((CwmManager.mConnectStatus != false)){
                     CwmManager.mService.writeRXCharacteristic(command);
@@ -295,7 +291,7 @@ public class Task implements Runnable{
         this.id = command;
         time_expected = time;
         flashSyncType = 0;
-        if(type == CwmManager.PARAMETERS_TYPE.SENSORREQUEST.ordinal())
+        if(type == Type.PARAMETERS_TYPE.SENSORREQUEST.ordinal())
             sensorRequestObj = new SensorsRequestParameters();
     }
 
