@@ -104,7 +104,8 @@ public class CwmManager{
                 errorEvents.setTag(tagID);
                 //CwmFlashSyncFail();
             }
-            mErrorListener.onErrorArrival(errorEvents);
+            if(mErrorListener != null)
+                mErrorListener.onErrorArrival(errorEvents);
             hasLongMessage = false;
             mPendingQueue.clear();
             lengthMeasure = 0;

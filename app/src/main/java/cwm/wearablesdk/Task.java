@@ -3,6 +3,8 @@ package cwm.wearablesdk;
 /**
  * Created by user on 2017/11/27.
  */
+import android.util.Log;
+
 import java.util.Calendar;
 
 public class Task implements Runnable{
@@ -24,7 +26,9 @@ public class Task implements Runnable{
             ErrorEvents errorEvents = new ErrorEvents();
             errorEvents.setId(0x01); //header lost
             errorEvents.setCommand(CwmManager.mCurrentTask.getCommand());
-            CwmManager.mErrorListener.onErrorArrival(errorEvents);
+            if(CwmManager.mErrorListener != null) {
+                CwmManager.mErrorListener.onErrorArrival(errorEvents);
+            }
             CwmManager.isTaskHasComplete = true;
         }
         else if(CwmManager.mCurrentTask.getCommand() == ID.READ_FLASH_COMMAND_ID){
