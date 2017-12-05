@@ -415,7 +415,7 @@ public class CwmManager{
     }
 
     public void CwmBleConnect(String address){
-        mService.disconnect();
+        //mService.disconnect();
         mService.close();
         mService.connect(address);
     }
