@@ -106,7 +106,7 @@ public class Parser {
             File file = new File(Environment.getExternalStorageDirectory().toString() + "/Download/CwmLog.txt");
             FileWriter txt = new FileWriter(file, true);
             BufferedWriter bw = new BufferedWriter(txt);
-            String log = aPackage.getValue().toString();
+            String log = new String(aPackage.getValue(), "UTF-8");
             bw.write(log);
             bw.newLine();
             bw.close();
