@@ -127,6 +127,7 @@ public class QueueHandler {
                         break;
                     case ID.REQUEST_MAX_LOG_PACKETS_ID:
                         cwmEvent = mParser.getInfomation(ID.REQUEST_MAX_LOG_PACKETS_ID, value);
+                        CwmManager.maxBytes = cwmEvent.getMaxByte();
                         CwmManager.mListener.onEventArrival(cwmEvent);
                         break;
                     case ID.GESUTRE_EVENT_MESSAGE_ID:
@@ -161,7 +162,6 @@ public class QueueHandler {
             }
         }
         else if (data.getDataType() == CwmManager.NON_PENDING && data.getLength() <= CwmManager.PACKET_SIZE && data.getIdType() != ID.ACK) {
-            Log.d("bernie","test");
             //if we receive header in time, then cancle time out handler
             //because we send 0x20, but band will feedback 0x21
             if(data.getMessageID() == CwmManager.mCurrentTask.getCommand()) {
