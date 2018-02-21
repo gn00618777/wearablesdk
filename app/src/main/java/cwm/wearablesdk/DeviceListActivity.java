@@ -119,8 +119,8 @@ public class DeviceListActivity extends Activity {
         settings = new ScanSettings.Builder()
                 .setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY)
                 .build();
-        ScanFilter filter = new ScanFilter.Builder().setDeviceName("SmartBand").build();
-        filters.add(filter);
+       // ScanFilter filter = new ScanFilter.Builder().setDeviceName("SmartBand").build();
+        //filters.add(filter);
         populateList();
         mEmptyList = (TextView) findViewById(R.id.empty);
         Button cancelButton = (Button) findViewById(R.id.btn_cancel);
@@ -169,7 +169,7 @@ public class DeviceListActivity extends Activity {
             }, SCAN_PERIOD);
 
             mScanning = true;
-            bluetoothLeScanner.startScan(filters, settings, mLeScanCallback);
+            bluetoothLeScanner.startScan(/*filters, settings,*/ mLeScanCallback);
             cancelButton.setText(R.string.cancel);
         } else {
             mScanning = false;

@@ -24,7 +24,6 @@ package cwm.wearablesdk;
 
 import android.app.Service;
 import android.bluetooth.BluetoothAdapter;
-import android.bluetooth.BluetoothClass;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCallback;
@@ -36,7 +35,6 @@ import android.bluetooth.BluetoothProfile;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Binder;
-import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
@@ -105,6 +103,7 @@ public class WearableService extends Service {
                 DeviceAddress = gatt.getDevice().getAddress();
 
                 mConnectionState = STATE_CONNECTED;
+                Log.d("bernie AndoroidR", Integer.toString(mConnectionState));
                 broadcastUpdate(intentAction, DeviceName, DeviceAddress);
                 Log.i(TAG, "Connected to GATT server.");
                 // Attempts to discover services after successful connection.
@@ -117,6 +116,7 @@ public class WearableService extends Service {
                 DeviceAddress = gatt.getDevice().getAddress();
                 mConnectionState = STATE_DISCONNECTED;
                 Log.i(TAG, "Disconnected from GATT server.");
+                Log.d("bernie AndoroidR", Integer.toString(mConnectionState));
                 broadcastUpdate(intentAction, DeviceName, DeviceAddress);
             }
         }
@@ -231,6 +231,7 @@ public class WearableService extends Service {
      *         callback.
      */
     public boolean connect(final String address) {
+        Log.d("bernie","sdk :"+address);
         if (mBluetoothAdapter == null || address == null) {
             Log.w(TAG, "BluetoothAdapter not initialized or unspecified address.");
             return false;

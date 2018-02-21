@@ -12,6 +12,9 @@ const jint VOL_UP_BTN = 0x10;
 
 const jbyte HEADER1 = 0xE6;
 const jbyte HEADER2 = 0x90;
+const jbyte HEADER1_LONG_START = 0xE7;
+const jbyte HEADER1_LONG_MID = 0xE8;
+const jbyte HEADER1_LONG_END = 0xE9;
 const jbyte ACK = 0xAC;
 const jbyte NACK = 0x15;
 const jint HEADER_LENGTH = 2;
@@ -313,13 +316,13 @@ JNIEXPORT jint JNICALL Java_cwm_wearablesdk_JniManager_getType
          jint data_length = 0;
          data_length = ((rxData[3] & 0xFF) << 8) | (rxData[2] & 0xFF);
 
-         if(((rxData[0] == HEADER1) && (rxData[1] == HEADER2)) && ((rxData[4] == ACK) || (rxData[4] == NACK)))
+         if(rxData[0] == HEADER1)
             type = 0;
-         else if(((rxData[0] == HEADER1) && (rxData[1] == HEADER2)) && ((rxData[4] != ACK) && (rxData[4] != NACK)) && data_length <= BLE_SIZE )
+         else if(rxData[0] == HEADER1_LONG_START)
             type = 1;
-         else if(((rxData[0] == HEADER1) && (rxData[1] == HEADER2)) && ((rxData[4] != ACK) && (rxData[4] != NACK)) && data_length > BLE_SIZE)
+         else if(rxData[0] == HEADER1_LONG_MID)
             type = 2;
-         else if(rxData[0] != HEADER1 || rxData[1] != HEADER2)
+         else if(rxData[0] == HEADER1_LONG_END)
             type = 3;
 
          (*env)->ReleaseByteArrayElements(env, input, rxData, 0);

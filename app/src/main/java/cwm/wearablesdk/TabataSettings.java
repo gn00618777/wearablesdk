@@ -1,8 +1,4 @@
 package cwm.wearablesdk;
-
-import java.util.LinkedList;
-import java.util.Queue;
-
 /**
  * Created by user on 2017/9/14.
  */

@@ -25,16 +25,12 @@
 #-renamesourcefileattribute SourceFile
 
 -keep class cwm.wearablesdk.CwmManager
--keep class cwm.wearablesdk.CwmEvents
--keep class cwm.wearablesdk.AckEvents
--keep class cwm.wearablesdk.Information
--keep class cwm.wearablesdk.Settings
--keep class cwm.wearablesdk.BodySettings
--keep class cwm.wearablesdk.IntelligentSettings
+-keep class cwm.wearablesdk.events.CwmEvents
+-keep class cwm.wearablesdk.events.AckEvents
 -keep class cwm.wearablesdk.TabataSettings
 -keep class cwm.wearablesdk.TabataObject
 -keep class cwm.wearablesdk.TabataTask
--keep class cwm.wearablesdk.ErrorEvents
+-keep class cwm.wearablesdk.events.ErrorEvents
 -keep class cwm.wearablesdk.CwmManager$EventListener{*;}
 -keep class cwm.wearablesdk.CwmManager$WearableServiceListener{*;}
 -keep class cwm.wearablesdk.CwmManager$BleScannerListener{*;}
@@ -43,6 +39,36 @@
 -keep class cwm.wearablesdk.CwmManager$LogSyncListener{*;}
 -keep class cwm.wearablesdk.CwmManager$RawDataListener{*;}
 -keep class cwm.wearablesdk.Task
+-keep class cwm.wearablesdk.constants.Type
+-keep class cwm.wearablesdk.constants.ID
+-keep class cwm.wearablesdk.settings.UserConfig
+-keep class cwm.wearablesdk.NotificationData
+-keep class cwm.wearablesdk.settings.AlarmSetting
+-keep class cwm.wearablesdk.settings.SystemSetting
+-keep class cwm.wearablesdk.settings.BodySettings
+-keep class cwm.wearablesdk.settings.IntelligentSettings
+-keep class cwm.wearablesdk.Bias
+-keep class java.lang.String
+
+
+-keepclassmembers class cwm.wearablesdk.NotificationData {
+   public *;
+  public java.lang.String getAppName();
+  public java.lang.String getPersoneName();
+   public java.lang.String getPhoneNum();
+}
+
+-keepclassmembers class cwm.wearablesdk.settings.AlarmSetting {
+   public *;
+}
+
+-keepclassmembers class cwm.wearablesdk.settings.SystemSetting {
+   public *;
+}
+
+-keepclassmembers class cwm.wearablesdk.settings.UserConfig {
+   public *;
+}
 
 -keepclassmembers class cwm.wearablesdk.Task {
    public *;
@@ -51,10 +77,9 @@
 -keepclassmembers class cwm.wearablesdk.CwmManager {
    public *;
 }
--keepclassmembers class cwm.wearablesdk.CwmEvents {
-   public int getWalkStep();
+-keepclassmembers class cwm.wearablesdk.events.CwmEvents {
    public int getDistance();
-   public int getCalories();
+  public int getStepFreq();
    public int getRunStep();
    public int getHeartBeat();
    public int getStatus();
@@ -63,44 +88,65 @@
    public int  getTabataStatus();
    public int getDoItemCount();
    public int getExerciseItem();
+    public int getTabataCalories();
+    public int getTabataHeart();
    public int getStrength();
    public float getVersion();
   public int getSleepLength();
   public byte[] getSleepCombined();
   public int[] getSleepParser();
   public int getParserLength();
- public int getMaxByte();
+ public int getRemindPackages();
  public int getDeviceCurrent();
- public int[] getGestureList();
+public boolean[] getGesture();
  public int getSyncStatus();
  public int getEraseProgress();
  public int getTag();
  public byte[] getRawBytes();
 public float[] getSensorAccData();
 public float[] getSensorGyroData();
- public int getSensorType();
- public int getTrustLevel();
- public short getSignalGrade();
- public float getTemperature();
- public float getPressure();
+ public int getSensorTag();
+ public int getMsgType();
+ public int getSensorID();
+ public int getMessageID();
+ public int getStepCount();
+ public int getSelfTestResult();
+ public int getCalibrateStatus();
+ public int getMapId();
+ public int getCurrentMapSize();
+  public long getMaxMapSize();
+ public cwm.wearablesdk.Bias getBias();
+ public cwm.wearablesdk.settings.BodySettings getBody();
+ public cwm.wearablesdk.settings.IntelligentSettings getIntelligent();
+ public cwm.wearablesdk.settings.AlarmSetting getAlarmSetting();
+ public cwm.wearablesdk.settings.SystemSetting getSystemSetting();
 }
--keepclassmembers class cwm.wearablesdk.AckEvents{
+-keepclassmembers class cwm.wearablesdk.events.AckEvents{
 public *;
 }
 
--keepclassmembers class cwm.wearablesdk.BodySettings {
+-keepclassmembers class cwm.wearablesdk.constants.Type{
+public *;
+}
+
+-keepclassmembers class cwm.wearablesdk.constants.ID {
    public *;
 }
--keepclassmembers class cwm.wearablesdk.IntelligentSettings {
+
+-keepclassmembers class cwm.wearablesdk.Bias {
    public *;
 }
--keepclassmembers class cwm.wearablesdk.Settings {
+
+-keepclassmembers class cwm.wearablesdk.settings.BodySettings {
+   public *;
+}
+-keepclassmembers class cwm.wearablesdk.settings.IntelligentSettings {
    public *;
 }
 -keepclassmembers class cwm.wearablesdk.TabataSettings {
  public *;
 }
--keepclassmembers class cwm.wearablesdk.ErrorEvents {
+-keepclassmembers class cwm.wearablesdk.errors.ErrorEvents {
  public *;
 }
 -keepclassmembers class cwm.wearablesdk.TabataObject {
