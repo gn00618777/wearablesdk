@@ -17,6 +17,7 @@ import java.util.FormatFlagsConversionMismatchException;
 import cwm.wearablesdk.constants.ID;
 import cwm.wearablesdk.constants.Type;
 import cwm.wearablesdk.events.CwmEvents;
+import cwm.wearablesdk.events.ErrorEvents;
 import cwm.wearablesdk.handler.AckHandler;
 import cwm.wearablesdk.settings.AlarmSetting;
 import cwm.wearablesdk.settings.BodySettings;
@@ -253,6 +254,11 @@ public class Parser {
         LongTask.longTaskReceivedHandler.removeCallbacks(LongTask.currentLongTask);
         //Log.d("bernie","sdk msg_type:"+Integer.toString(msg_type));
         switch (msg_type){
+            case Type.CHECKSUM_ERROR:
+                ErrorEvents errorEvents = new ErrorEvents();
+                errorEvents.setErrorId(0x03);
+                cwmManager.getErrorListener().onErrorArrival(errorEvents);
+                break;
             case Type.ACK_INFORMATION:
                  mAckHandler.processAck(data);
                 break;
@@ -837,16 +843,37 @@ public class Parser {
                         cwmEvents = new CwmEvents();
                         cwmEvents.setMsgType(msg_type);
                         cwmEvents.setMessageID(message_id);
-
+                        cwmEvents.setMapId(mapId);
 
                         cwmManager.getListener().onEventArrival(cwmEvents);
                         break;
                     case ID.MAP_WRITE_DONE:
+                        CwmManager.endPos = CwmManager.endPos + 128;
+                        CwmManager.currentMapSize = CwmManager.currentMapSize + 128;
+                        CwmManager.mapSize = CwmManager.mapSize + 128;
+                        if(CwmManager.mapSize == Type.OLED_PAGE_SIZE && CwmManager.oledAccomplish == false) {
+                            Log.d("bernie","endPos size is oled page size ");
+                            CwmManager.oledAccomplish = true;
+                            CwmManager.mapSize = 0;
+                            CwmManager.endPos = 0xE000;
+                        }
+                        else if(CwmManager.mapSize == Type.BITMAP_PAHE_SIZE && CwmManager.oledAccomplish == true) {
+                            Log.d("bernie","endPos size is bitmap page size ");
+                            CwmManager.bitMapAccomplish = true;
+                            CwmManager.mapSize = 0;
+                            CwmManager.endPos = 0x50000;
+                        }
+                        else if(CwmManager.mapSize == Type.FONT_LIB && CwmManager.oledAccomplish == true && CwmManager.bitMapAccomplish == true){
+                            Log.d("bernie","endPos size is font lib page size ");
+                            CwmManager.fontLitAccomplish = true;
+                            CwmManager.mapSize = 0;
+                            CwmManager.endPos = 0x1000;
+                        }
                         cwmEvents = new CwmEvents();
                         cwmEvents.setMsgType(msg_type);
                         cwmEvents.setMessageID(message_id);
-                        cwmEvents.setCurrentSize(CwmManager.endPos);
-                        cwmEvents.setMaxSize((int)CwmManager.bitMapLength);
+                        cwmEvents.setCurrentSize(CwmManager.currentMapSize);
+                        //cwmEvents.setMaxSize((int)CwmManager.bitMapLength);
                         cwmManager.getListener().onEventArrival(cwmEvents);
                         break;
 

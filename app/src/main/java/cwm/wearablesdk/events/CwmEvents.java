@@ -124,7 +124,7 @@ public class CwmEvents{
     public void setCalibateStatus(int calibrateStatus){mCalibrateStatus = calibrateStatus;}
     public void setBias(Bias bias){mBias = bias;}
     public void setCurrentSize(int size){mCurrentSize = size;}
-    public void setMaxSize(int size){mMaxSize = size;}
+    //public void setMaxSize(int size){mMaxSize = size;}
 
     public void setBody(BodySettings body){
         mBody = body;
@@ -180,7 +180,7 @@ public class CwmEvents{
     public int getSelfTestResult(){return mSelfTest;}
     public int getCalibrateStatus(){return mCalibrateStatus;}
     public int getCurrentMapSize(){return mCurrentSize;}
-    public long getMaxMapSize(){return mMaxSize;}
+    //public long getMaxMapSize(){return mMaxSize;}
 
     public Bias getBias(){return mBias;}
     public BodySettings getBody(){return mBody;}

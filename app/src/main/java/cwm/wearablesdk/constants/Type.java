@@ -105,6 +105,7 @@ public class Type {
     public static final int COMMAND_RESPONSE = 0x04;
     public static final int FACTORY_RESPONSE = 0x05;
     public static final int ACK_INFORMATION = 0x7F;
+    public static final int CHECKSUM_ERROR = 0xEE;
 
     public static final int SYSTEM_INFORMATION_COMMAND = 0x81;
     public static final int SENSOR_GESTURE_COMMAND = 0x82;
@@ -121,6 +122,7 @@ public class Type {
     public static final int OLED_PAGE_SIZE = 48*1024;
     public static final int BITMAP_PAHE_SIZE = 264*1024;
     public static final int FONT_LIB = 32*1024;
-    //
+
+
 
 }

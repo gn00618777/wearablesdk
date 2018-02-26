@@ -56,12 +56,13 @@ public class CwmManager{
 
     /*********Upadet BitMap************/
     private byte[] mapArray;
-    private int mapSize = 0;
-    private boolean oledAccomplish = false;
-    private boolean bitMapAccomplish = false;
-    private boolean fontLitAccomplish = false;
-    public  static long bitMapLength = 0;
-    public  static int endPos = 0x1000;
+    public  long bitMapLength = 0;
+    public static boolean oledAccomplish = false;
+    public static boolean bitMapAccomplish = false;
+    public static boolean fontLitAccomplish = false;
+    public static int endPos = 0x1000;
+    public static int currentMapSize = 0;
+    public static int mapSize = 0;
     /*************************************/
 
     private LogSyncListener mLogListener = null;
@@ -100,7 +101,8 @@ public class CwmManager{
         mErrorListener = errorListener;
         mLogListener = logSyncListener;
 
-        endPos = 0x1000;
+       // endPos = 0x1000;
+       // currentMapSize = 0;
 
         jniMgr = new JniManager();
 
@@ -941,92 +943,78 @@ public class CwmManager{
             if(oledAccomplish == false) {
                 payload[2] = (byte) ID.OLED_PAGE;
                 System.arraycopy(mapArray, endPos, payload, 7, 128);
-                int oledMapAddressI= 0;
-                int oledMapAddressII = 0;
-                int oledMapAddressIII = 0;
-                int oledMapAddressIV = 0;
-                oledMapAddressI = endPos & 0xFF;
-                oledMapAddressII = (endPos >> 8) & 0xFF;
-                oledMapAddressIII = (endPos >> 16) & 0xFF;
-                oledMapAddressIV = (endPos >> 24) & 0xFF;
-                payload[3] = (byte)oledMapAddressI;
-                payload[4] = (byte)oledMapAddressII;
-                payload[5] = (byte)oledMapAddressIII;
-                payload[6] = (byte)oledMapAddressIV;
 
+                payload[3] = (byte)(endPos & 0xFF);
+                payload[4] = (byte)((endPos >> 8) & 0xFF);
+                payload[5] = (byte)((endPos >> 16) & 0xFF);
+                payload[6] = (byte)((endPos >> 24) & 0xFF);
+                Log.d("bernie","oled endPos is: "+Integer.toHexString(endPos & 0xFFFFF));
                 splitCommand(payload);
 
-                endPos = endPos + 128;
-                mapSize = mapSize + 128;
+              //  endPos = endPos + 128;
+               // currentMapSize = currentMapSize + 128;
+                //mapSize = mapSize + 128;
 
-                //Log.d("bernie","oled endPos is: "+Integer.toHexString(endPos & 0xFFFFF));
-                //Log.d("bernie","oled mapSize is: "+Integer.toHexString(mapSize & 0xFFFFF));
-                if(mapSize == Type.OLED_PAGE_SIZE) {
-                 //   Log.d("bernie","endPos size is oled page size ");
+                Log.d("bernie","oled mapSize is: "+Integer.toHexString(mapSize & 0xFFFFF));
+          /*      if(mapSize == Type.OLED_PAGE_SIZE) {
+                    Log.d("bernie","endPos size is oled page size ");
                     oledAccomplish = true;
                     mapSize = 0;
                     endPos = 0xE000;
-                }
+                }*/
             }
             else if(bitMapAccomplish == false){
                 payload[2] = (byte) ID.BITMAP_PAGE;
                 System.arraycopy(mapArray, endPos, payload, 7, 128);
-                int bitMapAddressI= 0;
-                int bitdMapAddressII = 0;
-                int bitdMapAddressIII = 0;
-                int bitdMapAddressIV = 0;
-                bitMapAddressI = endPos & 0xFF;
-                bitdMapAddressII = (endPos >> 8) & 0xFF;
-                bitdMapAddressIII = (endPos >> 16) & 0xFF;
-                bitdMapAddressIV = (endPos >> 24) & 0xFF;
-                payload[3] = (byte)bitMapAddressI;
-                payload[4] = (byte)bitdMapAddressII;
-                payload[5] = (byte)bitdMapAddressIII;
-                payload[6] = (byte)bitdMapAddressIV;
 
+                payload[3] = (byte)(endPos & 0xFF);
+                payload[4] = (byte)((endPos >> 8) & 0xFF);
+                payload[5] = (byte)((endPos >> 16) & 0xFF);
+                payload[6] = (byte)((endPos >> 24) & 0xFF);
+                Log.d("bernie","bitmap endPos is: "+Integer.toHexString(endPos & 0xFFFFF));
                 splitCommand(payload);
 
-                endPos = endPos + 128;
-                mapSize = mapSize + 128;
-                //Log.d("bernie","bitmap endPos is: "+Integer.toHexString(endPos & 0xFFFFF));
-               // Log.d("bernie","bitmap mapSize is: "+Integer.toHexString(mapSize & 0xFFFFF));
-                if(mapSize == Type.BITMAP_PAHE_SIZE) {
-                //    Log.d("bernie","endPos size is bitmap page size ");
+                //endPos = endPos + 128;
+                //currentMapSize = currentMapSize + 128;
+                //mapSize = mapSize + 128;
+
+                Log.d("bernie","bitmap mapSize is: "+Integer.toHexString(mapSize & 0xFFFFF));
+          /*      if(mapSize == Type.BITMAP_PAHE_SIZE) {
+                    Log.d("bernie","endPos size is bitmap page size ");
                     bitMapAccomplish = true;
                     mapSize = 0;
                     endPos = 0x50000;
-                }
+                }*/
             }
             else if(fontLitAccomplish == false){
-                payload[2] = (byte) ID.BITMAP_PAGE;
+                payload[2] = (byte) ID.FONT_LIB;
                 System.arraycopy(mapArray, endPos, payload, 7, 128);
 
-                int fontLibAddressI= 0;
-                int fontLibAddressII = 0;
-                int fontLibAddressIII = 0;
-                int fontLibAddressIV = 0;
-                fontLibAddressI = endPos & 0xFF;
-                fontLibAddressII = (endPos >> 8) & 0xFF;
-                fontLibAddressIII = (endPos >> 16) & 0xFF;
-                fontLibAddressIV = (endPos >> 24) & 0xFF;
-                payload[3] = (byte)fontLibAddressI;
-                payload[4] = (byte)fontLibAddressII;
-                payload[5] = (byte)fontLibAddressIII;
-                payload[6] = (byte)fontLibAddressIV;
-
+                payload[3] = (byte)(endPos & 0xFF);
+                payload[4] = (byte)((endPos >> 8) & 0xFF);
+                payload[5] = (byte)((endPos >> 16) & 0xFF);
+                payload[6] = (byte)((endPos >> 24) & 0xFF);
+                Log.d("bernie","font endPos is: "+Integer.toHexString(endPos & 0xFFFFF));
                 splitCommand(payload);
 
-                endPos = endPos + 128;
-                mapSize = mapSize + 128;
-                //Log.d("bernie","font endPos is: "+Integer.toHexString(endPos & 0xFFFFF));
-                //Log.d("bernie","font mapSize is: "+Integer.toHexString(mapSize & 0xFFFFF));
-                if(mapSize == Type.FONT_LIB) {
-                 //   Log.d("bernie","endPos size is font lib page size ");
+                //endPos = endPos + 128;
+                //currentMapSize = currentMapSize + 128;
+                //mapSize = mapSize + 128;
+
+                Log.d("bernie","font mapSize is: "+Integer.toHexString(mapSize & 0xFFFFF));
+               /* if(mapSize == Type.FONT_LIB) {
+                    Log.d("bernie","endPos size is font lib page size ");
                     fontLitAccomplish = true;
                     mapSize = 0;
-                }
+                }*/
             }
         }
+    }
+    public void CwmReSendBitMap(){
+        //endPos = endPos - 128;
+        //mapSize = mapSize - 128;
+        //currentMapSize = currentMapSize - 128;
+        CwmSendBitMap();
     }
     public void CwmUpdateBitMapInit(){
         File file = new File(Environment.getExternalStorageDirectory().toString() + "/Download/Bitmap_to_binary.bin");
@@ -1042,13 +1030,12 @@ public class CwmManager{
         } catch (IOException e){
             e.printStackTrace();
         }
-
-
-
-        oledAccomplish = false;
-        bitMapAccomplish = false;
-        fontLitAccomplish = false;
-        mapSize = 0;
+        if(oledAccomplish == true && bitMapAccomplish == true && fontLitAccomplish == true) {
+            oledAccomplish = false;
+            bitMapAccomplish = false;
+            fontLitAccomplish = false;
+            mapSize = 0;
+        }
     }
     public void CwmSyncRequest(){
         if (lock.tryLock()) {

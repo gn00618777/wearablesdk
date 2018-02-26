@@ -21,9 +21,9 @@ public class BleReceiver {
 
     public void receiveRawByte(byte[] rxBuffer)
     {
-       // for(int i = 0 ; i < rxBuffer.length ; i++)
-       //    Log.d("bernie2",Integer.toHexString(rxBuffer[i] & 0xFF));
-       // Log.d("bernie1","\n");
+        for(int i = 0 ; i < rxBuffer.length ; i++)
+           Log.d("bernie2",Integer.toHexString(rxBuffer[i] & 0xFF));
+        Log.d("bernie1","\n");
         mClassifier.classifyRawByteArray(rxBuffer);
     }
 }

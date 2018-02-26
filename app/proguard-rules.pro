@@ -27,10 +27,10 @@
 -keep class cwm.wearablesdk.CwmManager
 -keep class cwm.wearablesdk.events.CwmEvents
 -keep class cwm.wearablesdk.events.AckEvents
+-keep class cwm.wearablesdk.events.ErrorEvents
 -keep class cwm.wearablesdk.TabataSettings
 -keep class cwm.wearablesdk.TabataObject
 -keep class cwm.wearablesdk.TabataTask
--keep class cwm.wearablesdk.events.ErrorEvents
 -keep class cwm.wearablesdk.CwmManager$EventListener{*;}
 -keep class cwm.wearablesdk.CwmManager$WearableServiceListener{*;}
 -keep class cwm.wearablesdk.CwmManager$BleScannerListener{*;}
@@ -114,7 +114,6 @@ public float[] getSensorGyroData();
  public int getCalibrateStatus();
  public int getMapId();
  public int getCurrentMapSize();
-  public long getMaxMapSize();
  public cwm.wearablesdk.Bias getBias();
  public cwm.wearablesdk.settings.BodySettings getBody();
  public cwm.wearablesdk.settings.IntelligentSettings getIntelligent();
@@ -146,7 +145,7 @@ public *;
 -keepclassmembers class cwm.wearablesdk.TabataSettings {
  public *;
 }
--keepclassmembers class cwm.wearablesdk.errors.ErrorEvents {
+-keepclassmembers class cwm.wearablesdk.events.ErrorEvents {
  public *;
 }
 -keepclassmembers class cwm.wearablesdk.TabataObject {
