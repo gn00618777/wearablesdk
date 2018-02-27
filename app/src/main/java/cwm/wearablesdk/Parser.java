@@ -357,7 +357,7 @@ public class Parser {
                         cwmEvent.setAlarm(alarmSetting);
 
                         System.arraycopy(packet, 32, temp1, 0, 4);
-                        int goal = (int)ByteBuffer.wrap(temp1).order(ByteOrder.LITTLE_ENDIAN).getFloat();
+                        int goal = (int)ByteBuffer.wrap(temp1).order(ByteOrder.LITTLE_ENDIAN).getInt();
 
                         BodySettings  body = new BodySettings();
 
