@@ -55,7 +55,6 @@
    public *;
   public java.lang.String getAppName();
   public java.lang.String getPersoneName();
-   public java.lang.String getPhoneNum();
 }
 
 -keepclassmembers class cwm.wearablesdk.settings.AlarmSetting {

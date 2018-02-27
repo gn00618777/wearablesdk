@@ -280,36 +280,29 @@ public class CwmManager{
             int msgId = data.getNotifyId();
             int identifier;
             String personName;
-            String personNum;
             String appName;
             byte[] payload;
             switch (msgId) {
                 case ID.INCOMING_CALL:
                     personName = data.getPersoneName();
-                    personNum = data.getPhoneNum();
+                    Log.d("bernie","sdk person name:"+personName);
                     if(personName.getBytes().length == personName.length()){
                         //english
-                        payload = new byte[1 + 1 + 32]; //type + id+ name + number
+                        payload = new byte[1 + 1 + 32]; //type + id+ (name or number)
                         payload[0] = (byte) 0x86;
                         payload[1] = (byte) ID.INCOMING_CALL;
                         j = 2;
-                        if(personName.length() <= 16) {
+                        if(personName.length() <= 32) {
                             for (int i = 0; i < personName.length(); i++) {
                                 payload[j] = (byte) personName.charAt(i);
                                 j++;
                             }
                         }
                         else{
-                            for (int i = 0; i < 16; i++) {
+                            for (int i = 0; i < 32; i++) {
                                 payload[j] = (byte) personName.charAt(i);
                                 j++;
                             }
-                        }
-                        j = 16;
-
-                        for(int i = 0 ; i < personNum.length() ; i++){
-                            payload[j] = (byte)personNum.charAt(i);
-                            j++;
                         }
                         splitCommand(payload);
                         Log.d("bernie","sdk calling notify is english");
@@ -318,26 +311,21 @@ public class CwmManager{
                         //not english
                         try {
                             byte[] name = personName.getBytes("UTF-8");
-                            payload = new byte[1 + 1 + 32 ]; //message type + message id + app identifier + app name length
+                            payload = new byte[1 + 1 + 32 ]; //message type + message id + (name or number)
                             payload[0] = (byte) 0x86;
                             payload[1] = (byte) ID.INCOMING_CALL;
                             j = 2;
-                            if(name.length <= 16) {
+                            if(name.length <= 32) {
                                 for (int i = 0; i < name.length; i++) {
                                     payload[j] = name[i];
                                     j++;
                                 }
                             }
                             else{
-                                for (int i = 0; i < 16; i++) {
+                                for (int i = 0; i < 32; i++) {
                                     payload[j] = name[i];
                                     j++;
                                 }
-                            }
-                            j = 16;
-                            for(int i = 0 ; i < personNum.length() ; i++){
-                                payload[j] = (byte)personNum.charAt(i);
-                                j++;
                             }
                             splitCommand(payload);
                             Log.d("bernie","sdk calling notify not english");
