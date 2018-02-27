@@ -336,41 +336,58 @@ public class CwmManager{
                 case ID.SOCIAL:
                     identifier = data.getAppIdentifier();
                     appName = data.getAppName();
-                    payload = new byte[1 + 1 + 1 + appName.length()]; //message type + message id + app identifier + app name length
-                    switch (identifier) {
+                    payload = new byte[1 + 1 + 1 + 16]; //message type + message id + app identifier + app name length
+                    payload[0] = (byte) 0x86;
+                    payload[1] = (byte) ID.SOCIAL;
+                    switch (identifier){
                         case Type.QQ_MESSAGE:
-                            payload[0] = (byte) 0x86;
-                            payload[1] = (byte) ID.SOCIAL;
                             payload[2] = (byte) Type.QQ_MESSAGE;
-                            j = 3;
-                            for (int i = 0; i < appName.length(); i++) {
-                                payload[j] = (byte) appName.charAt(i);
-                                j++;
-                            }
-                            splitCommand(payload);
                             break;
                         case Type.WECHART_MESSAGE:
-                            payload[0] = (byte) 0x86;
-                            payload[1] = (byte) ID.SOCIAL;
                             payload[2] = (byte) Type.WECHART_MESSAGE;
-                            j = 3;
-                            for (int i = 0; i < appName.length(); i++) {
-                                payload[j] = (byte) appName.charAt(i);
-                                j++;
-                            }
-                            splitCommand(payload);
                             break;
                         case Type.DOBAN_MESSAGE:
-                            payload[0] = (byte) 0x86;
-                            payload[1] = (byte) ID.SOCIAL;
                             payload[2] = (byte) Type.DOBAN_MESSAGE;
-                            j = 3;
+                            break;
+                        case Type.OTHER:
+                            payload[2] = (byte) Type.OTHER;
+                            break;
+                    }
+                    if(appName.getBytes().length == appName.length()){ // is english
+                        j = 3;
+                        if(appName.length() <= 16) {
                             for (int i = 0; i < appName.length(); i++) {
                                 payload[j] = (byte) appName.charAt(i);
                                 j++;
                             }
-                            splitCommand(payload);
-                            break;
+                        }
+                        else{
+                            for (int i = 0; i < 16; i++) {
+                                payload[j] = (byte) appName.charAt(i);
+                                j++;
+                            }
+                        }
+                    }
+                    else{ // is not english
+                        try {
+                            byte[] name = appName.getBytes("UTF-8");
+                            j = 3;
+                            if(name.length <= 16) {
+                                for (int i = 0; i < name.length; i++) {
+                                    payload[j] = name[i];
+                                    j++;
+                                }
+                            }
+                            else{
+                                for (int i = 0; i < 16; i++) {
+                                    payload[j] = name[i];
+                                    j++;
+                                }
+                            }
+                        }
+                        catch (IOException e){
+
+                        }
                     }
                     break;
                 case ID.EMAIL:
