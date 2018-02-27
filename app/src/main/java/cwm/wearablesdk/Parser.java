@@ -644,25 +644,29 @@ public class Parser {
                 break;
             case Type.HISTORY_DATA_RESPONSE:
                 message_id = data.getMsgCmdId();
+                int startPos = 0;
+                int endPos = 0;
                // Log.d("bernie","sdk message_id:"+Integer.toString(message_id));
                 switch (message_id) {
                     case ID.SLEEP_HISTORY:
-                       /*  int startPos = 4;
-                         int unit_sleep_log = 4;//byte
-                         int packetLength = (packet[0] & 0xFF) | (packet[1] << 8);
-                         //int dataLength = packetLength - 1 - 1 - 2 - 1 - 1; // -header - checksum byte - length(2byte) - msg type - msg id
+                        Log.d("bernie","sdk sleep history");
+                        startPos = 4;
+                         int unit_sleep_log = 2;//byte
                          int dataLength = packet.length - 2 - 2 - 1; // - 2 byte length  - msgtype - msgid - checksum
-                         int endPos = packet.length - 5;
+                        endPos = packet.length - 3;
                          j = 0;
-                         //float[] output = new float[dataLength/unit_sleep_log];
-                         int[] convert = new int[dataLength / unit_sleep_log];
+                         short[] convert = new short[dataLength / unit_sleep_log];
                          byte[] sleepTemp = new byte[unit_sleep_log];
 
                          for (int i = startPos; i <= endPos; i += unit_sleep_log) {
                               System.arraycopy(packet, i, sleepTemp, 0, unit_sleep_log);
-                              convert[j] = ByteBuffer.wrap(sleepTemp).order(ByteOrder.LITTLE_ENDIAN).getInt();
+                              convert[j] = ByteBuffer.wrap(sleepTemp).order(ByteOrder.LITTLE_ENDIAN).getShort();
                               j++;
-                         }*/
+                         }
+                        cwmEvents = new CwmEvents();
+                        cwmEvents.setMsgType(msg_type);
+                        cwmEvents.setMessageID(message_id);
+                        cwmEvents.setSleepParser(convert);
                      break;
                      case ID.LIFE_HISTORY:
                          Log.d("bernie","sdk life history");
@@ -685,8 +689,8 @@ public class Parser {
                           int tpCount = 0;
                           int tabataActionTime = 0;
                           int handUpDownCount = 0;
-                          int startPos = 4;
-                          int endPos = packet.length - (unit_life_data + 1); //1: checksum byte
+                          startPos = 4;
+                          endPos = packet.length - (unit_life_data + 1); //1: checksum byte
                           int packetLength = (packet[0] & 0xFF) | (packet[1] << 8);
                           for (int i = startPos; i <= endPos; i += unit_life_data) {
                                System.arraycopy(packet, i, lifeTemp, 0, unit_life_data);

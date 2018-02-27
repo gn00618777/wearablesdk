@@ -21,7 +21,7 @@ public class CwmEvents{
     private int mLength;
     private int mParserLength;
     private byte[] value;
-    private int[] parser;
+    private short[] parser;
     private int remindPackages;
     private int deviceCurrent;
 
@@ -86,7 +86,7 @@ public class CwmEvents{
 
     public void setSleepCombined(byte[] value){this.value = value;}
     public void setSleepLogLength(int length){mLength = length;}
-    public void setSleepParser(int[] parser){this.parser = parser;}
+    public void setSleepParser(short[] parser){this.parser = parser;}
     public void setParserLength(int length){ mParserLength = length;}
     public void setRemindPackages(int number){remindPackages = number;}
     public void setFlashSyncStatus(int status){syncStatus = status;}
@@ -140,7 +140,7 @@ public class CwmEvents{
 
     public int getSleepLength(){return mLength;}
     public byte[] getSleepCombined(){return this.value;}
-    public int[] getSleepParser(){return this.parser;}
+    public short[] getSleepParser(){return this.parser;}
     public int getParserLength(){return mParserLength;}
     public int getRemindPackages(){return remindPackages;}
     public int getDeviceCurrent(){return deviceCurrent;}

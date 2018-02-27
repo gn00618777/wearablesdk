@@ -92,7 +92,7 @@
     public int getTabataHeart();
    public int getStrength();
    public float getVersion();
-  public int getSleepLength();
+  public short[] getSleepLength();
   public byte[] getSleepCombined();
   public int[] getSleepParser();
   public int getParserLength();
