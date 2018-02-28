@@ -1,8 +1,6 @@
 package cwm.wearablesdk.handler;
 
-import cwm.wearablesdk.CwmManager;
 import cwm.wearablesdk.Payload;
-import cwm.wearablesdk.QueueHandler;
 import cwm.wearablesdk.constants.Type;
 
 /**
@@ -10,16 +8,12 @@ import cwm.wearablesdk.constants.Type;
  */
 
 public class Classifier {
-    CwmManager mCwmManager;
-    QueueHandler mQhandler;
 
-   public Classifier(CwmManager cwmManager){
-        mCwmManager = cwmManager;
-        mQhandler = new QueueHandler(mCwmManager);
-    }
-
-    public void classifyRawByteArray(byte[] rxBuffer)
+    public Payload classifyRawByteArray(byte[] rxBuffer)
     {
+        Payload defaultData = new Payload(0x00, 0x00,  new byte[20]);
+        defaultData.packet_type = 0xFF;
+
        if (rxBuffer[0] == (byte)0xE6) {
               /*get protocol info*/
               int packet_type = Type.BLE_PAKAGE_TYPE.SHORT_MESSAGE.ordinal();
@@ -34,7 +28,7 @@ public class Classifier {
              Payload data = new Payload(packet_msg_type, packet_message_id,  newRxBuffer);
              data.packet_type = packet_type;
 
-            mQhandler.enQueue(data);
+             return data;
 
         } else if (rxBuffer[0] == (byte)0xE7) {
              //Protocol Header
@@ -52,7 +46,7 @@ public class Classifier {
               //Fill up protocol information
               data.packet_type = packet_type;
 
-              mQhandler.enOtherQueue(data);
+              return data;
           } else if (rxBuffer[0] == (byte)0xE8) {
              //Protocol Header
              int packet_type = Type.BLE_PAKAGE_TYPE.LONG_MESSAGE_MID.ordinal();
@@ -68,7 +62,7 @@ public class Classifier {
              //Fill up protocol information
              data.packet_type = packet_type;
 
-             mQhandler.enOtherQueue(data);
+             return data;
 
         } else if(rxBuffer[0] == (byte)0xE9) {
             //Protocol Header
@@ -85,10 +79,9 @@ public class Classifier {
             //Fill up Protocol information
             data.packet_type = packet_type;
 
-            mQhandler.enOtherQueue(data);
-            mQhandler.combinePackeages();
+            return data;
         }
-          mQhandler.deQueue();
+        return defaultData;
     }
 
 }

@@ -12,22 +12,16 @@ import cwm.wearablesdk.handler.Valifier;
 
 public class QueueHandler {
     private CwmManager mCwmManager;
-    private Parser mParser;
     public static final Queue<Payload> mOutPutQueue = new LinkedList<>();
     public static final Queue<Payload> mPendingQueue = new LinkedList<>();
 
    public QueueHandler(CwmManager manager){
         mCwmManager= manager;
-        mParser = new Parser(mCwmManager);
     }
 
-    public void deQueue(){
-        while(mOutPutQueue.size() != 0){
-            Payload data = mOutPutQueue.poll();
-            if(Valifier.check(data)) {
-                mParser.parsePayload(data);
-            }
-        }
+    public Payload deQueue(){
+        Payload data = mOutPutQueue.poll();
+        return data;
     }
 
     public void enQueue(Payload data){

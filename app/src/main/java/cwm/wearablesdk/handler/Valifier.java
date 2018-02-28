@@ -10,7 +10,7 @@ import cwm.wearablesdk.constants.Type;
 
 public class Valifier {
 
-    public static boolean check(Payload data){
+    public boolean check(Payload data){
         byte[] packet = data.getPacket();
         int checksum = packet[(packet.length - 1)];
         int sum = 0;

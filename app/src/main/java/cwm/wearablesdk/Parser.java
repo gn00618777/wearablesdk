@@ -58,7 +58,7 @@ public class Parser {
     final  int dataTypeByte = 5;
     final  int dataStart = 6;
 
-    Parser(CwmManager manager){
+    public Parser(CwmManager manager){
         cwmManager = manager;
         mAckHandler = new AckHandler(cwmManager);
     }
