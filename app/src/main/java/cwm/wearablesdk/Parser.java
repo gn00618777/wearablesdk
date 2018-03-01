@@ -252,7 +252,6 @@ public class Parser {
 
         byte[] packet = data.getPacket();
 
-        LongTask.longTaskReceivedHandler.removeCallbacks(LongTask.currentLongTask);
         //Log.d("bernie","sdk msg_type:"+Integer.toString(msg_type));
         switch (msg_type){
             case Type.CHECKSUM_ERROR:
@@ -272,7 +271,7 @@ public class Parser {
                 message_id = data.getMsgCmdId();
                 switch (message_id){
                     case ID.USER_CONFIG_INFO:
-
+                        LongTask.longTaskReceivedHandler.removeCallbacks(LongTask.currentLongTask);
                         cwmEvent = new CwmEvents();
                         cwmEvent.setMsgType(msg_type);
                         cwmEvent.setMessageID(message_id);
@@ -646,6 +645,7 @@ public class Parser {
                // Log.d("bernie","sdk message_id:"+Integer.toString(message_id));
                 switch (message_id) {
                     case ID.SLEEP_HISTORY:
+                        LongTask.longTaskReceivedHandler.removeCallbacks(LongTask.currentLongTask);
                         Log.d("bernie","sdk sleep history");
                         startPos = 4;
                          int unit_sleep_log = 2;//byte
@@ -668,6 +668,7 @@ public class Parser {
                      break;
                      case ID.LIFE_HISTORY:
                          Log.d("bernie","sdk life history");
+                         LongTask.longTaskReceivedHandler.removeCallbacks(LongTask.currentLongTask);
                           byte[] lifeTemp = new byte[46];
                           byte[] fourByteTemp = new byte[4];
                           byte[] twoByteTemp = new byte[2];
