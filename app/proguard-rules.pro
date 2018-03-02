@@ -93,7 +93,7 @@
    public float getVersion();
   public short[] getSleepLength();
   public byte[] getSleepCombined();
-  public int[] getSleepParser();
+  public short[] getSleepParser();
   public int getParserLength();
  public int getRemindPackages();
  public int getDeviceCurrent();

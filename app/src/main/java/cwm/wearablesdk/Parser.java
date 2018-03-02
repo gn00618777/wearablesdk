@@ -655,16 +655,32 @@ public class Parser {
                          short[] convert = new short[dataLength / unit_sleep_log];
                          byte[] sleepTemp = new byte[unit_sleep_log];
 
+                        StringBuilder sleepString = new StringBuilder();
+
                          for (int i = startPos; i <= endPos; i += unit_sleep_log) {
                               System.arraycopy(packet, i, sleepTemp, 0, unit_sleep_log);
                               convert[j] = ByteBuffer.wrap(sleepTemp).order(ByteOrder.LITTLE_ENDIAN).getShort();
+                              sleepString.append(Short.toString(convert[j])+"\n");
                               j++;
                          }
+                        try{
+                            FileWriter fw = new FileWriter(Environment.getExternalStorageDirectory().toString() + "/Download/CwmSleepLog.txt", true);
+                            BufferedWriter bw = new BufferedWriter(fw);
+                            bw.write(sleepString.toString());
+                            bw.newLine();
+                            bw.close();
+                        }catch(IOException e){
+                            e.printStackTrace();
+                        }
+
+                        currentPackets+=1;
                         cwmEvent = new CwmEvents();
                         cwmEvent.setEventType(Type.EVENT);
                         cwmEvent.setMsgType(msg_type);
                         cwmEvent.setMessageID(message_id);
-                        cwmEvent.setSleepParser(convert);
+                        cwmEvent.setCurrentPackages(currentPackets);
+                        cwmEvent.setMaxPackages(packetsNumber);
+                        //cwmEvent.setSleepParser(convert);
                      break;
                      case ID.LIFE_HISTORY:
                          Log.d("bernie","sdk life history");
