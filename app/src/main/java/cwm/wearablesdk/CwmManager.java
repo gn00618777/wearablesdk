@@ -65,7 +65,6 @@ public class CwmManager{
     public static int mapSize = 0;
     /*************************************/
 
-    private LogSyncListener mLogListener = null;
     public static ReentrantLock lock = new ReentrantLock();
     // interface -----------------------------------------------------------------------------------
     public interface EventListener {
@@ -84,22 +83,15 @@ public class CwmManager{
     public interface ErrorListener{
         void onErrorArrival(ErrorEvents errorEvents);
     }
-    public interface LogSyncListener{
-        void onSyncFailed();
-        void onProgressChanged(int currentpart, int partsTotal);
-        void onSyncDone();
-    }
 
     public CwmManager(Activity activity, WearableServiceListener wListener,
-                      EventListener iLlistener, AckListener ackListener, ErrorListener errorListener,
-                      LogSyncListener logSyncListener){
+                      EventListener iLlistener, AckListener ackListener, ErrorListener errorListener){
 
         mActivity = activity;
         mStatusListener = wListener;
         mListener = iLlistener;
         mAckListener = ackListener;
         mErrorListener = errorListener;
-        mLogListener = logSyncListener;
 
        // endPos = 0x1000;
        // currentMapSize = 0;
@@ -235,7 +227,6 @@ public class CwmManager{
     public EventListener getListener(){return mListener;}
     public AckListener getAckListener(){return mAckListener;}
     public ErrorListener getErrorListener(){return mErrorListener;}
-    public LogSyncListener getLogListener(){return mLogListener;}
 
     public boolean CwmBleStatus(){
         if(mBluetoothAdapter.isEnabled())
