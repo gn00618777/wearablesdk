@@ -357,6 +357,7 @@ public class CwmManager{
                                 j++;
                             }
                         }
+                        splitCommand(payload);
                     }
                     else{ // is not english
                         try {
@@ -374,6 +375,7 @@ public class CwmManager{
                                     j++;
                                 }
                             }
+                            splitCommand(payload);
                         }
                         catch (IOException e){
 
