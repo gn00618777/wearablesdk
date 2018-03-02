@@ -247,8 +247,7 @@ public class CwmManager{
         if(mActivity != null) {
             LocalBroadcastManager.getInstance(mActivity).unregisterReceiver(UARTStatusChangeReceiver);
             mActivity.unbindService(mServiceConnection);
-            for(Task task : Task.taskList)
-                Task.taskReceivedHandler.removeCallbacks(task);
+            Task.taskReceivedHandler.removeCallbacks(Task.currentTask);
             mActivity = null;
             mStatusListener = null;
             mListener = null;
@@ -1132,8 +1131,8 @@ public class CwmManager{
         byte[] command;
 
         Task task = new Task(payload[0], payload[1]); //type, id
-        Task.taskList.add(task);
         task.registerManager(this);
+        Task.currentTask = task;
 
         Task.taskReceivedHandler.postDelayed(task, 4000); //timer 4 sec
 

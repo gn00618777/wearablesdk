@@ -7,6 +7,9 @@ import cwm.wearablesdk.Payload;
 import cwm.wearablesdk.QueueHandler;
 import cwm.wearablesdk.constants.Type;
 import cwm.wearablesdk.CwmManager;
+import cwm.wearablesdk.events.AckEvents;
+import cwm.wearablesdk.events.CwmEvents;
+import cwm.wearablesdk.events.ErrorEvents;
 
 /**
  * Created by user on 2017/12/21.
@@ -54,7 +57,23 @@ public class BleReceiver {
         if(entry != null){
             boolean isValid = mValifier.check(entry);
             if(isValid) {
-                mParser.parsePayload(entry);
+                CwmEvents event = mParser.parsePayload(entry);
+                if(event != null) {
+                    int type = event.getEventType();
+                    switch (type) {
+                        case Type.EVENT:
+                            mCwmManager.getListener().onEventArrival(event);
+                            break;
+                        case Type.ACK_EVENT:
+                            AckEvents ackEvent = event.getAckEvent();
+                            mCwmManager.getAckListener().onAckArrival(ackEvent);
+                            break;
+                        case Type.ERROR_EVENT:
+                            ErrorEvents errorEvent = event.getErrorEvent();
+                            mCwmManager.getErrorListener().onErrorArrival(errorEvent);
+                            break;
+                    }
+                }
             }
         }
     }

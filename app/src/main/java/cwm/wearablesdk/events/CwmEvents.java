@@ -12,6 +12,7 @@ import cwm.wearablesdk.settings.SystemSetting;
 import cwm.wearablesdk.settings.IntelligentSettings;
 
 public class CwmEvents{
+    private int eventType = 0;
     private int mId = 0;
 
     /************walk info**************/
@@ -49,14 +50,18 @@ public class CwmEvents{
     private int mTabataHeartBeat;
     private int mMapId;
     private int mCurrentSize;
-    private int mMaxSize;
+    private int mMaxPackages;
+    private int mCurrentPackages;
     private Bias mBias;
     private BodySettings mBody;
     private IntelligentSettings mIntelligent;
     private AlarmSetting mAlarm;
     private SystemSetting mSystem;
+    private ErrorEvents mError;
+    private AckEvents mAck;
 
      public CwmEvents(){
+          eventType = 0;
           mId = 0;
           mWalkStep = 0;
           mDistance = 0;
@@ -75,8 +80,11 @@ public class CwmEvents{
          mBody = new BodySettings();
          mIntelligent = new IntelligentSettings();
          mAlarm = new AlarmSetting();
+         mError = new ErrorEvents();
+         mAck = new AckEvents(0,0);
          mMapId = 0;
-         mMaxSize = 0;
+         mMaxPackages = 0;
+         mCurrentPackages =0;
          mCurrentSize = 0;
     }
 
@@ -124,7 +132,11 @@ public class CwmEvents{
     public void setCalibateStatus(int calibrateStatus){mCalibrateStatus = calibrateStatus;}
     public void setBias(Bias bias){mBias = bias;}
     public void setCurrentSize(int size){mCurrentSize = size;}
-    //public void setMaxSize(int size){mMaxSize = size;}
+    public void setEventType(int type){eventType = type;}
+    public void setAckEvent(AckEvents event){mAck = event;}
+    public void setErrorEvent(ErrorEvents event){mError = event;}
+    public void setMaxPackages(int packages){mMaxPackages = packages;}
+    public void setCurrentPackages(int packages){mCurrentPackages = packages;}
 
     public void setBody(BodySettings body){
         mBody = body;
@@ -180,7 +192,11 @@ public class CwmEvents{
     public int getSelfTestResult(){return mSelfTest;}
     public int getCalibrateStatus(){return mCalibrateStatus;}
     public int getCurrentMapSize(){return mCurrentSize;}
-    //public long getMaxMapSize(){return mMaxSize;}
+    public int getEventType(){return eventType;}
+    public AckEvents getAckEvent(){return mAck;}
+    public ErrorEvents getErrorEvent(){return mError;}
+    public int getMaxMapPackages(){return mMaxPackages;}
+    public int getCurrentPackages(){return mCurrentPackages;}
 
     public Bias getBias(){return mBias;}
     public BodySettings getBody(){return mBody;}

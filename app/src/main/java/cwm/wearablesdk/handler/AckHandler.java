@@ -13,23 +13,14 @@ import cwm.wearablesdk.events.AckEvents;
 
 public class AckHandler {
 
-    private CwmManager cwmManager;
-
-    public AckHandler(CwmManager manager){
-        cwmManager = manager;
-    }
-
-    public void processAck(Payload data){
+    public AckEvents processAck(Payload data){
+        AckEvents ackEvents = null;
         byte[] packet = data.getPacket();
         //if the ble data recived is the response from the command we just sent, then cancling the timer.
-        for(int i = 0; i < Task.taskList.size() ; i++) {
-            Task task = Task.taskList.get(i);
-            if (packet[3] == task.type && packet[4] == task.id) {
-                Task.taskReceivedHandler.removeCallbacks(task);
-                Task.taskList.remove(i);
-                AckEvents ackEvents = new AckEvents(packet[3], packet[4]);
-                cwmManager.getAckListener().onAckArrival(ackEvents);
-            }
+        if (packet[3] == Task.currentTask.type && packet[4] == Task.currentTask.id) {
+            Task.taskReceivedHandler.removeCallbacks(Task.currentTask);
+            ackEvents = new AckEvents(packet[3], packet[4]);
         }
+        return ackEvents;
     }
 }

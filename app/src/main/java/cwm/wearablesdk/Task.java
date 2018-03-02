@@ -15,8 +15,7 @@ public class Task implements Runnable{
     public byte id;
     public CwmManager mManager;
 
-    //public static Task currentTask;
-    public static final ArrayList<Task> taskList = new ArrayList<>();
+    public static Task currentTask;
     public static Handler taskReceivedHandler = new Handler();
 
     @Override

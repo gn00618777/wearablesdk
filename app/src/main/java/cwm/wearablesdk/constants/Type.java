@@ -98,6 +98,9 @@ public class Type {
         CALIB_STATUS_OUT,
         CALIB_STATUS_NO_TEST_ITEM
     };
+    public static final int EVENT = 0x01;
+    public static final int ACK_EVENT = 0x02;
+    public static final int ERROR_EVENT = 0x03;
 
     public static final int SYSTTEM_INFORMATION = 0x01;
     public static final int SENSOR_GESTURE_REPORT_MESSAGE = 0x02;

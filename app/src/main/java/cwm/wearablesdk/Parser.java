@@ -16,6 +16,7 @@ import java.util.FormatFlagsConversionMismatchException;
 
 import cwm.wearablesdk.constants.ID;
 import cwm.wearablesdk.constants.Type;
+import cwm.wearablesdk.events.AckEvents;
 import cwm.wearablesdk.events.CwmEvents;
 import cwm.wearablesdk.events.ErrorEvents;
 import cwm.wearablesdk.handler.AckHandler;
@@ -60,7 +61,7 @@ public class Parser {
 
     public Parser(CwmManager manager){
         cwmManager = manager;
-        mAckHandler = new AckHandler(cwmManager);
+        mAckHandler = new AckHandler();
     }
 
     /*public void parseFlashInformation(Data aPackage){
@@ -236,13 +237,13 @@ public class Parser {
         return null;
     }*/
 
-    public void parsePayload(Payload data){
+    public CwmEvents parsePayload(Payload data){
         int msg_type = data.getMsgCmdType();
         int message_id;
         int sensor_tag;
         int j = 0;
 
-        CwmEvents cwmEvents;
+        CwmEvents cwmEvent = null;
 
         byte[] temp = new byte[2];
         byte[] temp1 = new byte[4];
@@ -256,20 +257,26 @@ public class Parser {
         switch (msg_type){
             case Type.CHECKSUM_ERROR:
                 ErrorEvents errorEvents = new ErrorEvents();
-                errorEvents.setErrorId(0x03);
-                cwmManager.getErrorListener().onErrorArrival(errorEvents);
+                errorEvents.setErrorId(ID.CHECKSUM_ERROR);
+                cwmEvent = new CwmEvents();
+                cwmEvent.setEventType(Type.ERROR_EVENT);
+                cwmEvent.setErrorEvent(errorEvents);
                 break;
             case Type.ACK_INFORMATION:
-                 mAckHandler.processAck(data);
+                AckEvents ackEvents = mAckHandler.processAck(data);
+                cwmEvent = new CwmEvents();
+                cwmEvent.setEventType(Type.ACK_EVENT);
+                cwmEvent.setAckEvent(ackEvents);
                 break;
             case Type.SYSTTEM_INFORMATION:
                 message_id = data.getMsgCmdId();
                 switch (message_id){
                     case ID.USER_CONFIG_INFO:
 
-                        CwmEvents cwmEvent = new CwmEvents();
+                        cwmEvent = new CwmEvents();
                         cwmEvent.setMsgType(msg_type);
                         cwmEvent.setMessageID(message_id);
+                        cwmEvent.setEventType(Type.EVENT);
 
                         SystemSetting system = new SystemSetting();
 
@@ -477,30 +484,26 @@ public class Parser {
                         //for(int i = 0 ; i < packet.length ; i++ )
                          //   Log.d("bernie varify", "i: "+Integer.toString(i)+" "+Integer.toHexString(packet[i] & 0xFF));
 
-                        cwmManager.getListener().onEventArrival(cwmEvent);
-
                         break;
                     case ID.BATTERY_INFO:
                         int battery = (int)packet[3];
 
-                        cwmEvents = new CwmEvents();
-                        cwmEvents.setMsgType(msg_type);
-                        cwmEvents.setMessageID(message_id);
-                        cwmEvents.setBattery(battery);
-
-                        cwmManager.getListener().onEventArrival(cwmEvents);
+                        cwmEvent = new CwmEvents();
+                        cwmEvent.setEventType(Type.EVENT);
+                        cwmEvent.setMsgType(msg_type);
+                        cwmEvent.setMessageID(message_id);
+                        cwmEvent.setBattery(battery);
 
                         break;
                     case ID.DEVICE_VERSION_INFO:
                         float main = (float)packet[5];
                         float sub = (((float)packet[6]) / 100);
 
-                        cwmEvents = new CwmEvents();
-                        cwmEvents.setMsgType(msg_type);
-                        cwmEvents.setMessageID(message_id);
-                        cwmEvents.setVersion(main+sub);
-
-                        cwmManager.getListener().onEventArrival(cwmEvents);
+                        cwmEvent = new CwmEvents();
+                        cwmEvent.setEventType(Type.EVENT);
+                        cwmEvent.setMsgType(msg_type);
+                        cwmEvent.setMessageID(message_id);
+                        cwmEvent.setVersion(main+sub);
 
                         break;
                     default:
@@ -528,13 +531,12 @@ public class Parser {
                             output_32[2] = (float) output_16[2] *ADXL362_8G_CONVERTER;
                         }
 
-                        cwmEvents = new CwmEvents();
-                        cwmEvents.setMsgType(msg_type);
-                        cwmEvents.setMessageID(message_id);
-                        cwmEvents.setAccSensor(output_32);
-                        cwmEvents.setSensorTag(sensor_tag);
-
-                        cwmManager.getListener().onEventArrival(cwmEvents);
+                        cwmEvent = new CwmEvents();
+                        cwmEvent.setEventType(Type.EVENT);
+                        cwmEvent.setMsgType(msg_type);
+                        cwmEvent.setMessageID(message_id);
+                        cwmEvent.setAccSensor(output_32);
+                        cwmEvent.setSensorTag(sensor_tag);
 
                         break;
                     case ID.GYRO_RAW_DATA_REPORT:
@@ -550,41 +552,37 @@ public class Parser {
 
                         sensor_tag = (int)packet[9]; //ADXL or BMI160
 
-                        cwmEvents = new CwmEvents();
-                        cwmEvents.setMsgType(msg_type);
-                        cwmEvents.setMessageID(message_id);
-                        cwmEvents.setGyroSensor(output_32);
-                        cwmEvents.setSensorTag(sensor_tag);
-
-                        cwmManager.getListener().onEventArrival(cwmEvents);
+                        cwmEvent = new CwmEvents();
+                        cwmEvent.setEventType(Type.EVENT);
+                        cwmEvent.setMsgType(msg_type);
+                        cwmEvent.setMessageID(message_id);
+                        cwmEvent.setGyroSensor(output_32);
+                        cwmEvent.setSensorTag(sensor_tag);
 
                         break;
                     case ID.HEART_RATE_RAW_DATA_REPORT:
                         System.arraycopy(packet, 3, temp1, 0, 4);
                         int heartBeat = (int)ByteBuffer.wrap(temp1).order(ByteOrder.LITTLE_ENDIAN).getFloat();
-                        cwmEvents = new CwmEvents();
+                        cwmEvent = new CwmEvents();
+                        cwmEvent.setEventType(Type.EVENT);
+                        cwmEvent.setMsgType(msg_type);
+                        cwmEvent.setMessageID(message_id);
+                        cwmEvent.setHeartSensor(heartBeat);
 
-                        cwmEvents.setMsgType(msg_type);
-                        cwmEvents.setMessageID(message_id);
-                        cwmEvents.setHeartSensor(heartBeat);
-
-                        cwmManager.getListener().onEventArrival(cwmEvents);
                         break;
                     case ID.WRIST_SCROLL_EVENT_RESPONSE_MESSAGE:
-                        cwmEvents = new CwmEvents();
+                        cwmEvent = new CwmEvents();
+                        cwmEvent.setEventType(Type.EVENT);
+                        cwmEvent.setMsgType(msg_type);
+                        cwmEvent.setMessageID(message_id);
 
-                        cwmEvents.setMsgType(msg_type);
-                        cwmEvents.setMessageID(message_id);
-
-                        cwmManager.getListener().onEventArrival(cwmEvents);
                         break;
                     case ID.SEDENTARY_RESPONSE_MESSAGE:
-                        cwmEvents = new CwmEvents();
+                        cwmEvent = new CwmEvents();
+                        cwmEvent.setEventType(Type.EVENT);
+                        cwmEvent.setMsgType(msg_type);
+                        cwmEvent.setMessageID(message_id);
 
-                        cwmEvents.setMsgType(msg_type);
-                        cwmEvents.setMessageID(message_id);
-
-                        cwmManager.getListener().onEventArrival(cwmEvents);
                         break;
                     case ID.ACTIVITY_PEDOMETER_DATA_REPORT_MESSAGE:
                         System.arraycopy(packet, 3, temp1, 0, 4);
@@ -596,17 +594,16 @@ public class Parser {
 
                         int status = (int)packet[15];
 
-                        cwmEvents = new CwmEvents();
+                        cwmEvent = new CwmEvents();
+                        cwmEvent.setEventType(Type.EVENT);
+                        cwmEvent.setMsgType(msg_type);
+                        cwmEvent.setMessageID(message_id);
+                        cwmEvent.setStepCount(step_count);
+                        cwmEvent.setDistance(distance);
+                        cwmEvent.setStepFreq(stepFreq);
 
-                        cwmEvents.setMsgType(msg_type);
-                        cwmEvents.setMessageID(message_id);
-                        cwmEvents.setStepCount(step_count);
-                        cwmEvents.setDistance(distance);
-                        cwmEvents.setStepFreq(stepFreq);
+                        cwmEvent.setStatus(status);
 
-                        cwmEvents.setStatus(status);
-
-                        cwmManager.getListener().onEventArrival(cwmEvents);
                         break;
                     case ID.TABATA_RESPONSE_MESSAGE:
                         System.arraycopy(packet, 3, temp1, 0, 4);
@@ -627,16 +624,16 @@ public class Parser {
                         int heart = tabataHeartStrength /100;
                         int strength = tabataHeartStrength % 100;
 
-                        cwmEvents = new CwmEvents();
-                        cwmEvents.setMsgType(msg_type);
-                        cwmEvents.setMessageID(message_id);
-                        cwmEvents.setExerciseItem(items);
-                        cwmEvents.setDoItemCount(count);
-                        cwmEvents.setTabataCalories(caloris);
-                        cwmEvents.setTabataHeart(heart);
-                        cwmEvents.setStrength(strength);
+                        cwmEvent = new CwmEvents();
+                        cwmEvent.setEventType(Type.EVENT);
+                        cwmEvent.setMsgType(msg_type);
+                        cwmEvent.setMessageID(message_id);
+                        cwmEvent.setExerciseItem(items);
+                        cwmEvent.setDoItemCount(count);
+                        cwmEvent.setTabataCalories(caloris);
+                        cwmEvent.setTabataHeart(heart);
+                        cwmEvent.setStrength(strength);
 
-                        cwmManager.getListener().onEventArrival(cwmEvents);
                         break;
                     default:
                         break;
@@ -663,10 +660,11 @@ public class Parser {
                               convert[j] = ByteBuffer.wrap(sleepTemp).order(ByteOrder.LITTLE_ENDIAN).getShort();
                               j++;
                          }
-                        cwmEvents = new CwmEvents();
-                        cwmEvents.setMsgType(msg_type);
-                        cwmEvents.setMessageID(message_id);
-                        cwmEvents.setSleepParser(convert);
+                        cwmEvent = new CwmEvents();
+                        cwmEvent.setEventType(Type.EVENT);
+                        cwmEvent.setMsgType(msg_type);
+                        cwmEvent.setMessageID(message_id);
+                        cwmEvent.setSleepParser(convert);
                      break;
                      case ID.LIFE_HISTORY:
                          Log.d("bernie","sdk life history");
@@ -767,8 +765,12 @@ public class Parser {
                               }
 
                               currentPackets+=1;
-                              if(packetsNumber != 0)
-                                cwmManager.getLogListener().onProgressChanged(currentPackets, packetsNumber);
+                              cwmEvent = new CwmEvents();
+                              cwmEvent.setEventType(Type.EVENT);
+                              cwmEvent.setMsgType(msg_type);
+                              cwmEvent.setMessageID(message_id);
+                              cwmEvent.setCurrentPackages(currentPackets);
+                              cwmEvent.setMaxPackages(packetsNumber);
                           }
                     break;
                     case ID.HISTORY_PACKAGES: //History length
@@ -776,19 +778,19 @@ public class Parser {
                         System.arraycopy(packet,3, lengthByte, 0, 4);
                         int packages = ByteBuffer.wrap(lengthByte).order(ByteOrder.LITTLE_ENDIAN).getInt();
                         packetsNumber = packages;
-                        cwmEvents = new CwmEvents();
-                        cwmEvents.setMsgType(msg_type);
-                        cwmEvents.setMessageID(message_id);
-                        cwmEvents.setRemindPackages(packages);
+                        cwmEvent = new CwmEvents();
+                        cwmEvent.setEventType(Type.EVENT);
+                        cwmEvent.setMsgType(msg_type);
+                        cwmEvent.setMessageID(message_id);
+                        cwmEvent.setRemindPackages(packages);
                         Log.d("bernie","sdk packages length: "+Integer.toString(packages));
-                        cwmManager.getListener().onEventArrival(cwmEvents);
                         break;
 
                     case ID.HISTORY_ERASE_DONE:
-                        cwmEvents = new CwmEvents();
-                        cwmEvents.setMsgType(msg_type);
-                        cwmEvents.setMessageID(message_id);
-                        cwmManager.getListener().onEventArrival(cwmEvents);
+                        cwmEvent = new CwmEvents();
+                        cwmEvent.setEventType(Type.EVENT);
+                        cwmEvent.setMsgType(msg_type);
+                        cwmEvent.setMessageID(message_id);
                         break;
                 }
 
@@ -803,27 +805,26 @@ public class Parser {
                     case ID.SELF_TEST_RESULT:
                        sensor_id = packet[3];
                         int selfTest = packet[4];
-                        cwmEvents = new CwmEvents();
-
-                        cwmEvents.setMsgType(msg_type);
-                        cwmEvents.setMessageID(message_id);
-                        cwmEvents.setSensorID(sensor_id);
-                        cwmEvents.setSelfTest(selfTest);
-
-                        cwmManager.getListener().onEventArrival(cwmEvents);
+                        cwmEvent = new CwmEvents();
+                        cwmEvent.setEventType(Type.EVENT);
+                        cwmEvent.setMsgType(msg_type);
+                        cwmEvent.setMessageID(message_id);
+                        cwmEvent.setSensorID(sensor_id);
+                        cwmEvent.setSelfTest(selfTest);
 
                         break;
                     case ID.CALIBRATION_RESULT:
                         Log.d("bernie","sdk calibreate result");
                         sensor_id = packet[3];
                         int calbrateStatus = packet[4];
-                        cwmEvents = new CwmEvents();
+                        cwmEvent = new CwmEvents();
+                        cwmEvent.setEventType(Type.EVENT);
                         Bias bias = new Bias();
 
-                        cwmEvents.setMsgType(msg_type);
-                        cwmEvents.setMessageID(message_id);
-                        cwmEvents.setSensorID(sensor_id);
-                        cwmEvents.setCalibateStatus(calbrateStatus);
+                        cwmEvent.setMsgType(msg_type);
+                        cwmEvent.setMessageID(message_id);
+                        cwmEvent.setSensorID(sensor_id);
+                        cwmEvent.setCalibateStatus(calbrateStatus);
                         if(calbrateStatus == Type.CALIBRATE_RESULT.CALIB_STATUS_PASS.ordinal() ) {
                             Log.d("bernie", "sdk calibreate mid");
                             System.arraycopy(packet, 5, temp1, 0, 4);
@@ -836,20 +837,19 @@ public class Parser {
                             float biasZ = ByteBuffer.wrap(temp1).order(ByteOrder.LITTLE_ENDIAN).getFloat();
                             Log.d("bernie", "sdk calibreate mid III");
                             bias.set(biasX, biasY, biasZ);
-                            cwmEvents.setBias(bias);
+                            cwmEvent.setBias(bias);
                         }
                         Log.d("bernie","sdk calibreate result after");
-                        cwmManager.getListener().onEventArrival(cwmEvents);
                         break;
                     case ID.MAP_ERASE_DONE:
                          int mapId = packet[3] & 0xFF;
 
-                        cwmEvents = new CwmEvents();
-                        cwmEvents.setMsgType(msg_type);
-                        cwmEvents.setMessageID(message_id);
-                        cwmEvents.setMapId(mapId);
+                        cwmEvent = new CwmEvents();
+                        cwmEvent.setEventType(Type.EVENT);
+                        cwmEvent.setMsgType(msg_type);
+                        cwmEvent.setMessageID(message_id);
+                        cwmEvent.setMapId(mapId);
 
-                        cwmManager.getListener().onEventArrival(cwmEvents);
                         break;
                     case ID.MAP_WRITE_DONE:
                         CwmManager.endPos = CwmManager.endPos + 128;
@@ -873,17 +873,18 @@ public class Parser {
                             CwmManager.mapSize = 0;
                             CwmManager.endPos = 0x1000;
                         }
-                        cwmEvents = new CwmEvents();
-                        cwmEvents.setMsgType(msg_type);
-                        cwmEvents.setMessageID(message_id);
-                        cwmEvents.setCurrentSize(CwmManager.currentMapSize);
+                        cwmEvent = new CwmEvents();
+                        cwmEvent.setEventType(Type.EVENT);
+                        cwmEvent.setMsgType(msg_type);
+                        cwmEvent.setMessageID(message_id);
+                        cwmEvent.setCurrentSize(CwmManager.currentMapSize);
                         //cwmEvents.setMaxSize((int)CwmManager.bitMapLength);
-                        cwmManager.getListener().onEventArrival(cwmEvents);
                         break;
 
                 }
                 break;
         }
+        return cwmEvent;
     }
     private char[] getChars (byte[] bytes) {
         Charset cs = Charset.forName ("UTF-8");

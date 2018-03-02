@@ -53,6 +53,7 @@ public class ID {
     //Error Event
     public static final int NO_ACK = 0x01;
     public static final int PACKET_LOST = 0x02;
+    public static final int CHECKSUM_ERROR = 0x03;
 
     public static final int OLED_PAGE = 0x01;
     public static final int BITMAP_PAGE  = 0x02;
