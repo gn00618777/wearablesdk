@@ -408,12 +408,14 @@ public class CwmManager{
     }
     public void CwmRequestUserConfig(){
         if(lock.tryLock()) {
-            byte[] payload = new byte[4];
+            if(BleReceiver.hasLongTask == false) {
+                byte[] payload = new byte[4];
 
-            payload[0] = (byte) 0x81; // command type
-            payload[1] = (byte) 0x04; // command id
+                payload[0] = (byte) 0x81; // command type
+                payload[1] = (byte) 0x04; // command id
 
-            splitCommand(payload);
+                splitCommand(payload);
+            }
             lock.unlock();
         }
     }
@@ -1048,37 +1050,43 @@ public class CwmManager{
     }
     public void CwmSyncStart(){
         if (lock.tryLock()) {
-            byte[] payload = new byte[3];
+            if(BleReceiver.hasLongTask == false) {
+                byte[] payload = new byte[3];
 
-            payload[0] = (byte) 0x83;
-            payload[1] = (byte) ID.REQUEST_HISTORY;
-            payload[2] = (byte) Type.FLASH_SYNC_TYPE.SYNC_START.ordinal();
+                payload[0] = (byte) 0x83;
+                payload[1] = (byte) ID.REQUEST_HISTORY;
+                payload[2] = (byte) Type.FLASH_SYNC_TYPE.SYNC_START.ordinal();
 
-            splitCommand(payload);
+                splitCommand(payload);
+            }
             lock.unlock();
         }
     }
     public void CwmSyncSucces(){
         if (lock.tryLock()) {
-            byte[] payload = new byte[3];
+            if(BleReceiver.hasLongTask == false) {
+                byte[] payload = new byte[3];
 
-            payload[0] = (byte) 0x83;
-            payload[1] = (byte) ID.REQUEST_HISTORY;
-            payload[2] = (byte) Type.FLASH_SYNC_TYPE.SYNC_SUCCESS.ordinal();
+                payload[0] = (byte) 0x83;
+                payload[1] = (byte) ID.REQUEST_HISTORY;
+                payload[2] = (byte) Type.FLASH_SYNC_TYPE.SYNC_SUCCESS.ordinal();
 
-            splitCommand(payload);
+                splitCommand(payload);
+            }
             lock.unlock();
         }
     }
     public void CwmSyncFail(){
         if (lock.tryLock()) {
-            byte[] payload = new byte[3];
+            if(BleReceiver.hasLongTask == false) {
+                byte[] payload = new byte[3];
 
-            payload[0] = (byte) 0x83;
-            payload[1] = (byte) ID.REQUEST_HISTORY;
-            payload[2] = (byte) Type.FLASH_SYNC_TYPE.SYNC_FAIL.ordinal();
+                payload[0] = (byte) 0x83;
+                payload[1] = (byte) ID.REQUEST_HISTORY;
+                payload[2] = (byte) Type.FLASH_SYNC_TYPE.SYNC_FAIL.ordinal();
 
-            splitCommand(payload);
+                splitCommand(payload);
+            }
             lock.unlock();
         }
     }

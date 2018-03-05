@@ -5,6 +5,7 @@ import android.os.Handler;
 
 import cwm.wearablesdk.constants.ID;
 import cwm.wearablesdk.events.ErrorEvents;
+import cwm.wearablesdk.handler.BleReceiver;
 
 /**
  * Created by user on 2018/1/11.
@@ -18,7 +19,7 @@ public class LongTask implements Runnable {
     public static LongTask currentLongTask;
     public static Handler longTaskReceivedHandler = new Handler();
 
-    LongTask(int msgCmdType, int id){
+    public LongTask(int msgCmdType, int id){
         this.type = msgCmdType;
         this.id = id;
     }
@@ -30,11 +31,12 @@ public class LongTask implements Runnable {
     @Override
     public void run()
     {
-        QueueHandler.mPendingQueue.clear();
+        BleReceiver.mPendingQueue.clear();
         ErrorEvents errorEvents = new ErrorEvents();
         errorEvents.setErrorId(ID.PACKET_LOST);
         errorEvents.setMsgCmdType(type);
         errorEvents.setId(id);
         mManager.getErrorListener().onErrorArrival(errorEvents);
+        BleReceiver.hasLongTask = false;
     }
 }

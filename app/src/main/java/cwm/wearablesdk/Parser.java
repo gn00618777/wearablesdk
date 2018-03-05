@@ -20,6 +20,7 @@ import cwm.wearablesdk.events.AckEvents;
 import cwm.wearablesdk.events.CwmEvents;
 import cwm.wearablesdk.events.ErrorEvents;
 import cwm.wearablesdk.handler.AckHandler;
+import cwm.wearablesdk.handler.BleReceiver;
 import cwm.wearablesdk.settings.AlarmSetting;
 import cwm.wearablesdk.settings.BodySettings;
 import cwm.wearablesdk.settings.SystemSetting;
@@ -272,6 +273,7 @@ public class Parser {
                 switch (message_id){
                     case ID.USER_CONFIG_INFO:
                         LongTask.longTaskReceivedHandler.removeCallbacks(LongTask.currentLongTask);
+                        BleReceiver.hasLongTask = false;
                         cwmEvent = new CwmEvents();
                         cwmEvent.setMsgType(msg_type);
                         cwmEvent.setMessageID(message_id);
@@ -646,6 +648,7 @@ public class Parser {
                 switch (message_id) {
                     case ID.SLEEP_HISTORY:
                         LongTask.longTaskReceivedHandler.removeCallbacks(LongTask.currentLongTask);
+                        BleReceiver.hasLongTask = false;
                         Log.d("bernie","sdk sleep history");
                         startPos = 4;
                          int unit_sleep_log = 2;//byte
@@ -685,6 +688,7 @@ public class Parser {
                      case ID.LIFE_HISTORY:
                          Log.d("bernie","sdk life history");
                          LongTask.longTaskReceivedHandler.removeCallbacks(LongTask.currentLongTask);
+                         BleReceiver.hasLongTask = false;
                           byte[] lifeTemp = new byte[46];
                           byte[] fourByteTemp = new byte[4];
                           byte[] twoByteTemp = new byte[2];
