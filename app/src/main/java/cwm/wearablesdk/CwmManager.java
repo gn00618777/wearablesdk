@@ -399,6 +399,14 @@ public class CwmManager{
                     payload[0] = (byte) 0x86;
                     payload[1] = (byte) ID.MISSING_CALL;
                     splitCommand(payload);
+                    Log.d("bernie","sdk missing call");
+                    break;
+                case ID.PICK_UP:
+                    payload = new byte[2]; //message type + message id
+                    payload[0] = (byte) 0x86;
+                    payload[1] = (byte) ID.PICK_UP;
+                    splitCommand(payload);
+                    Log.d("bernie","sdk pick up call");
                     break;
                 default:
                     break;

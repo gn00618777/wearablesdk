@@ -50,6 +50,7 @@ public class ID {
     public static final int EMAIL = 0x03;
     public static final int NEWS = 0x04;
     public static final int MISSING_CALL = 0x05;
+    public static final int PICK_UP = 0x06;
 
     //Error Event
     public static final int NO_ACK = 0x01;
