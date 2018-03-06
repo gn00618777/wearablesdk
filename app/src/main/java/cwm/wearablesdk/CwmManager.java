@@ -419,6 +419,18 @@ public class CwmManager{
             lock.unlock();
         }
     }
+    public void CwmResetUserConfig(){
+        if(lock.tryLock()) {
+            byte[] payload = new byte[4];
+
+            payload[0] = (byte) 0x81; // command type
+            payload[1] = (byte) ID.RESET_USERCONFIG; // command id
+
+            splitCommand(payload);
+
+            lock.unlock();
+        }
+    }
     public void CwmSendUserConfig(UserConfig userConfig) {
         int osType = userConfig.getSystemSetting().getOsType();
         int timeFormat = userConfig.getSystemSetting().getTimeFormat();

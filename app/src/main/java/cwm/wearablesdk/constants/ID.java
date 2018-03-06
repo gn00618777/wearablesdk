@@ -21,6 +21,7 @@ public class ID {
     public static final int USER_CONFIG_INFO = 0x01;
     public static final int BATTERY_INFO = 0x02;
     public static final int DEVICE_VERSION_INFO = 0x03;
+    public static final int RESET_USERCONFIG = 0x05;
     public static final int UNBOND = 0x06;
 
     /*Factory Mode*/
