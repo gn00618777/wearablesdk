@@ -38,9 +38,10 @@ public class BleReceiver {
 
     public void receiveRawByte(byte[] rxBuffer)
     {
-        for(int i = 0 ; i < rxBuffer.length ; i++)
-           Log.d("bernie2",Integer.toHexString(rxBuffer[i] & 0xFF));
-        Log.d("bernie1","\n");
+       // Log.d("bernie","rxbuffer length:"+Integer.toString(rxBuffer.length));
+        //for(int i = 0 ; i < rxBuffer.length ; i++)
+           //Log.d("bernie2",Integer.toHexString(rxBuffer[rxBuffer.length-1] & 0xFF));
+        //Log.d("bernie1","\n");
         Payload data = mClassifier.classifyRawByteArray(rxBuffer);
 
         if(data.packet_type == 0xFF)
