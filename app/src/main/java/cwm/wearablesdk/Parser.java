@@ -730,17 +730,17 @@ public class Parser {
                                 System.arraycopy(lifeTemp, 25, twoByteTemp, 0, 2);
                                 notificationCount = ByteBuffer.wrap(twoByteTemp).order(ByteOrder.LITTLE_ENDIAN).getShort();
                                 System.arraycopy(lifeTemp, 27, fourByteTemp, 0, 4);
-                                displayOnTime = ByteBuffer.wrap(fourByteTemp).order(ByteOrder.LITTLE_ENDIAN).getInt();
+                                displayOnTime =ByteBuffer.wrap(fourByteTemp).order(ByteOrder.LITTLE_ENDIAN).getInt() & 0xFFFFFFFF;
                                 System.arraycopy(lifeTemp, 31, fourByteTemp, 0, 4);
                                 vibOnTime = ByteBuffer.wrap(fourByteTemp).order(ByteOrder.LITTLE_ENDIAN).getInt();
                                 System.arraycopy(lifeTemp, 35, twoByteTemp, 0, 2);
-                                bleSendCount = ByteBuffer.wrap(twoByteTemp).order(ByteOrder.LITTLE_ENDIAN).getShort();
+                                bleSendCount = ByteBuffer.wrap(twoByteTemp).order(ByteOrder.LITTLE_ENDIAN).getShort() & 0xFFFF ;
                                 System.arraycopy(lifeTemp, 37, twoByteTemp, 0, 2);
-                                bleReceivedCount = ByteBuffer.wrap(twoByteTemp).order(ByteOrder.LITTLE_ENDIAN).getShort();
+                                bleReceivedCount = ByteBuffer.wrap(twoByteTemp).order(ByteOrder.LITTLE_ENDIAN).getShort() & 0xFFFF;
                                 System.arraycopy(lifeTemp, 39, twoByteTemp, 0, 2);
-                                tpCount = ByteBuffer.wrap(twoByteTemp).order(ByteOrder.LITTLE_ENDIAN).getShort();
+                                tpCount = ByteBuffer.wrap(twoByteTemp).order(ByteOrder.LITTLE_ENDIAN).getShort() & 0xFFFF;
                                 System.arraycopy(lifeTemp, 41, fourByteTemp, 0, 4);
-                                tabataActionTime = ByteBuffer.wrap(fourByteTemp).order(ByteOrder.LITTLE_ENDIAN).getInt();
+                                tabataActionTime = ByteBuffer.wrap(fourByteTemp).order(ByteOrder.LITTLE_ENDIAN).getInt()  & 0xFFFFFFFF;
                                 handUpDownCount = lifeTemp[45] & 0xFF;
 
                               StringBuilder lifeString = new StringBuilder();
