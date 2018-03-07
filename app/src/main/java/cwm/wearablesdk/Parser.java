@@ -726,22 +726,25 @@ public class Parser {
                                 hearRate = (int) ByteBuffer.wrap(fourByteTemp).order(ByteOrder.LITTLE_ENDIAN).getFloat();
                                 System.arraycopy(lifeTemp, 20, fourByteTemp, 0, 4);
                                 sedentaryTriggerTime = ByteBuffer.wrap(fourByteTemp).order(ByteOrder.LITTLE_ENDIAN).getInt();
-                                batteryLevel = lifeTemp[24] & 0xFF;
-                                System.arraycopy(lifeTemp, 25, twoByteTemp, 0, 2);
-                                notificationCount = ByteBuffer.wrap(twoByteTemp).order(ByteOrder.LITTLE_ENDIAN).getShort();
-                                System.arraycopy(lifeTemp, 27, fourByteTemp, 0, 4);
-                                displayOnTime =ByteBuffer.wrap(fourByteTemp).order(ByteOrder.LITTLE_ENDIAN).getInt() & 0xFFFFFFFF;
-                                System.arraycopy(lifeTemp, 31, fourByteTemp, 0, 4);
-                                vibOnTime = ByteBuffer.wrap(fourByteTemp).order(ByteOrder.LITTLE_ENDIAN).getInt();
-                                System.arraycopy(lifeTemp, 35, twoByteTemp, 0, 2);
-                                bleSendCount = ByteBuffer.wrap(twoByteTemp).order(ByteOrder.LITTLE_ENDIAN).getShort() & 0xFFFF ;
-                                System.arraycopy(lifeTemp, 37, twoByteTemp, 0, 2);
-                                bleReceivedCount = ByteBuffer.wrap(twoByteTemp).order(ByteOrder.LITTLE_ENDIAN).getShort() & 0xFFFF;
-                                System.arraycopy(lifeTemp, 39, twoByteTemp, 0, 2);
+                                System.arraycopy(lifeTemp, 24, twoByteTemp, 0, 2);
                                 tpCount = ByteBuffer.wrap(twoByteTemp).order(ByteOrder.LITTLE_ENDIAN).getShort() & 0xFFFF;
-                                System.arraycopy(lifeTemp, 41, fourByteTemp, 0, 4);
+                                System.arraycopy(lifeTemp, 26, twoByteTemp, 0, 2);
+                                notificationCount = ByteBuffer.wrap(twoByteTemp).order(ByteOrder.LITTLE_ENDIAN).getShort();
+                                System.arraycopy(lifeTemp, 28, fourByteTemp, 0, 4);
+                                displayOnTime =ByteBuffer.wrap(fourByteTemp).order(ByteOrder.LITTLE_ENDIAN).getInt() & 0xFFFFFFFF;
+                                System.arraycopy(lifeTemp, 32, fourByteTemp, 0, 4);
+                                vibOnTime = ByteBuffer.wrap(fourByteTemp).order(ByteOrder.LITTLE_ENDIAN).getInt();
+                                System.arraycopy(lifeTemp, 36, twoByteTemp, 0, 2);
+                                bleSendCount = ByteBuffer.wrap(twoByteTemp).order(ByteOrder.LITTLE_ENDIAN).getShort() & 0xFFFF ;
+                                System.arraycopy(lifeTemp, 38, twoByteTemp, 0, 2);
+                                bleReceivedCount = ByteBuffer.wrap(twoByteTemp).order(ByteOrder.LITTLE_ENDIAN).getShort() & 0xFFFF;
+                                System.arraycopy(lifeTemp, 40, fourByteTemp, 0, 4);
                                 tabataActionTime = ByteBuffer.wrap(fourByteTemp).order(ByteOrder.LITTLE_ENDIAN).getInt()  & 0xFFFFFFFF;
+                                batteryLevel = lifeTemp[44] & 0xFF;
                                 handUpDownCount = lifeTemp[45] & 0xFF;
+
+
+
 
                               StringBuilder lifeString = new StringBuilder();
                               Log.d("bernie","sdk history timeStamp:"+Integer.toString(timeStamp));
