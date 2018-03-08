@@ -851,6 +851,32 @@ public class Parser {
                               cwmEvent.setMaxPackages(packetsNumber);
                           }
                     break;
+                    case ID.LOG_HISTORY:
+                        LongTask.longTaskReceivedHandler.removeCallbacks(LongTask.currentLongTask);
+                        BleReceiver.hasLongTask = false;
+                        byte[] newPacket = new byte[packet.length -3];
+                        System.arraycopy(packet, 3, newPacket, 0, (packet.length -3));
+
+                        try{
+                            File file = new File(Environment.getExternalStorageDirectory().toString() + "/Download/CwmLog.txt");
+                            FileWriter txt = new FileWriter(file, true);
+                            BufferedWriter bw = new BufferedWriter(txt);
+                            String log = new String(newPacket, "UTF-8");
+                            bw.write(log);
+                            bw.newLine();
+                            bw.close();
+                        }catch (IOException e){
+                            e.printStackTrace();
+                        }
+                        currentPackets+=1;
+                        cwmEvent = new CwmEvents();
+                        cwmEvent.setEventType(Type.EVENT);
+                        cwmEvent.setMsgType(msg_type);
+                        cwmEvent.setMessageID(message_id);
+                        cwmEvent.setCurrentPackages(currentPackets);
+                        Log.d("bernie","sdk log history packet max:"+Integer.toString(packetsNumber));
+                        cwmEvent.setMaxPackages(packetsNumber);
+                        break;
                     case ID.HISTORY_PACKAGES: //History length
                         byte[] lengthByte = new byte[4];
                         System.arraycopy(packet,3, lengthByte, 0, 4);
