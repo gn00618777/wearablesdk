@@ -614,16 +614,14 @@ public class Parser {
                         int tabataCaloris = (int)ByteBuffer.wrap(temp1).order(ByteOrder.LITTLE_ENDIAN).getFloat();
                         //Log.d("bernie","sdk calories: "+Integer.toString(tabataCaloris));
                         System.arraycopy(packet, 11, temp1, 0, 4);
-                        int tabataHeartStrength = (int)ByteBuffer.wrap(temp1).order(ByteOrder.LITTLE_ENDIAN).getFloat();
-                        //Log.d("bernie","sdk heartStrength: "+Integer.toString(tabataHeartStrength));
+                        int intialCode = (int)ByteBuffer.wrap(temp1).order(ByteOrder.LITTLE_ENDIAN).getFloat();
+                        Log.d("bernie","sdk intiaalCode: "+Integer.toString(intialCode));
 
                         int items = tabataData / 1000;
                         //Log.d("bernie","sdk items:"+Integer.toString(items));
                         int count = (tabataData % 1000);
                         int caloris = 0;
                         caloris = tabataCaloris;
-                        int heart = tabataHeartStrength /100;
-                        int strength = tabataHeartStrength % 100;
 
                         cwmEvent = new CwmEvents();
                         cwmEvent.setEventType(Type.EVENT);
@@ -632,8 +630,7 @@ public class Parser {
                         cwmEvent.setExerciseItem(items);
                         cwmEvent.setDoItemCount(count);
                         cwmEvent.setTabataCalories(caloris);
-                        cwmEvent.setTabataHeart(heart);
-                        cwmEvent.setStrength(strength);
+                        cwmEvent.setTabataInitialCode(intialCode);
 
                         break;
                     default:

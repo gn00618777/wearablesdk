@@ -88,7 +88,6 @@
    public int getDoItemCount();
    public int getExerciseItem();
     public int getTabataCalories();
-    public int getTabataHeart();
    public int getStrength();
    public float getVersion();
   public short[] getSleepLength();
@@ -120,6 +119,7 @@ public float[] getSensorGyroData();
  public cwm.wearablesdk.settings.SystemSetting getSystemSetting();
  public int getMaxMapPackages();
 public int getCurrentPackages();
+public int getTabataInitCode();
 }
 -keepclassmembers class cwm.wearablesdk.events.AckEvents{
 public *;

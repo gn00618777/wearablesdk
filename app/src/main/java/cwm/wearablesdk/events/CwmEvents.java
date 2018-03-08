@@ -47,11 +47,11 @@ public class CwmEvents{
     private float mVersion;
     private int mSelfTest;
     private int mCalibrateStatus;
-    private int mTabataHeartBeat;
     private int mMapId;
     private int mCurrentSize;
     private int mMaxPackages;
     private int mCurrentPackages;
+    private int mInitCode;
     private Bias mBias;
     private BodySettings mBody;
     private IntelligentSettings mIntelligent;
@@ -68,7 +68,6 @@ public class CwmEvents{
           mStepFreq = 0;
           mTabataCalories = 0;
           mStatus = 0;
-          mTabataHeartBeat = 0;
           mBattery = 0;
           mItem = 0;
           mItemCount = 0;
@@ -89,8 +88,6 @@ public class CwmEvents{
     }
 
     public void setId(int id){mId = id;}
-
-    public void setStrength(int strength){mStrength = strength;}
 
     public void setSleepCombined(byte[] value){this.value = value;}
     public void setSleepLogLength(int length){mLength = length;}
@@ -121,7 +118,6 @@ public class CwmEvents{
     public void setStepFreq(int freq){mStepFreq = freq;}
     public void setExerciseItem(int item){ mItem = item;}
     public void setDoItemCount(int count){mItemCount = count;}
-    public void setTabataHeart(int heart){mTabataHeartBeat = heart;}
     public void setTabataCalories(int calories){mTabataCalories = calories;}
     public void setBattery(int battery){mBattery = battery;}
     public void setVersion(float version){mVersion = version;}
@@ -137,6 +133,7 @@ public class CwmEvents{
     public void setErrorEvent(ErrorEvents event){mError = event;}
     public void setMaxPackages(int packages){mMaxPackages = packages;}
     public void setCurrentPackages(int packages){mCurrentPackages = packages;}
+    public void setTabataInitialCode(int code){mInitCode = code;}
 
     public void setBody(BodySettings body){
         mBody = body;
@@ -188,7 +185,6 @@ public class CwmEvents{
     }
     public int getDoItemCount(){return mItemCount;}
     public int getTabataCalories(){return mTabataCalories;}
-    public int getTabataHeart(){return mTabataHeartBeat;}
     public int getSelfTestResult(){return mSelfTest;}
     public int getCalibrateStatus(){return mCalibrateStatus;}
     public int getCurrentMapSize(){return mCurrentSize;}
@@ -197,6 +193,7 @@ public class CwmEvents{
     public ErrorEvents getErrorEvent(){return mError;}
     public int getMaxMapPackages(){return mMaxPackages;}
     public int getCurrentPackages(){return mCurrentPackages;}
+    public int getTabataInitCode(){return mInitCode;}
 
     public Bias getBias(){return mBias;}
     public BodySettings getBody(){return mBody;}
