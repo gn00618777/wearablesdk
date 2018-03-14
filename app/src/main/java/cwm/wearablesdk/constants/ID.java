@@ -14,6 +14,7 @@ public class ID {
     public static final int SEDENTARY_RESPONSE_MESSAGE = 0x13;
     public static final int ACTIVITY_PEDOMETER_DATA_REPORT_MESSAGE = 0x14;
     public static final int TABATA_RESPONSE_MESSAGE = 0x15;
+    public static final int SPORT_RESPONSE_MESSAGE = 0x20;
     public static final int ACK = 0x7F;
     public static final int NACK = 0xFF;
 

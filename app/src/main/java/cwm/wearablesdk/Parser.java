@@ -633,6 +633,24 @@ public class Parser {
                         cwmEvent.setTabataInitialCode(intialCode);
 
                         break;
+
+                    case ID.SPORT_RESPONSE_MESSAGE:
+                        System.arraycopy(packet, 4, temp1, 0, 4);
+                        int stepCount = (int)ByteBuffer.wrap(temp1).order(ByteOrder.LITTLE_ENDIAN).getFloat();
+                        System.arraycopy(packet, 8, temp1, 0, 4);
+                        int stepFrequncy = (int)ByteBuffer.wrap(temp1).order(ByteOrder.LITTLE_ENDIAN).getFloat();
+                        System.arraycopy(packet, 12, temp1, 0, 4);
+                        int sportHeart = (int)ByteBuffer.wrap(temp1).order(ByteOrder.LITTLE_ENDIAN).getFloat();
+
+                        cwmEvent = new CwmEvents();
+                        cwmEvent.setEventType(Type.EVENT);
+                        cwmEvent.setMsgType(msg_type);
+                        cwmEvent.setMessageID(message_id);
+                        cwmEvent.setStepCount(stepCount);
+                        cwmEvent.setStepFreq(stepFrequncy);
+                        cwmEvent.setHeartSensor(sportHeart);
+
+                        break;
                     default:
                         break;
                 }

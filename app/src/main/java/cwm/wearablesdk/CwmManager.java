@@ -21,6 +21,7 @@ import android.widget.Toast;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.util.Date;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -938,14 +939,21 @@ public class CwmManager{
             }
         }
     }
-    public void CwmEnableRun(int enabled){
+    public void CwmEnableRun(int cmd, float para){
+        byte[] floatArray;
         if(lock.tryLock()) {
-            byte[] payload = new byte[3];
+            byte[] payload = new byte[7];
 
             payload[0] = (byte) 0x82; // command type : Switch OTA
             payload[1] = (byte) 0x20; // command id : request device version
-            payload[2] = (byte) enabled;
-
+            payload[2] = (byte) cmd;
+            if(cmd == 0x01 || cmd == 0x02){
+                floatArray = ByteBuffer.allocate(4).putFloat(para).array();
+                payload[3] = floatArray[0];
+                payload[4] = floatArray[1];
+                payload[5] = floatArray[2];
+                payload[6] = floatArray[3];
+            }
             splitCommand(payload);
             lock.unlock();
         }
