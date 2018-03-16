@@ -607,21 +607,18 @@ public class Parser {
 
                         break;
                     case ID.TABATA_RESPONSE_MESSAGE:
-                        System.arraycopy(packet, 3, temp1, 0, 4);
-                        int tabataData = (int)ByteBuffer.wrap(temp1).order(ByteOrder.LITTLE_ENDIAN).getFloat();
-                        //Log.d("bernie","sdk item count: "+Integer.toString(tabataData));
+                        int items = packet[3] & 0xFF;
+                        Log.d("bernie","sdk item: "+Integer.toString(items));
+                        int initialCode = packet[4] & 0xFF;
+                        Log.d("bernie","sdk initial code:"+Integer.toString(initialCode));
+                        int count = packet[5] & 0xFF;
+                        Log.d("bernie","sdk count:"+Integer.toString(count));
                         System.arraycopy(packet, 7, temp1, 0, 4);
-                        int tabataCaloris = (int)ByteBuffer.wrap(temp1).order(ByteOrder.LITTLE_ENDIAN).getFloat();
-                        //Log.d("bernie","sdk calories: "+Integer.toString(tabataCaloris));
+                        int strength = (int)ByteBuffer.wrap(temp1).order(ByteOrder.LITTLE_ENDIAN).getFloat();
+                        Log.d("bernie","sdk strength: "+Integer.toString(strength));
                         System.arraycopy(packet, 11, temp1, 0, 4);
-                        int intialCode = (int)ByteBuffer.wrap(temp1).order(ByteOrder.LITTLE_ENDIAN).getFloat();
-                        Log.d("bernie","sdk intiaalCode: "+Integer.toString(intialCode));
-
-                        int items = tabataData / 1000;
-                        //Log.d("bernie","sdk items:"+Integer.toString(items));
-                        int count = (tabataData % 1000);
-                        int caloris = 0;
-                        caloris = tabataCaloris;
+                        int tabataCaloris = (int)ByteBuffer.wrap(temp1).order(ByteOrder.LITTLE_ENDIAN).getFloat();
+                        Log.d("bernie","sdk calories: "+Integer.toString(tabataCaloris));
 
                         cwmEvent = new CwmEvents();
                         cwmEvent.setEventType(Type.EVENT);
@@ -629,8 +626,9 @@ public class Parser {
                         cwmEvent.setMessageID(message_id);
                         cwmEvent.setExerciseItem(items);
                         cwmEvent.setDoItemCount(count);
-                        cwmEvent.setTabataCalories(caloris);
-                        cwmEvent.setTabataInitialCode(intialCode);
+                        cwmEvent.setTabataCalories(tabataCaloris);
+                        cwmEvent.setTabataInitialCode(initialCode);
+                        cwmEvent.setStrength(strength);
 
                         break;
 

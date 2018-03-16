@@ -134,6 +134,7 @@ public class CwmEvents{
     public void setMaxPackages(int packages){mMaxPackages = packages;}
     public void setCurrentPackages(int packages){mCurrentPackages = packages;}
     public void setTabataInitialCode(int code){mInitCode = code;}
+    public void setStrength(int strength){mStrength = strength;}
 
     public void setBody(BodySettings body){
         mBody = body;
