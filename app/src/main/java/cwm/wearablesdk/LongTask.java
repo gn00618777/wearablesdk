@@ -2,6 +2,7 @@ package cwm.wearablesdk;
 
 import android.content.Intent;
 import android.os.Handler;
+import android.util.Log;
 
 import cwm.wearablesdk.constants.ID;
 import cwm.wearablesdk.events.ErrorEvents;
@@ -36,7 +37,7 @@ public class LongTask implements Runnable {
         errorEvents.setErrorId(ID.PACKET_LOST);
         errorEvents.setMsgCmdType(type);
         errorEvents.setId(id);
-        mManager.getErrorListener().onErrorArrival(errorEvents);
         BleReceiver.hasLongTask = false;
+        mManager.getErrorListener().onErrorArrival(errorEvents);
     }
 }

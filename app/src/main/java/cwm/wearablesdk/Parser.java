@@ -909,6 +909,13 @@ public class Parser {
                         cwmEvent.setMsgType(msg_type);
                         cwmEvent.setMessageID(message_id);
                         break;
+
+                    case ID.SYNC_ABORTED:
+                        cwmEvent = new CwmEvents();
+                        cwmEvent.setEventType(Type.EVENT);
+                        cwmEvent.setMsgType(msg_type);
+                        cwmEvent.setMessageID(message_id);
+                        break;
                 }
 
 

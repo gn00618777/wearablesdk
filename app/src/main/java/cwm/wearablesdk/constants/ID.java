@@ -66,6 +66,7 @@ public class ID {
     public static final int SLEEP_HISTORY = 0x01;
     public static final int LIFE_HISTORY = 0x02;
     public static final int LOG_HISTORY = 0x04;
+    public static final int SYNC_ABORTED = 0x05;
 
     /*History*/
     //message id
