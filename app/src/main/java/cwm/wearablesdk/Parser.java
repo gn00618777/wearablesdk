@@ -702,15 +702,17 @@ public class Parser {
                          Log.d("bernie","sdk life history");
                          LongTask.longTaskReceivedHandler.removeCallbacks(LongTask.currentLongTask);
                          BleReceiver.hasLongTask = false;
-                          byte[] lifeTemp = new byte[46];
+                          byte[] lifeTemp = new byte[56];
                           byte[] fourByteTemp = new byte[4];
                           byte[] twoByteTemp = new byte[2];
-                          int unit_life_data = 46;
+                          int unit_life_data = 56;
                           int timeStamp = 0;
                           float stepCount = 0;
                           float distance = 0;
                           float calorie = 0;
                           float hearRate = 0;
+                          float minHeartRate = 0;
+                          float maxHeartRate = 0;
                           int sedentaryTriggerTime = 0;
                           int batteryLevel = 0;
                           int notificationCount = 0;
@@ -792,23 +794,27 @@ public class Parser {
                                 System.arraycopy(lifeTemp, 16, fourByteTemp, 0, 4);
                                 hearRate = (int) ByteBuffer.wrap(fourByteTemp).order(ByteOrder.LITTLE_ENDIAN).getFloat();
                                 System.arraycopy(lifeTemp, 20, fourByteTemp, 0, 4);
-                                sedentaryTriggerTime = ByteBuffer.wrap(fourByteTemp).order(ByteOrder.LITTLE_ENDIAN).getInt();
-                                System.arraycopy(lifeTemp, 24, twoByteTemp, 0, 2);
-                                tpCount = ByteBuffer.wrap(twoByteTemp).order(ByteOrder.LITTLE_ENDIAN).getShort() & 0xFFFF;
-                                System.arraycopy(lifeTemp, 26, twoByteTemp, 0, 2);
-                                notificationCount = ByteBuffer.wrap(twoByteTemp).order(ByteOrder.LITTLE_ENDIAN).getShort();
+                                minHeartRate =  ByteBuffer.wrap(fourByteTemp).order(ByteOrder.LITTLE_ENDIAN).getFloat();
+                                System.arraycopy(lifeTemp, 24, fourByteTemp, 0, 4);
+                                maxHeartRate =  ByteBuffer.wrap(fourByteTemp).order(ByteOrder.LITTLE_ENDIAN).getFloat();
                                 System.arraycopy(lifeTemp, 28, fourByteTemp, 0, 4);
+                                sedentaryTriggerTime = ByteBuffer.wrap(fourByteTemp).order(ByteOrder.LITTLE_ENDIAN).getInt();
+                                System.arraycopy(lifeTemp, 32, twoByteTemp, 0, 2);
+                                tpCount = ByteBuffer.wrap(twoByteTemp).order(ByteOrder.LITTLE_ENDIAN).getShort() & 0xFFFF;
+                                System.arraycopy(lifeTemp, 34, twoByteTemp, 0, 2);
+                                notificationCount = ByteBuffer.wrap(twoByteTemp).order(ByteOrder.LITTLE_ENDIAN).getShort();
+                                System.arraycopy(lifeTemp, 36, fourByteTemp, 0, 4);
                                 displayOnTime =ByteBuffer.wrap(fourByteTemp).order(ByteOrder.LITTLE_ENDIAN).getInt() & 0xFFFFFFFF;
-                                System.arraycopy(lifeTemp, 32, fourByteTemp, 0, 4);
-                                vibOnTime = ByteBuffer.wrap(fourByteTemp).order(ByteOrder.LITTLE_ENDIAN).getInt();
-                                System.arraycopy(lifeTemp, 36, twoByteTemp, 0, 2);
-                                bleSendCount = ByteBuffer.wrap(twoByteTemp).order(ByteOrder.LITTLE_ENDIAN).getShort() & 0xFFFF ;
-                                System.arraycopy(lifeTemp, 38, twoByteTemp, 0, 2);
-                                bleReceivedCount = ByteBuffer.wrap(twoByteTemp).order(ByteOrder.LITTLE_ENDIAN).getShort() & 0xFFFF;
                                 System.arraycopy(lifeTemp, 40, fourByteTemp, 0, 4);
+                                vibOnTime = ByteBuffer.wrap(fourByteTemp).order(ByteOrder.LITTLE_ENDIAN).getInt();
+                                System.arraycopy(lifeTemp, 44, twoByteTemp, 0, 2);
+                                bleSendCount = ByteBuffer.wrap(twoByteTemp).order(ByteOrder.LITTLE_ENDIAN).getShort() & 0xFFFF ;
+                                System.arraycopy(lifeTemp, 46, twoByteTemp, 0, 2);
+                                bleReceivedCount = ByteBuffer.wrap(twoByteTemp).order(ByteOrder.LITTLE_ENDIAN).getShort() & 0xFFFF;
+                                System.arraycopy(lifeTemp, 48, fourByteTemp, 0, 4);
                                 tabataActionTime = ByteBuffer.wrap(fourByteTemp).order(ByteOrder.LITTLE_ENDIAN).getInt()  & 0xFFFFFFFF;
-                                batteryLevel = lifeTemp[44] & 0xFF;
-                                handUpDownCount = lifeTemp[45] & 0xFF;
+                                batteryLevel = lifeTemp[52] & 0xFF;
+                                handUpDownCount = lifeTemp[53] & 0xFF;
 
 
 
@@ -819,6 +825,8 @@ public class Parser {
                               Log.d("bernie","sdk history distance:" +Float.toString(distance));
                               Log.d("bernie","sdk history calories: " + Float.toString(calorie));
                               Log.d("bernie","sdk history heartRate:" + Float.toString(hearRate));
+                              Log.d("bernie","sdk history minHeartRate:" + Float.toString(minHeartRate));
+                              Log.d("bernie","sdk history maxHeartRate:" + Float.toString(maxHeartRate));
                               Log.d("bernie","sdk history sedentaryTriggerTime:" +Integer.toString(sedentaryTriggerTime));
                               Log.d("bernie","sdk history battleLevel:" +Integer.toString(batteryLevel));
                               Log.d("bernie","sdk history notify count:" +Integer.toString(notificationCount));
@@ -834,6 +842,8 @@ public class Parser {
                               lifeString.append(" history distance:" +Float.toString(distance)+"\n");
                               lifeString.append(" history calories: " + Float.toString(calorie)+"\n");
                               lifeString.append(" history heartRate:" + Float.toString(hearRate)+"\n");
+                              lifeString.append(" history minHeartRate:" + Float.toString(minHeartRate)+"\n");
+                              lifeString.append(" history maxHeartRate:" + Float.toString(maxHeartRate)+"\n");
                               lifeString.append(" history sedentaryTriggerTime:" +Integer.toString(sedentaryTriggerTime)+"\n");
                               lifeString.append(" history battleLevel:" +Integer.toString(batteryLevel)+"\n");
                               lifeString.append(" history notify count:" +Integer.toString(notificationCount)+"\n");
