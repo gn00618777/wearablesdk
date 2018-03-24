@@ -1,7 +1,6 @@
 package cwm.wearablesdk;
 
 import android.os.Environment;
-import android.os.MemoryFile;
 import android.util.Log;
 
 import java.io.BufferedWriter;
@@ -10,9 +9,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.nio.CharBuffer;
-import java.nio.charset.Charset;
-import java.util.FormatFlagsConversionMismatchException;
 
 import cwm.wearablesdk.constants.ID;
 import cwm.wearablesdk.constants.Type;
@@ -31,8 +27,6 @@ import cwm.wearablesdk.settings.IntelligentSettings;
  */
 
 public class Parser {
-
-    private CwmManager cwmManager;
     private AckHandler mAckHandler;
     final static float M_PI = 3.14159265358979323846f;
     final static float GYRO_CONVERT_2000DPS = (float)(M_PI/((float)16.4 * (float)180));
@@ -45,198 +39,9 @@ public class Parser {
     int packetsNumber = 0;
     int currentPackets = 0;
 
-    public enum DataType{
-        CALIBRATION,
-        OLED_PAGE,
-        PEDOMETER,
-        SLEEP,
-        EXERCISE,
-        HEART_RATE,
-        DEBUG_LOG,
-        BMI160,
-        DEBUG_MSG,
-        NUM_OF_DATATYPES
-    }
-    final  int dataTypeByte = 5;
-    final  int dataStart = 6;
-
-    public Parser(CwmManager manager){
-        cwmManager = manager;
+    public Parser(){
         mAckHandler = new AckHandler();
     }
-
-    /*public void parseFlashInformation(Data aPackage){
-        int packageLength = aPackage.getLength();
-        byte[] value = aPackage.getValue();
-        int dataType = (int)value[dataTypeByte];
-        byte[] timeTemp = new byte[4];
-        byte[] elementTemp = new byte[2];
-        int timeStamp;
-        short element;
-        float n_element;
-        if(dataType == DataType.BMI160.ordinal()) {
-            StringBuilder builder = new StringBuilder();
-
-                for (int i = dataStart; i <= (packageLength - 17); i += 16) {
-                    System.arraycopy(value, i, timeTemp, 0, 4);
-                    timeStamp = ByteBuffer.wrap(timeTemp).order(ByteOrder.LITTLE_ENDIAN).getInt();
-                    builder.append("BMI16 ");
-                    builder.append(Integer.toString(timeStamp & 0xFFFFFFFF) + ",");
-
-                    System.arraycopy(value, i + 4, elementTemp, 0, 2);
-                    element = ByteBuffer.wrap(elementTemp).order(ByteOrder.LITTLE_ENDIAN).getShort();
-                    n_element = ((float) element) * ACC_RANGE_16G_CONVERT;
-
-                    builder.append(Float.toString(n_element) + ",");
-
-                    System.arraycopy(value, i + 6, elementTemp, 0, 2);
-                    element = ByteBuffer.wrap(elementTemp).order(ByteOrder.LITTLE_ENDIAN).getShort();
-                    n_element = ((float) element) * ACC_RANGE_16G_CONVERT;
-
-                    builder.append(Float.toString(n_element) + ",");
-
-                    System.arraycopy(value, i + 8, elementTemp, 0, 2);
-                    element = ByteBuffer.wrap(elementTemp).order(ByteOrder.LITTLE_ENDIAN).getShort();
-                    n_element = ((float) element) * ACC_RANGE_16G_CONVERT;
-
-                    builder.append(Float.toString(n_element) + ",");
-
-                    System.arraycopy(value, i + 10, elementTemp, 0, 2);
-                    element = ByteBuffer.wrap(elementTemp).order(ByteOrder.LITTLE_ENDIAN).getShort();
-                    n_element = ((float) element) * GYRO_CONVERT_2000DPS;
-                    builder.append(n_element + ",");
-
-                    System.arraycopy(value, i + 12, elementTemp, 0, 2);
-                    element = ByteBuffer.wrap(elementTemp).order(ByteOrder.LITTLE_ENDIAN).getShort();
-                    n_element = ((float) element) * GYRO_CONVERT_2000DPS;
-                    builder.append(n_element + ",");
-
-                    System.arraycopy(value, i + 14, elementTemp, 0, 2);
-                    element = ByteBuffer.wrap(elementTemp).order(ByteOrder.LITTLE_ENDIAN).getShort();
-                    n_element = ((float) element) * GYRO_CONVERT_2000DPS;
-                    builder.append(n_element + "\n");
-                }
-            try {
-                File file = new File(Environment.getExternalStorageDirectory().toString() + "/Download/CwmLog.txt");
-                FileWriter txt = new FileWriter(file, true);
-                BufferedWriter bw = new BufferedWriter(txt);
-                bw.write(builder.toString());
-                bw.newLine();
-                bw.close();
-            } catch (IOException e){
-                e.printStackTrace();
-            }
-
-        }
-        else if(dataType == DataType.DEBUG_MSG.ordinal()) {
-            try{
-            File file = new File(Environment.getExternalStorageDirectory().toString() + "/Download/CwmLog.txt");
-            FileWriter txt = new FileWriter(file, true);
-            BufferedWriter bw = new BufferedWriter(txt);
-            String log = new String(aPackage.getValue(), "UTF-8");
-            bw.write(log);
-            bw.newLine();
-            bw.close();
-            }catch (IOException e){
-                e.printStackTrace();
-            }
-        }
-    }*/
-    /*public CwmEvents getInfomation(int messageId, byte[] value){
-        if(messageId == ID.TABATA_EVENT_MESSAGE_ID){
-            int[] output = new int[6];
-            int items = 0;
-            int count = 0;
-            int calories = 0;
-            int heartRate = 0;
-            int strength = 0;
-            int status = 0;
-
-            CwmEvents cwmEvents = new CwmEvents();
-            cwmEvents.setId(ID.TABATA_EVENT_MESSAGE_ID);
-            /***************************************************************/
-          /*  CwmManager.jniMgr.getCwmInformation(ID.TABATA_EVENT_MESSAGE_ID, value, output);
-            /***************************************************************/
-            /*items = output[0];
-            count = output[1];
-            calories = output[2];
-            heartRate = output[3];
-            strength = output[4];
-            status = output[5];
-
-            cwmEvents.setExerciseItem(items);
-            cwmEvents.setDoItemCount(count);
-            cwmEvents.setCalories(calories);
-            cwmEvents.setHeartBeat(heartRate);
-            cwmEvents.setStrength(strength);
-            cwmEvents.setTabataStatus(status);
-
-            return cwmEvents;
-
-        } else if(messageId == ID.SLEEP_REPORT_MESSAGE_ID){
-            int startPos = 5;
-            int unit_sleep_log = 4;//byte
-            int checksum_byte = 1;//byte
-            int endPos = value.length -1 - checksum_byte;
-            int dataLength = endPos - startPos +1;
-            int j = 0;
-
-            float[] output = new float[dataLength/unit_sleep_log];
-            int[] convert = new int[dataLength/unit_sleep_log];
-            byte[] temp = new byte[unit_sleep_log];
-            /***************************************************************/
-            //jniMgr.getCwmSleepInfomation(SLEEP_REPORT_MESSAGE_ID,value,output);
-            /***************************************************************/
-           /* for(int i = startPos ; i <= endPos; i+=unit_sleep_log) {
-                System.arraycopy(value, i, temp, 0, unit_sleep_log);
-                convert[j] = ByteBuffer.wrap(temp).order(ByteOrder.LITTLE_ENDIAN).getInt();
-                j++;
-            }
-            CwmEvents cwmEvents = new CwmEvents();
-            cwmEvents.setId(ID.SLEEP_REPORT_MESSAGE_ID);
-            cwmEvents.setSleepLogLength(value.length);
-            cwmEvents.setSleepCombined(value);
-            cwmEvents.setSleepParser(convert);
-            cwmEvents.setParserLength(convert.length);
-
-            return cwmEvents;
-        }
-        else if(messageId == ID.READ_FLASH_COMMAND_ID){
-            CwmEvents cwmEvents = new CwmEvents();
-            cwmEvents.setId(ID.READ_FLASH_COMMAND_ID);
-            cwmEvents.setFlashSyncStatus(value[5] & 0xFF);
-            return cwmEvents;
-        }
-        else if(messageId == ID.RECEIVED_FLASH_COMMAND_ID){
-            CwmEvents cwmEvents = new CwmEvents();
-            cwmEvents.setId(ID.RECEIVED_FLASH_COMMAND_ID);
-            return cwmEvents;
-        }
-        else if(messageId == ID.REQUEST_MAX_LOG_PACKETS_ID){
-            byte[] temp = new byte[4];
-            int max_packets = 0;
-            System.arraycopy(value, 9, temp, 0, 4);
-            max_packets = ByteBuffer.wrap(temp).order(ByteOrder.LITTLE_ENDIAN).getInt();
-            CwmEvents cwmEvents = new CwmEvents();
-            cwmEvents.setId(ID.REQUEST_MAX_LOG_PACKETS_ID);
-            cwmEvents.setMaxByte(max_packets);
-            return cwmEvents;
-        }
-        else if(messageId == ID.REQUEST_ERASE_EVENT_MESSAGE_ID){
-            int[] output = new int[1];
-            CwmEvents cwmEvents = new CwmEvents();
-            cwmEvents.setId(ID.REQUEST_ERASE_EVENT_MESSAGE_ID);
-            CwmManager.jniMgr.getCwmInformation(ID.REQUEST_ERASE_EVENT_MESSAGE_ID,value,output);
-            cwmEvents.setEraseProgress(output[0]);
-            return cwmEvents;
-        }
-        else if(messageId == ID.CALIBRATE_DONE_MESSAGE_ID){
-            CwmEvents cwmEvents = new CwmEvents();
-            cwmEvents.setId(ID.CALIBRATE_DONE_MESSAGE_ID);
-            return cwmEvents;
-        }
-        return null;
-    }*/
 
     public CwmEvents parsePayload(Payload data){
         int msg_type = data.getMsgCmdType();
@@ -480,8 +285,6 @@ public class Parser {
                         Log.d("bernie","sdk alarm5 week:"+Integer.toString(alarm5Week)+" vib:"+Integer.toString(alarm5Vib)+" hour:"+Integer.toString(alarm5Hour)+" minute:"+Integer.toString(alarm5Minute));
                         Log.d("bernie","sdk alarm6 week:"+Integer.toString(alarm6Week)+" vib:"+Integer.toString(alarm6Vib)+" hour:"+Integer.toString(alarm6Hour)+" minute:"+Integer.toString(alarm6Minute));
 
-
-
                         //for(int i = 0 ; i < packet.length ; i++ )
                          //   Log.d("bernie varify", "i: "+Integer.toString(i)+" "+Integer.toHexString(packet[i] & 0xFF));
 
@@ -572,12 +375,6 @@ public class Parser {
 
                         break;
                     case ID.WRIST_SCROLL_EVENT_RESPONSE_MESSAGE:
-                        cwmEvent = new CwmEvents();
-                        cwmEvent.setEventType(Type.EVENT);
-                        cwmEvent.setMsgType(msg_type);
-                        cwmEvent.setMessageID(message_id);
-
-                        break;
                     case ID.SEDENTARY_RESPONSE_MESSAGE:
                         cwmEvent = new CwmEvents();
                         cwmEvent.setEventType(Type.EVENT);
@@ -726,62 +523,9 @@ public class Parser {
                           int tabataActionTime = 0;
                           int handUpDownCount = 0;
                           startPos = 4;
-                       /*  Log.d("bernie","parse packet length:"+Integer.toString(packet.length));
-                         Log.d("bernie","packet[0]:"+Integer.toHexString(packet[0] & 0xFF));
-                         Log.d("bernie","packet[1]:"+Integer.toHexString(packet[1] & 0xFF));
-                         Log.d("bernie","packet[2]:"+Integer.toHexString(packet[2] & 0xFF));
-                         Log.d("bernie","packet[3]:"+Integer.toHexString(packet[3] & 0xFF));
-                         Log.d("bernie","packet[4]:"+Integer.toHexString(packet[4] & 0xFF));
-                         Log.d("bernie","packet[5]:"+Integer.toHexString(packet[5] & 0xFF));
-                         Log.d("bernie","packet[6]:"+Integer.toHexString(packet[6] & 0xFF));
-                         Log.d("bernie","packet[7]:"+Integer.toHexString(packet[7] & 0xFF));
-                         Log.d("bernie","packet[8]:"+Integer.toHexString(packet[8] & 0xFF));
-                         Log.d("bernie","packet[9]:"+Integer.toHexString(packet[9] & 0xFF));
-                         Log.d("bernie","packet[10]:"+Integer.toHexString(packet[10] & 0xFF));
-                         Log.d("bernie","packet[11]:"+Integer.toHexString(packet[11] & 0xFF));
-                         Log.d("bernie","packet[12]:"+Integer.toHexString(packet[12] & 0xFF));
-                         Log.d("bernie","packet[13]:"+Integer.toHexString(packet[13] & 0xFF));
-                         Log.d("bernie","packet[14]:"+Integer.toHexString(packet[14] & 0xFF));
-                         Log.d("bernie","packet[15]:"+Integer.toHexString(packet[15] & 0xFF));
-                         Log.d("bernie","packet[16]:"+Integer.toHexString(packet[16] & 0xFF));
-                         Log.d("bernie","packet[17]:"+Integer.toHexString(packet[17] & 0xFF));
-                         Log.d("bernie","packet[18]:"+Integer.toHexString(packet[18] & 0xFF));
-                         Log.d("bernie","packet[19]:"+Integer.toHexString(packet[19] & 0xFF));
-                         Log.d("bernie","packet[20]:"+Integer.toHexString(packet[20] & 0xFF));
-                         Log.d("bernie","packet[21]:"+Integer.toHexString(packet[21] & 0xFF));
-                         Log.d("bernie","packet[22]:"+Integer.toHexString(packet[22] & 0xFF));
-                         Log.d("bernie","packet[23]:"+Integer.toHexString(packet[23] & 0xFF));
-                         Log.d("bernie","packet[24]:"+Integer.toHexString(packet[24] & 0xFF));
-                         Log.d("bernie","packet[25]:"+Integer.toHexString(packet[25] & 0xFF));
-                         Log.d("bernie","packet[26]:"+Integer.toHexString(packet[26] & 0xFF));
-                         Log.d("bernie","packet[27]:"+Integer.toHexString(packet[27] & 0xFF));
-                         Log.d("bernie","packet[28]:"+Integer.toHexString(packet[28] & 0xFF));
-                         Log.d("bernie","packet[29]:"+Integer.toHexString(packet[29] & 0xFF));
-                         Log.d("bernie","packet[30]:"+Integer.toHexString(packet[30] & 0xFF));
-                         Log.d("bernie","packet[31]:"+Integer.toHexString(packet[31] & 0xFF));
-                         Log.d("bernie","packet[32]:"+Integer.toHexString(packet[32] & 0xFF));
-                         Log.d("bernie","packet[33]:"+Integer.toHexString(packet[33] & 0xFF));
-                         Log.d("bernie","packet[34]:"+Integer.toHexString(packet[34] & 0xFF));
-                         Log.d("bernie","packet[35]:"+Integer.toHexString(packet[35] & 0xFF));
-                         Log.d("bernie","packet[36]:"+Integer.toHexString(packet[36] & 0xFF));
-                         Log.d("bernie","packet[37]:"+Integer.toHexString(packet[37] & 0xFF));
-                         Log.d("bernie","packet[38]:"+Integer.toHexString(packet[38] & 0xFF));
-                         Log.d("bernie","packet[39]:"+Integer.toHexString(packet[39] & 0xFF));
-                         Log.d("bernie","packet[40]:"+Integer.toHexString(packet[40] & 0xFF));
-                         Log.d("bernie","packet[41]:"+Integer.toHexString(packet[41] & 0xFF));
-                         Log.d("bernie","packet[42]:"+Integer.toHexString(packet[42] & 0xFF));
-                         Log.d("bernie","packet[43]:"+Integer.toHexString(packet[43] & 0xFF));
-                         Log.d("bernie","packet[44]:"+Integer.toHexString(packet[44] & 0xFF));
-                         Log.d("bernie","packet[45]:"+Integer.toHexString(packet[45] & 0xFF));
-                         Log.d("bernie","packet[46]:"+Integer.toHexString(packet[46] & 0xFF));
-                         Log.d("bernie","packet[47]:"+Integer.toHexString(packet[47] & 0xFF));
-                         Log.d("bernie","packet[48]:"+Integer.toHexString(packet[48] & 0xFF));
-                         Log.d("bernie","packet[49]:"+Integer.toHexString(packet[49] & 0xFF));
-                         Log.d("bernie","packet[50]:"+Integer.toHexString(packet[50] & 0xFF));
-                         Log.d("bernie","packet[51]:"+Integer.toHexString(packet[51] & 0xFF));
-                         Log.d("bernie","packet[52]:"+Integer.toHexString(packet[52] & 0xFF));*/
+
                           endPos = packet.length - (unit_life_data + 1); //1: checksum byte
-                          int packetLength = (packet[0] & 0xFF) | (packet[1] << 8);
+
                           for (int i = startPos; i <= endPos; i += unit_life_data) {
                                System.arraycopy(packet, i, lifeTemp, 0, unit_life_data);
 
@@ -817,9 +561,6 @@ public class Parser {
                                 tabataActionTime = ByteBuffer.wrap(fourByteTemp).order(ByteOrder.LITTLE_ENDIAN).getInt()  & 0xFFFFFFFF;
                                 batteryLevel = lifeTemp[52] & 0xFF;
                                 handUpDownCount = lifeTemp[53] & 0xFF;
-
-
-
 
                               StringBuilder lifeString = new StringBuilder();
                               Log.d("bernie","sdk history timeStamp:"+Integer.toString(timeStamp));
@@ -1015,19 +756,9 @@ public class Parser {
                         cwmEvent.setCurrentSize(CwmManager.currentMapSize);
                         //cwmEvents.setMaxSize((int)CwmManager.bitMapLength);
                         break;
-
                 }
                 break;
         }
         return cwmEvent;
-    }
-    private char[] getChars (byte[] bytes) {
-        Charset cs = Charset.forName ("UTF-8");
-        ByteBuffer bb = ByteBuffer.allocate (bytes.length);
-        bb.put (bytes);
-        bb.flip ();
-        CharBuffer cb = cs.decode (bb);
-
-        return cb.array();
     }
 }

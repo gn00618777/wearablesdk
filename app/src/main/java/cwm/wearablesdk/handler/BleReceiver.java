@@ -32,7 +32,7 @@ public class BleReceiver {
    public BleReceiver(CwmManager manager){
         mCwmManager = manager;
         mClassifier = new Classifier();
-        mParser = new Parser(mCwmManager);
+        mParser = new Parser();
         mValifier = new Valifier();
     }
 
