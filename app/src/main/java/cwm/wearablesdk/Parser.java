@@ -696,6 +696,8 @@ public class Parser {
                         cwmEvent.setMessageID(message_id);
                         cwmEvent.setCurrentPackages(currentPackets);
                         cwmEvent.setMaxPackages(packetsNumber);
+                        if(currentPackets == packetsNumber)
+                            currentPackets = 0;
                         //cwmEvent.setSleepParser(convert);
                      break;
                      case ID.LIFE_HISTORY:
@@ -872,6 +874,8 @@ public class Parser {
                               cwmEvent.setMessageID(message_id);
                               cwmEvent.setCurrentPackages(currentPackets);
                               cwmEvent.setMaxPackages(packetsNumber);
+                              if(currentPackets == packetsNumber)
+                                  currentPackets = 0;
                           }
                     break;
                     case ID.LOG_HISTORY:
@@ -899,6 +903,8 @@ public class Parser {
                         cwmEvent.setCurrentPackages(currentPackets);
                         Log.d("bernie","sdk log history packet max:"+Integer.toString(packetsNumber));
                         cwmEvent.setMaxPackages(packetsNumber);
+                        if(currentPackets == packetsNumber)
+                            currentPackets = 0;
                         break;
                     case ID.HISTORY_PACKAGES: //History length
                         byte[] lengthByte = new byte[4];
