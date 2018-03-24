@@ -476,15 +476,8 @@ public class Parser {
                               sleepString.append(Short.toString(convert[j])+"\n");
                               j++;
                          }
-                        try{
-                            FileWriter fw = new FileWriter(Environment.getExternalStorageDirectory().toString() + "/Download/CwmSleepLog.txt", true);
-                            BufferedWriter bw = new BufferedWriter(fw);
-                            bw.write(sleepString.toString());
-                            bw.newLine();
-                            bw.close();
-                        }catch(IOException e){
-                            e.printStackTrace();
-                        }
+
+                         writeToFile("CwmSleepLog.txt", sleepString.toString());
 
                         currentPackets+=1;
                         cwmEvent = new CwmEvents();
@@ -598,15 +591,7 @@ public class Parser {
                               lifeString.append(" history Tabata action time:" +Integer.toString(tabataActionTime)+"\n");
                               lifeString.append(" history Hand up Down: " +Integer.toString(handUpDownCount)+"\n");
 
-                              try{
-                                  FileWriter fw = new FileWriter(Environment.getExternalStorageDirectory().toString() + "/Download/CwmHistoryLife.txt", true);
-                                  BufferedWriter bw = new BufferedWriter(fw);
-                                  bw.write(lifeString.toString());
-                                  bw.newLine();
-                                  bw.close();
-                              }catch(IOException e){
-                                  e.printStackTrace();
-                              }
+                              writeToFile("CwmHistoryLife.txt", lifeString.toString());
 
                               currentPackets+=1;
                               cwmEvent = new CwmEvents();
@@ -625,17 +610,8 @@ public class Parser {
                         byte[] newPacket = new byte[packet.length -3];
                         System.arraycopy(packet, 3, newPacket, 0, (packet.length -3));
 
-                        try{
-                            File file = new File(Environment.getExternalStorageDirectory().toString() + "/Download/CwmLog.txt");
-                            FileWriter txt = new FileWriter(file, true);
-                            BufferedWriter bw = new BufferedWriter(txt);
-                            String log = new String(newPacket, "UTF-8");
-                            bw.write(log);
-                            bw.newLine();
-                            bw.close();
-                        }catch (IOException e){
-                            e.printStackTrace();
-                        }
+                        writeToFile("CwmLog.txt", newPacket);
+
                         currentPackets+=1;
                         cwmEvent = new CwmEvents();
                         cwmEvent.setEventType(Type.EVENT);
@@ -760,5 +736,30 @@ public class Parser {
                 break;
         }
         return cwmEvent;
+    }
+
+    private void writeToFile(String fileName, String content){
+        try{
+            FileWriter fw = new FileWriter(Environment.getExternalStorageDirectory().toString() + "/Download/" + fileName, true);
+            BufferedWriter bw = new BufferedWriter(fw);
+            bw.write(content);
+            bw.newLine();
+            bw.close();
+        }catch(IOException e){
+            e.printStackTrace();
+        }
+    }
+    private void writeToFile(String fileName, byte[] raw){
+        try{
+            File file = new File(Environment.getExternalStorageDirectory().toString() + "/Download/"+fileName);
+            FileWriter txt = new FileWriter(file, true);
+            BufferedWriter bw = new BufferedWriter(txt);
+            String log = new String(raw, "UTF-8");
+            bw.write(log);
+            bw.newLine();
+            bw.close();
+        }catch (IOException e){
+            e.printStackTrace();
+        }
     }
 }
