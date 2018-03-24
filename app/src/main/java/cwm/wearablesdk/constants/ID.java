@@ -65,16 +65,16 @@ public class ID {
     //History
     public static final int SLEEP_HISTORY = 0x01;
     public static final int LIFE_HISTORY = 0x02;
+    public static final int HISTORY_PACKAGES = 0x03;
     public static final int LOG_HISTORY = 0x04;
     public static final int SYNC_ABORTED = 0x05;
+    public static final int SYNC_DONE = 0x08;
+    public static final int HISTORY_ERASE_DONE = 0x09;
 
-    /*History*/
+    /*History command*/
     //message id
-    public static final int HISTORY_PACKAGES = 0x03;
     public static final int REQUEST_HISTORY = 0x01;
     public static final int ERASE_HISTORY = 0x02;
-    public static final int HISTORY_ERASE_DONE = 0x09;
-    public static final int FLASH_WRITE_DONE = 0x08;
 
 
 }

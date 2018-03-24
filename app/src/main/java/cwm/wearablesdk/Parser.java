@@ -920,12 +920,7 @@ public class Parser {
                         break;
 
                     case ID.HISTORY_ERASE_DONE:
-                        cwmEvent = new CwmEvents();
-                        cwmEvent.setEventType(Type.EVENT);
-                        cwmEvent.setMsgType(msg_type);
-                        cwmEvent.setMessageID(message_id);
-                        break;
-
+                    case ID.SYNC_DONE:
                     case ID.SYNC_ABORTED:
                         cwmEvent = new CwmEvents();
                         cwmEvent.setEventType(Type.EVENT);
