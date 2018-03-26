@@ -639,6 +639,7 @@ public class Parser {
                     case ID.HISTORY_ERASE_DONE:
                     case ID.SYNC_DONE:
                     case ID.SYNC_ABORTED:
+                        currentPackets = 0;
                         cwmEvent = new CwmEvents();
                         cwmEvent.setEventType(Type.EVENT);
                         cwmEvent.setMsgType(msg_type);
