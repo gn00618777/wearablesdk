@@ -24,6 +24,7 @@ public class ID {
     public static final int DEVICE_VERSION_INFO = 0x03;
     public static final int RESET_USERCONFIG = 0x05;
     public static final int UNBOND = 0x06;
+    public static final int SOFTRESET = 0x07;
 
     /*Factory Mode*/
     //COMMAND ID

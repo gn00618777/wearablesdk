@@ -1154,6 +1154,16 @@ public class CwmManager{
             lock.unlock();
             }
     }
+    public void CwmSoftReset(){
+        if (lock.tryLock()) {
+            byte[] payload = new byte[2];
+
+            payload[0] = (byte) 0x85;
+            payload[1] = (byte) ID.SOFTRESET;
+            splitCommand(payload);
+            lock.unlock();
+        }
+    }
 
     public void splitCommand(byte[] payload){
 
