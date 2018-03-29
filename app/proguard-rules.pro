@@ -117,7 +117,7 @@ public float[] getSensorGyroData();
  public cwm.wearablesdk.settings.IntelligentSettings getIntelligent();
  public cwm.wearablesdk.settings.AlarmSetting getAlarmSetting();
  public cwm.wearablesdk.settings.SystemSetting getSystemSetting();
- public int getMaxMapPackages();
+ public int getMaxPackages();
 public int getCurrentPackages();
 public int getTabataInitCode();
 }

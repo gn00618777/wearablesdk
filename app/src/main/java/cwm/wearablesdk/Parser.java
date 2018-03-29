@@ -605,6 +605,7 @@ public class Parser {
                           }
                     break;
                     case ID.LOG_HISTORY:
+                        Log.d("bernie","sdk log history");
                         LongTask.longTaskReceivedHandler.removeCallbacks(LongTask.currentLongTask);
                         BleReceiver.hasLongTask = false;
                         byte[] newPacket = new byte[packet.length -3];
@@ -632,7 +633,8 @@ public class Parser {
                         cwmEvent.setEventType(Type.EVENT);
                         cwmEvent.setMsgType(msg_type);
                         cwmEvent.setMessageID(message_id);
-                        cwmEvent.setRemindPackages(packages);
+                        //cwmEvent.setRemindPackages(packages);
+                        cwmEvent.setMaxPackages(packetsNumber);
                         Log.d("bernie","sdk packages length: "+Integer.toString(packages));
                         break;
 

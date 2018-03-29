@@ -192,7 +192,7 @@ public class CwmEvents{
     public int getEventType(){return eventType;}
     public AckEvents getAckEvent(){return mAck;}
     public ErrorEvents getErrorEvent(){return mError;}
-    public int getMaxMapPackages(){return mMaxPackages;}
+    public int getMaxPackages(){return mMaxPackages;}
     public int getCurrentPackages(){return mCurrentPackages;}
     public int getTabataInitCode(){return mInitCode;}
 
