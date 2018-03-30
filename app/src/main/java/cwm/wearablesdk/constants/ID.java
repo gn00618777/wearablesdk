@@ -50,7 +50,6 @@ public class ID {
     public static final int INCOMING_CALL = 0x01;
     public static final int SOCIAL = 0x02;
     public static final int EMAIL = 0x03;
-    public static final int NEWS = 0x04;
     public static final int MISSING_CALL = 0x05;
     public static final int PICK_UP = 0x06;
 

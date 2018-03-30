@@ -331,6 +331,9 @@ public class CwmManager{
                     payload[0] = (byte) 0x86;
                     payload[1] = (byte) ID.SOCIAL;
                     switch (identifier){
+                        case Type.NEWS:
+                            payload[2] = (byte) Type.NEWS;
+                            break;
                         case Type.QQ_MESSAGE:
                             payload[2] = (byte) Type.QQ_MESSAGE;
                             break;
@@ -387,12 +390,6 @@ public class CwmManager{
                     payload = new byte[2]; //message type + message id
                     payload[0] = (byte) 0x86;
                     payload[1] = (byte) ID.EMAIL;
-                    splitCommand(payload);
-                    break;
-                case ID.NEWS:
-                    payload = new byte[2]; //message type + message id
-                    payload[0] = (byte) 0x86;
-                    payload[1] = (byte) ID.NEWS;
                     splitCommand(payload);
                     break;
                 case ID.MISSING_CALL:

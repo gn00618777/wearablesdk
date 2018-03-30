@@ -116,10 +116,11 @@ public class Type {
     public static final int COMMAND_COMMAND = 0x84;
     public static final int FACTORY_DATA_COMMAND = 0x85;
 
-    public static final int QQ_MESSAGE = 0x00;
-    public static final int WECHART_MESSAGE = 0x01;
-    public static final int DOBAN_MESSAGE = 0x02;
-    public static final int OTHER = 0x03;
+    public static final int NEWS = 0x00;
+    public static final int QQ_MESSAGE = 0x01;
+    public static final int WECHART_MESSAGE = 0x02;
+    public static final int DOBAN_MESSAGE = 0x03;
+    public static final int OTHER = 0x04;
 
     //OLED page size
     public static final int OLED_PAGE_SIZE = 48*1024;
