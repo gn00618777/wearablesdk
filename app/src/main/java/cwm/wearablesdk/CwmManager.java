@@ -912,7 +912,7 @@ public class CwmManager{
     public void CwmTabataCommand(int operate, int prepare, int interval, int action_item){
         //if(lock.tryLock()) {
 
-        if(operate >= Type.ITEMS.TABATA_INIT.ordinal() && operate <= Type.ITEMS.TABATA_RESUME.ordinal()) {
+        if(operate >= Type.ITEMS.TABATA_INIT.ordinal() && operate <= Type.ITEMS.TABATA_SEND_HEART_RATE.ordinal()) {
             if(operate == Type.ITEMS.TABATA_ACTION_ITEM.ordinal()){
                 byte[] payload = new byte[4];
 

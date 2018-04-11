@@ -37,7 +37,8 @@ public class Type {
         TABATA_ACTION_END,
         TABATA_REQUEST,
         TABATA_DONE,
-        TABATA_RESUME
+        TABATA_RESUME,
+        TABATA_SEND_HEART_RATE
     };
 
     public enum OS_CONFIG{
