@@ -310,6 +310,96 @@ public class Parser {
                         cwmEvent.setVersion(main+sub);
 
                         break;
+                    case ID.CURRENT:
+                        LongTask.longTaskReceivedHandler.removeCallbacks(LongTask.currentLongTask);
+                        BleReceiver.hasLongTask = false;
+
+                        byte[] lifeTemp1 = new byte[56];
+                        int unit_life_data1 = 56;
+                        System.arraycopy(packet, 4, lifeTemp1, 0, unit_life_data1);
+                        byte[] fourByteTemp1 = new byte[4];
+                        byte[] twoByteTemp1 = new byte[2];
+
+                        int timeStamp1 = 0;
+                        int stepCount1 = 0;
+                        int distance1 = 0;
+                        int calorie1 = 0;
+                        int hearRate1 = 0;
+                        int minHeartRate1 = 0;
+                        int maxHeartRate1 = 0;
+                        int sedentaryTriggerTime1 = 0;
+                        int batteryLevel1 = 0;
+                        int batteryCharge1 = 0;
+                        int notificationCount1 = 0;
+                        int displayOnTime1 = 0;
+                        int vibOnTime1 = 0;
+                        int bleSendCount1 = 0;
+                        int bleReceivedCount1 = 0;
+                        int tpCount1 = 0;
+                        int tabataActionTime1 = 0;
+                        int handUpDownCount1 = 0;
+
+                        System.arraycopy(lifeTemp1, 0, fourByteTemp1, 0, 4);
+                        timeStamp1 = ByteBuffer.wrap(fourByteTemp1).order(ByteOrder.LITTLE_ENDIAN).getInt();
+                        System.arraycopy(lifeTemp1, 4, fourByteTemp1, 0, 4);
+                        stepCount1 = (int) ByteBuffer.wrap(fourByteTemp1).order(ByteOrder.LITTLE_ENDIAN).getFloat();
+                        System.arraycopy(lifeTemp1, 8, fourByteTemp1, 0, 4);
+                        distance1 = (int) ByteBuffer.wrap(fourByteTemp1).order(ByteOrder.LITTLE_ENDIAN).getFloat();
+                        System.arraycopy(lifeTemp1, 12, fourByteTemp1, 0, 4);
+                        calorie1 = (int) ByteBuffer.wrap(fourByteTemp1).order(ByteOrder.LITTLE_ENDIAN).getFloat();
+                        System.arraycopy(lifeTemp1, 16, fourByteTemp1, 0, 4);
+                        hearRate1 = (int) ByteBuffer.wrap(fourByteTemp1).order(ByteOrder.LITTLE_ENDIAN).getFloat();
+                        System.arraycopy(lifeTemp1, 20, fourByteTemp1, 0, 4);
+                        minHeartRate1 = (int) ByteBuffer.wrap(fourByteTemp1).order(ByteOrder.LITTLE_ENDIAN).getFloat();
+                        System.arraycopy(lifeTemp1, 24, fourByteTemp1, 0, 4);
+                        maxHeartRate1 = (int) ByteBuffer.wrap(fourByteTemp1).order(ByteOrder.LITTLE_ENDIAN).getFloat();
+                        System.arraycopy(lifeTemp1, 28, fourByteTemp1, 0, 4);
+                        sedentaryTriggerTime1 = ByteBuffer.wrap(fourByteTemp1).order(ByteOrder.LITTLE_ENDIAN).getInt();
+                        System.arraycopy(lifeTemp1, 32, twoByteTemp1, 0, 2);
+                        tpCount1 = ByteBuffer.wrap(twoByteTemp1).order(ByteOrder.LITTLE_ENDIAN).getShort() & 0xFFFF;
+                        System.arraycopy(lifeTemp1, 34, twoByteTemp1, 0, 2);
+                        notificationCount1 = ByteBuffer.wrap(twoByteTemp1).order(ByteOrder.LITTLE_ENDIAN).getShort();
+                        System.arraycopy(lifeTemp1, 36, fourByteTemp1, 0, 4);
+                        displayOnTime1 =ByteBuffer.wrap(fourByteTemp1).order(ByteOrder.LITTLE_ENDIAN).getInt() & 0xFFFFFFFF;
+                        System.arraycopy(lifeTemp1, 40, fourByteTemp1, 0, 4);
+                        vibOnTime1 = ByteBuffer.wrap(fourByteTemp1).order(ByteOrder.LITTLE_ENDIAN).getInt();
+                        System.arraycopy(lifeTemp1, 44, twoByteTemp1, 0, 2);
+                        bleSendCount1 = ByteBuffer.wrap(twoByteTemp1).order(ByteOrder.LITTLE_ENDIAN).getShort() & 0xFFFF ;
+                        System.arraycopy(lifeTemp1, 46, twoByteTemp1, 0, 2);
+                        bleReceivedCount1 = ByteBuffer.wrap(twoByteTemp1).order(ByteOrder.LITTLE_ENDIAN).getShort() & 0xFFFF;
+                        System.arraycopy(lifeTemp1, 48, fourByteTemp1, 0, 4);
+                        tabataActionTime1 = ByteBuffer.wrap(fourByteTemp1).order(ByteOrder.LITTLE_ENDIAN).getInt()  & 0xFFFFFFFF;
+                        batteryLevel1 = lifeTemp1[52] & 0xFF;
+                        batteryCharge1 = lifeTemp1[53] & 0xFF;
+                        handUpDownCount1 = lifeTemp1[54] & 0xFF;
+
+                        LifeData life = new LifeData();
+                        life.setTimeStamp(timeStamp1);
+                        life.setStepCount(stepCount1);
+                        life.setDistance(distance1);
+                        life.setCalories(calorie1);
+                        life.setHeartRate(hearRate1);
+                        life.setMinHeartRate(minHeartRate1);
+                        life.setMaxHeartRate(maxHeartRate1);
+                        life.setSedentaryTriggerTime(sedentaryTriggerTime1);
+                        life.setTpCount(tpCount1);
+                        life.setNotificationCount(notificationCount1);
+                        life.setDisplayOnTime(displayOnTime1);
+                        life.setVibOnTime(vibOnTime1);
+                        life.setBleSendCount(bleSendCount1);
+                        life.setBleReceiveCount(bleReceivedCount1);
+                        life.setTabataActionTime(tabataActionTime1);
+                        life.setBatteryLevel(batteryLevel1);
+                        life.setBatteryCharge(batteryCharge1);
+                        life.setHandUpDownCount(handUpDownCount1);
+
+                        cwmEvent = new CwmEvents();
+                        cwmEvent.setEventType(Type.EVENT);
+                        cwmEvent.setMsgType(msg_type);
+                        cwmEvent.setMessageID(message_id);
+                        cwmEvent.setLifData(life);
+
+                        break;
                     default:
                         break;
                 }

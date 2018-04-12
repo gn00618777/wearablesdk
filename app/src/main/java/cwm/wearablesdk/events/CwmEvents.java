@@ -6,6 +6,7 @@ package cwm.wearablesdk.events;
 
 import cwm.wearablesdk.Bias;
 import cwm.wearablesdk.CwmManager;
+import cwm.wearablesdk.LifeData;
 import cwm.wearablesdk.settings.AlarmSetting;
 import cwm.wearablesdk.settings.BodySettings;
 import cwm.wearablesdk.settings.SystemSetting;
@@ -59,6 +60,7 @@ public class CwmEvents{
     private SystemSetting mSystem;
     private ErrorEvents mError;
     private AckEvents mAck;
+    private LifeData mLife;
 
      public CwmEvents(){
           eventType = 0;
@@ -135,6 +137,7 @@ public class CwmEvents{
     public void setCurrentPackages(int packages){mCurrentPackages = packages;}
     public void setTabataInitialCode(int code){mInitCode = code;}
     public void setStrength(int strength){mStrength = strength;}
+    public void setLifData(LifeData life){mLife = life;}
 
     public void setBody(BodySettings body){
         mBody = body;
@@ -195,6 +198,7 @@ public class CwmEvents{
     public int getMaxPackages(){return mMaxPackages;}
     public int getCurrentPackages(){return mCurrentPackages;}
     public int getTabataInitCode(){return mInitCode;}
+    public LifeData getLife(){return mLife;}
 
     public Bias getBias(){return mBias;}
     public BodySettings getBody(){return mBody;}

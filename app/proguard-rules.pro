@@ -48,6 +48,7 @@
 -keep class cwm.wearablesdk.settings.BodySettings
 -keep class cwm.wearablesdk.settings.IntelligentSettings
 -keep class cwm.wearablesdk.Bias
+-keep class cwm.wearablesdk.LifeData
 -keep class java.lang.String
 
 
@@ -120,6 +121,7 @@ public float[] getSensorGyroData();
  public int getMaxPackages();
 public int getCurrentPackages();
 public int getTabataInitCode();
+public cwm.wearablesdk.LifeData getLife();
 }
 -keepclassmembers class cwm.wearablesdk.events.AckEvents{
 public *;
@@ -154,4 +156,7 @@ public *;
 }
 -keepclassmembers class cwm.wearablesdk.TabataTask{
 public *;
+}
+-keepclassmembers class cwm.wearablesdk.LifeData {
+   public *;
 }

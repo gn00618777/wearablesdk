@@ -1161,6 +1161,16 @@ public class CwmManager{
             lock.unlock();
         }
     }
+    public void CwmSyncCurrent(){
+        if (lock.tryLock()) {
+            byte[] payload = new byte[2];
+
+            payload[0] = (byte) 0x81;
+            payload[1] = (byte) ID.CURRENT;
+            splitCommand(payload);
+            lock.unlock();
+        }
+    }
 
     public void splitCommand(byte[] payload){
 
