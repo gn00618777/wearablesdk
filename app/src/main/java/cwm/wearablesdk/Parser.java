@@ -507,6 +507,7 @@ public class Parser {
                           float maxHeartRate = 0;
                           int sedentaryTriggerTime = 0;
                           int batteryLevel = 0;
+                          int batteryCharge = 0;
                           int notificationCount = 0;
                           int displayOnTime = 0;
                           int vibOnTime = 0;
@@ -553,7 +554,8 @@ public class Parser {
                                 System.arraycopy(lifeTemp, 48, fourByteTemp, 0, 4);
                                 tabataActionTime = ByteBuffer.wrap(fourByteTemp).order(ByteOrder.LITTLE_ENDIAN).getInt()  & 0xFFFFFFFF;
                                 batteryLevel = lifeTemp[52] & 0xFF;
-                                handUpDownCount = lifeTemp[53] & 0xFF;
+                                batteryCharge = lifeTemp[53] & 0xFF;
+                                handUpDownCount = lifeTemp[54] & 0xFF;
 
                               StringBuilder lifeString = new StringBuilder();
                               Log.d("bernie","sdk history timeStamp:"+Integer.toString(timeStamp));
@@ -565,6 +567,7 @@ public class Parser {
                               Log.d("bernie","sdk history maxHeartRate:" + Float.toString(maxHeartRate));
                               Log.d("bernie","sdk history sedentaryTriggerTime:" +Integer.toString(sedentaryTriggerTime));
                               Log.d("bernie","sdk history battleLevel:" +Integer.toString(batteryLevel));
+                              Log.d("bernie","sdk history battleCharge:" +Integer.toString(batteryCharge));
                               Log.d("bernie","sdk history notify count:" +Integer.toString(notificationCount));
                               Log.d("bernie","sdk history display on time::" +Integer.toString(displayOnTime));
                               Log.d("bernie","sdk history vib on time:" +Integer.toString(vibOnTime));
@@ -582,6 +585,7 @@ public class Parser {
                               lifeString.append(" history maxHeartRate:" + Float.toString(maxHeartRate)+"\n");
                               lifeString.append(" history sedentaryTriggerTime:" +Integer.toString(sedentaryTriggerTime)+"\n");
                               lifeString.append(" history battleLevel:" +Integer.toString(batteryLevel)+"\n");
+                              lifeString.append(" history battleCharge:" +Integer.toString(batteryCharge)+"\n");
                               lifeString.append(" history notify count:" +Integer.toString(notificationCount)+"\n");
                               lifeString.append(" history display on time::" +Integer.toString(displayOnTime)+"\n");
                               lifeString.append(" history vib on time:" +Integer.toString(vibOnTime)+"\n");
