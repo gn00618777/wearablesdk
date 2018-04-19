@@ -24,7 +24,7 @@ public class ID {
     public static final int DEVICE_VERSION_INFO = 0x03;
     public static final int RESET_USERCONFIG = 0x05;
     public static final int UNBOND = 0x06;
-    public static final int SOFTRESET = 0x07;
+    public static final int SEND_ACCOUNT = 0x07;
     public static final int CURRENT = 0x08;
 
     /*Factory Mode*/
@@ -34,6 +34,7 @@ public class ID {
     public static final int CALIBRATION_RESULT = 0x03;
     public static final int RECORD_SENSOR_DATA = 0x04;
     public static final int UPDATE_BASEMAP = 0x05;
+    public static final int SOFTRESET = 0x07;
     public static final int MAP_WRITE_DONE = 0x08;
     public static final int MAP_ERASE_DONE = 0x09;
 

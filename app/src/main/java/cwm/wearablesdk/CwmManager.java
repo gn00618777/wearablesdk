@@ -1171,6 +1171,29 @@ public class CwmManager{
             lock.unlock();
         }
     }
+    public void CwmSendAccount(String account){
+        if (lock.tryLock()) {
+            int j = 2;
+            byte[] payload = new byte[12];
+            payload[0] = (byte) 0x81;
+            payload[1] = (byte) ID.SEND_ACCOUNT;
+            if(account.length() <= 10) {
+                for (int i = 0; i < account.length(); i++) {
+                    payload[j] = (byte) account.charAt(i);
+                    j++;
+                }
+            }
+            else{
+                for (int i = 0; i < 10; i++) {
+                    payload[j] = (byte) account.charAt(i);
+                    j++;
+                }
+            }
+            splitCommand(payload);
+            lock.unlock();
+        }
+    }
+
 
     public void splitCommand(byte[] payload){
 
