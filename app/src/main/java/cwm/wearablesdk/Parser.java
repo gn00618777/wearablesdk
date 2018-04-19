@@ -831,6 +831,13 @@ public class Parser {
                         break;
                 }
                 break;
+            case Type.BLE_CONNECT_STATUS:
+                message_id = data.getMsgCmdId();
+                cwmEvent = new CwmEvents();
+                cwmEvent.setEventType(Type.EVENT);
+                cwmEvent.setMsgType(msg_type);
+                cwmEvent.setMessageID(message_id);
+                break;
         }
         return cwmEvent;
     }

@@ -109,6 +109,7 @@ public class Type {
     public static final int COMMAND_RESPONSE = 0x04;
     public static final int FACTORY_RESPONSE = 0x05;
     public static final int ACK_INFORMATION = 0x7F;
+    public static final int BLE_CONNECT_STATUS = 0xA0;
     public static final int CHECKSUM_ERROR = 0xEE;
 
     public static final int SYSTEM_INFORMATION_COMMAND = 0x81;

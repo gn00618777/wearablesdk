@@ -78,5 +78,9 @@ public class ID {
     public static final int REQUEST_HISTORY = 0x01;
     public static final int ERASE_HISTORY = 0x02;
 
+    //BLE connect status
+    public static final int USER_ACCOUNT_MISMATCH = 0x01;
+    public static final int CONNECT_TIMEOUT = 0x02;
+    public static final int BIND_SUCCESS = 0x03;
 
 }
