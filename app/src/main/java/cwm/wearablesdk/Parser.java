@@ -550,9 +550,16 @@ public class Parser {
                         LongTask.longTaskReceivedHandler.removeCallbacks(LongTask.currentLongTask);
                         BleReceiver.hasLongTask = false;
                         Log.d("bernie","sdk sleep history");
-                        startPos = 4;
                          int unit_sleep_log = 2;//byte
-                         int dataLength = packet.length - 2 - 2 - 1; // - 2 byte length  - msgtype - msgid - checksum
+                         int dataLength;
+                        if (data.packet_type == Type.BLE_PAKAGE_TYPE.SHORT_MESSAGE.ordinal()) {
+                            dataLength = packet.length - 1 - 2 - 1; // - 1 byte length  - msgtype - msgid - checksum
+                            startPos = 3;
+                        }
+                        else {
+                            dataLength = packet.length - 2 - 2 - 1; // - 2 byte length  - msgtype - msgid - checksum
+                            startPos = 4;
+                        }
                         endPos = packet.length - 3;
                          j = 0;
                          short[] convert = new short[dataLength / unit_sleep_log];
