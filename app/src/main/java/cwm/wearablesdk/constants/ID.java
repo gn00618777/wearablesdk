@@ -26,6 +26,7 @@ public class ID {
     public static final int UNBOND = 0x06;
     public static final int SEND_ACCOUNT = 0x07;
     public static final int CURRENT = 0x08;
+    public static final int CLEAR_STEP = 0x0A;
 
     /*Factory Mode*/
     //COMMAND ID

@@ -1193,6 +1193,16 @@ public class CwmManager{
             lock.unlock();
         }
     }
+    public void CwmClearStep(){
+        if (lock.tryLock()) {
+            int j = 2;
+            byte[] payload = new byte[12];
+            payload[0] = (byte) 0x81;
+            payload[1] = (byte) ID.CLEAR_STEP;
+            splitCommand(payload);
+            lock.unlock();
+        }
+    }
 
 
     public void splitCommand(byte[] payload){
