@@ -38,6 +38,7 @@ public class ID {
     public static final int SOFTRESET = 0x07;
     public static final int MAP_WRITE_DONE = 0x08;
     public static final int MAP_ERASE_DONE = 0x09;
+    public static final int HEART_RATE_MECHANICAL_TEST_RESULT = 0x0A;
 
     /*Factory Mode*/
     //Self-Test sensor id
@@ -49,6 +50,11 @@ public class ID {
     public static final int BUTTON = 0x06;
     public static final int OLED = 0x07;
     public static final int FLASH = 0x08;
+
+    //Heart Rate Mechaical Test id
+    public static int HR_GOLDEN_TEST = 0x01;
+    public static int HR_TARGET_TEST = 0x02;
+    public static int HR_LIGHT_LEAK_TEST = 0x03;
 
     public static final int INCOMING_CALL = 0x01;
     public static final int SOCIAL = 0x02;

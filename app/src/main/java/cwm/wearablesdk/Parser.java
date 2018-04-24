@@ -757,6 +757,8 @@ public class Parser {
             case Type.FACTORY_RESPONSE:
                 message_id = data.getMsgCmdId();
                 int sensor_id;
+                int test_id;
+                byte[] twoByteTemp = new byte[2];
                 switch (message_id) {
                     case ID.SELF_TEST_RESULT:
                        sensor_id = packet[3];
@@ -835,6 +837,36 @@ public class Parser {
                         cwmEvent.setMessageID(message_id);
                         cwmEvent.setCurrentSize(CwmManager.currentMapSize);
                         //cwmEvents.setMaxSize((int)CwmManager.bitMapLength);
+                        break;
+                    case ID.HEART_RATE_MECHANICAL_TEST_RESULT:
+                        test_id = packet[3];
+                        String testItem = "";
+
+                        if(test_id == ID.HR_GOLDEN_TEST)
+                            testItem = "HR Golden Test";
+                        else if(test_id == ID.HR_TARGET_TEST)
+                            testItem = "HR Target Test";
+                        else
+                            testItem = "HR Light Leak Test";
+
+                        int channel = packet[4];
+                        System.arraycopy(packet, 5, twoByteTemp, 0, 2);
+                        int value = ByteBuffer.wrap(twoByteTemp).order(ByteOrder.LITTLE_ENDIAN).getShort();
+                        System.arraycopy(packet, 7, twoByteTemp, 0, 2);
+                        int min = ByteBuffer.wrap(twoByteTemp).order(ByteOrder.LITTLE_ENDIAN).getShort();
+                        int minEnableVerify = packet[9];
+                        int minVerifySuccess = packet[10];
+                        System.arraycopy(packet, 11, twoByteTemp, 0, 2);
+                        int max = ByteBuffer.wrap(twoByteTemp).order(ByteOrder.LITTLE_ENDIAN).getShort();
+                        int maxEnabledVerify = packet[13];
+                        int maxVeriedSuccess = packet[14];
+
+                        cwmEvent = new CwmEvents();
+                        cwmEvent.setEventType(Type.EVENT);
+                        cwmEvent.setMsgType(msg_type);
+                        cwmEvent.setMessageID(message_id);
+                        cwmEvent.setHRTestResult(channel, value, min, minEnableVerify, minVerifySuccess, max, maxEnabledVerify, maxVeriedSuccess);
+
                         break;
                 }
                 break;

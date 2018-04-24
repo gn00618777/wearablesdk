@@ -88,7 +88,6 @@ public class Type {
         RECORD_SENSOR_DATA,
         UPDATE_BITMAP,
         UPDATE_FONT_LIB
-
     }
 
     public enum CALIBRATE_RESULT {

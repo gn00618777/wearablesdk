@@ -122,6 +122,14 @@ public float[] getSensorGyroData();
 public int getCurrentPackages();
 public int getTabataInitCode();
 public cwm.wearablesdk.LifeData getLife();
+public int getHRChannel();
+public int getHRValue();
+public int getHRMin();
+public int getHRMinEnabledVerify();
+public int getHRMinVerifiedSuccess();
+public int getHRMax();
+public int getHRMaxEnabledVerify();
+public int getHRMaxVerifiedSuccess();
 }
 -keepclassmembers class cwm.wearablesdk.events.AckEvents{
 public *;

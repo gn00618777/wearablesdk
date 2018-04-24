@@ -61,6 +61,15 @@ public class CwmEvents{
     private ErrorEvents mError;
     private AckEvents mAck;
     private LifeData mLife;
+    private int mChannel;
+    private int mValue;
+    private int mMin;
+    private int mMinEnabledVerify;
+    private int mMinVerifiedSuccess;
+    private int mMax;
+    private int mMaxEnabledVerify;
+    private int mMaxVerifiedSuccess;
+
 
      public CwmEvents(){
           eventType = 0;
@@ -138,6 +147,16 @@ public class CwmEvents{
     public void setTabataInitialCode(int code){mInitCode = code;}
     public void setStrength(int strength){mStrength = strength;}
     public void setLifData(LifeData life){mLife = life;}
+    public void setHRTestResult(int channel, int value, int min, int minE, int minS, int max, int maxE, int maxS){
+        mChannel = channel;
+        mValue = value;
+        mMin = min;
+        mMinEnabledVerify = minE;
+        mMinVerifiedSuccess = minS;
+        mMax = max;
+        mMaxEnabledVerify = maxE;
+        mMaxVerifiedSuccess = maxS;
+    }
 
     public void setBody(BodySettings body){
         mBody = body;
@@ -199,6 +218,14 @@ public class CwmEvents{
     public int getCurrentPackages(){return mCurrentPackages;}
     public int getTabataInitCode(){return mInitCode;}
     public LifeData getLife(){return mLife;}
+    public int getHRChannel(){return mChannel;}
+    public int getHRValue(){return mValue;}
+    public int getHRMin(){return mMin;}
+    public int getHRMinEnabledVerify(){return mMinEnabledVerify;}
+    public int getHRMinVerifiedSuccess(){return mMinVerifiedSuccess;}
+    public int getHRMax(){return mMax;}
+    public int getHRMaxEnabledVerify(){return mMaxEnabledVerify;}
+    public int getHRMaxVerifiedSuccess(){return mMaxVerifiedSuccess;}
 
     public Bias getBias(){return mBias;}
     public BodySettings getBody(){return mBody;}

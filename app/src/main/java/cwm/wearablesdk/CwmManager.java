@@ -873,6 +873,16 @@ public class CwmManager{
 
                 splitCommand(payload);
             }
+            else if(commandID == ID.HEART_RATE_MECHANICAL_TEST_RESULT){
+                byte[] payload = new byte[3];
+
+                payload[0] = (byte) 0x85; // command type : Systtem information command
+                payload[1] = (byte) commandID; // command id
+                if (sensor_id >= ID.HR_GOLDEN_TEST && sensor_id <= ID.HR_LIGHT_LEAK_TEST) //HR golden test: 0x01 HR tartget test:0x02 HR Light Leak Test:0x03
+                    payload[2] = (byte) sensor_id;
+
+                splitCommand(payload);
+            }
             lock.unlock();
         }
     }
