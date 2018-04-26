@@ -229,13 +229,13 @@ public class CwmManager{
     public AckListener getAckListener(){return mAckListener;}
     public ErrorListener getErrorListener(){return mErrorListener;}
 
-    public boolean CwmBleStatus(){
+    public boolean bleStatus(){
         if(mBluetoothAdapter.isEnabled())
           return true;
         else
             return false;
     }
-    public void CwmReleaseResource(){
+    public void releaseResource(){
         if(mActivity != null) {
             LocalBroadcastManager.getInstance(mActivity).unregisterReceiver(UARTStatusChangeReceiver);
             mActivity.unbindService(mServiceConnection);
@@ -247,7 +247,7 @@ public class CwmManager{
             mErrorListener = null;
         }
     }
-    public void CwmBleSearch() {
+    public void bleSearch() {
         if(mBluetoothAdapter.isEnabled()){
             Intent newIntent = new Intent(mActivity, DeviceListActivity.class);
             mActivity.startActivityForResult(newIntent, REQUEST_SELECT_DEVICE);
@@ -256,16 +256,16 @@ public class CwmManager{
             Toast.makeText(mActivity,"Your bluetooth is not enabled",Toast.LENGTH_LONG).show();
         }
     }
-    public void CwmBleConnect(String address){
+    public void bleConnect(String address){
         mService.connect(address);
     }
-    public void CwmBleDisconnect(){
+    public void bleDisconnect(){
         mService.disconnect();
     }
-    public void CwmBleClose(){
+    public void bleClose(){
         mService.close();
     }
-    public void CwmNotification(NotificationData data){
+    public void notification(NotificationData data){
         if(lock.tryLock()) {
             int j;
             int msgId = data.getNotifyId();
@@ -412,7 +412,7 @@ public class CwmManager{
             lock.unlock();
         }
     }
-    public void CwmRequestUserConfig(){
+    public void requestUserConfig(){
         if(lock.tryLock()) {
             if(BleReceiver.hasLongTask == false) {
                 byte[] payload = new byte[4];
@@ -425,7 +425,7 @@ public class CwmManager{
             lock.unlock();
         }
     }
-    public void CwmResetUserConfig(){
+    public void resetUserConfig(){
         if(lock.tryLock()) {
             byte[] payload = new byte[4];
 
@@ -437,7 +437,7 @@ public class CwmManager{
             lock.unlock();
         }
     }
-    public void CwmSendUserConfig(UserConfig userConfig) {
+    public void sendUserConfig(UserConfig userConfig) {
         int osType = userConfig.getSystemSetting().getOsType();
         int timeFormat = userConfig.getSystemSetting().getTimeFormat();
         int historyDetect = userConfig.getSystemSetting().getHistoryDetectPeriod();
@@ -831,7 +831,7 @@ public class CwmManager{
         Log.d("bernie","send user config");
 
     }
-    public void CwmSensorReport(int sensorType){
+    public void sensorReport(int sensorType){
         if(lock.tryLock()) {
             byte[] payload = new byte[4];
 
@@ -843,7 +843,7 @@ public class CwmManager{
             splitCommand(payload);
         }
     }
-    public void CwmFactory(int commandID, int sensor_id){
+    public void factory(int commandID, int sensor_id){
         if(lock.tryLock()) {
             if (commandID == Type.FACTORY_OPERATE.UPDATE_BITMAP.ordinal() ||
                     commandID == Type.FACTORY_OPERATE.UPDATE_FONT_LIB.ordinal() ||
@@ -886,7 +886,7 @@ public class CwmManager{
             lock.unlock();
         }
     }
-    public void CwmRequestBattery(){
+    public void requestBattery(){
         if (lock.tryLock()) {
             byte[] payload = new byte[2];
 
@@ -897,7 +897,7 @@ public class CwmManager{
             lock.unlock();
         }
     }
-    public void CwmRequestSwVersion(){
+    public void requestSwVersion(){
         if(lock.tryLock()) {
             byte[] payload = new byte[2];
 
@@ -908,7 +908,7 @@ public class CwmManager{
             lock.unlock();
         }
     }
-    public void CwmSwitchOTA(){
+    public void switchOTA(){
         if(lock.tryLock()) {
             byte[] payload = new byte[2];
 
@@ -919,7 +919,7 @@ public class CwmManager{
             lock.unlock();
         }
     }
-    public void CwmTabataCommand(int operate, int prepare, int interval, int action_item){
+    public void tabataCommand(int operate, int prepare, int interval, int action_item){
         //if(lock.tryLock()) {
 
         if(operate >= Type.ITEMS.TABATA_INIT.ordinal() && operate <= Type.ITEMS.TABATA_SEND_HEART_RATE.ordinal()) {
@@ -946,7 +946,7 @@ public class CwmManager{
             }
         }
     }
-    public void CwmEnableRun(int cmd, float para){
+    public void enableRun(int cmd, float para){
         byte[] floatArray;
         if(lock.tryLock()) {
             byte[] payload = new byte[7];
@@ -965,10 +965,10 @@ public class CwmManager{
             lock.unlock();
         }
     }
-    public String CwmSdkVersion(){
+    public String sdkVersion(){
         return SDK_VERSION;
     }
-    public void CwmSendBitMap(){
+    public void sendBitMap(){
         if(bitMapLength >= 0) {
             byte[] payload = new byte[128+3+4]; // type + id + partiion id +(4 byte address)
 
@@ -1044,13 +1044,13 @@ public class CwmManager{
             }
         }
     }
-    public void CwmReSendBitMap(){
+    public void reSendBitMap(){
         //endPos = endPos - 128;
         //mapSize = mapSize - 128;
         //currentMapSize = currentMapSize - 128;
-        CwmSendBitMap();
+        sendBitMap();
     }
-    public void CwmUpdateBitMapInit(){
+    public void updateBitMapInit(){
         File file = new File(Environment.getExternalStorageDirectory().toString() + "/Download/Bitmap_to_binary.bin");
         bitMapLength = file.length();
         Log.d("bernie","sdk bitMapLength:"+Integer.toString((int)bitMapLength));
@@ -1071,7 +1071,7 @@ public class CwmManager{
             mapSize = 0;
         }
     }
-    public void CwmSyncRequest(){
+    public void syncRequest(){
         if (lock.tryLock()) {
             byte[] payload = new byte[3];
 
@@ -1083,7 +1083,7 @@ public class CwmManager{
             lock.unlock();
         }
     }
-    public void CwmSyncStart(){
+    public void syncStart(){
         if (lock.tryLock()) {
             if(BleReceiver.hasLongTask == false) {
                 byte[] payload = new byte[3];
@@ -1097,7 +1097,7 @@ public class CwmManager{
             lock.unlock();
         }
     }
-    public void CwmSyncSucces(){
+    public void syncSucces(){
         if (lock.tryLock()) {
             if(BleReceiver.hasLongTask == false) {
                 byte[] payload = new byte[3];
@@ -1111,7 +1111,7 @@ public class CwmManager{
             lock.unlock();
         }
     }
-    public void CwmSyncFail(){
+    public void syncFail(){
         if (lock.tryLock()) {
             if(BleReceiver.hasLongTask == false) {
                 byte[] payload = new byte[3];
@@ -1125,7 +1125,7 @@ public class CwmManager{
             lock.unlock();
         }
     }
-    public void CwmEraseLog(){
+    public void eraseLog(){
         if (lock.tryLock()) {
             byte[] payload = new byte[2];
 
@@ -1135,7 +1135,7 @@ public class CwmManager{
             lock.unlock();
         }
     }
-    public void CwmEraseBaseMap(int id){
+    public void eraseBaseMap(int id){
         if (lock.tryLock()) {
             byte[] payload = new byte[3];
             payload[0] = (byte) 0x85;
@@ -1151,7 +1151,7 @@ public class CwmManager{
             lock.unlock();
         }
     }
-    public void CwmUnBond(){
+    public void unBond(){
         if (lock.tryLock()) {
             byte[] payload = new byte[2];
 
@@ -1161,7 +1161,7 @@ public class CwmManager{
             lock.unlock();
             }
     }
-    public void CwmSoftReset(){
+    public void softReset(){
         if (lock.tryLock()) {
             byte[] payload = new byte[2];
 
@@ -1171,7 +1171,7 @@ public class CwmManager{
             lock.unlock();
         }
     }
-    public void CwmSyncCurrent(){
+    public void syncCurrent(){
         if (lock.tryLock()) {
             byte[] payload = new byte[2];
 
@@ -1181,7 +1181,7 @@ public class CwmManager{
             lock.unlock();
         }
     }
-    public void CwmSendAccount(String account){
+    public void sendAccount(String account){
         if (lock.tryLock()) {
             int j = 2;
             byte[] payload = new byte[12];
@@ -1203,7 +1203,7 @@ public class CwmManager{
             lock.unlock();
         }
     }
-    public void CwmClearStep(){
+    public void clearStep(){
         if (lock.tryLock()) {
             int j = 2;
             byte[] payload = new byte[12];
