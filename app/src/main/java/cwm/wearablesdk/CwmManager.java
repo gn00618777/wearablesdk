@@ -984,18 +984,7 @@ public class CwmManager{
                 payload[6] = (byte)((endPos >> 24) & 0xFF);
                 Log.d("bernie","oled endPos is: "+Integer.toHexString(endPos & 0xFFFFF));
                 splitCommand(payload);
-
-              //  endPos = endPos + 128;
-               // currentMapSize = currentMapSize + 128;
-                //mapSize = mapSize + 128;
-
                 Log.d("bernie","oled mapSize is: "+Integer.toHexString(mapSize & 0xFFFFF));
-          /*      if(mapSize == Type.OLED_PAGE_SIZE) {
-                    Log.d("bernie","endPos size is oled page size ");
-                    oledAccomplish = true;
-                    mapSize = 0;
-                    endPos = 0xE000;
-                }*/
             }
             else if(bitMapAccomplish == false){
                 payload[2] = (byte) ID.BITMAP_PAGE;
@@ -1007,18 +996,7 @@ public class CwmManager{
                 payload[6] = (byte)((endPos >> 24) & 0xFF);
                 Log.d("bernie","bitmap endPos is: "+Integer.toHexString(endPos & 0xFFFFF));
                 splitCommand(payload);
-
-                //endPos = endPos + 128;
-                //currentMapSize = currentMapSize + 128;
-                //mapSize = mapSize + 128;
-
                 Log.d("bernie","bitmap mapSize is: "+Integer.toHexString(mapSize & 0xFFFFF));
-          /*      if(mapSize == Type.BITMAP_PAHE_SIZE) {
-                    Log.d("bernie","endPos size is bitmap page size ");
-                    bitMapAccomplish = true;
-                    mapSize = 0;
-                    endPos = 0x50000;
-                }*/
             }
             else if(fontLitAccomplish == false){
                 payload[2] = (byte) ID.FONT_LIB;
@@ -1030,24 +1008,11 @@ public class CwmManager{
                 payload[6] = (byte)((endPos >> 24) & 0xFF);
                 Log.d("bernie","font endPos is: "+Integer.toHexString(endPos & 0xFFFFF));
                 splitCommand(payload);
-
-                //endPos = endPos + 128;
-                //currentMapSize = currentMapSize + 128;
-                //mapSize = mapSize + 128;
-
                 Log.d("bernie","font mapSize is: "+Integer.toHexString(mapSize & 0xFFFFF));
-               /* if(mapSize == Type.FONT_LIB) {
-                    Log.d("bernie","endPos size is font lib page size ");
-                    fontLitAccomplish = true;
-                    mapSize = 0;
-                }*/
             }
         }
     }
     public void reSendBitMap(){
-        //endPos = endPos - 128;
-        //mapSize = mapSize - 128;
-        //currentMapSize = currentMapSize - 128;
         sendBitMap();
     }
     public void updateBitMapInit(){
@@ -1059,8 +1024,6 @@ public class CwmManager{
             FileInputStream fis = new FileInputStream(file);
             fis.read(mapArray);
             fis.close();
-            //for(int i = 0 ; i < mapArray.length ; i++)
-             //   Log.d("bernie",Integer.toHexString(mapArray[i] & 0xFF));
         } catch (IOException e){
             e.printStackTrace();
         }
