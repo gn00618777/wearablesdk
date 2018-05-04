@@ -86,7 +86,13 @@ public class BleReceiver {
                             break;
                         case Type.ACK_EVENT:
                             AckEvents ackEvent = event.getAckEvent();
-                            mCwmManager.getAckListener().onAckArrival(ackEvent);
+
+                            if((ackEvent.getType() & 0xFF) == Type.FACTORY_DATA_COMMAND &&
+                                    (((ackEvent.getId() & 0xFF) == 0xE7) || ((ackEvent.getId() & 0xFF) == 0xE8))){
+                                mCwmManager.sendRemindCommand();
+                            }
+                            else
+                                mCwmManager.getAckListener().onAckArrival(ackEvent);
                             break;
                         case Type.ERROR_EVENT:
                             ErrorEvents errorEvent = event.getErrorEvent();

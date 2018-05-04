@@ -19,8 +19,8 @@ public class AckHandler {
         //if the ble data recived is the response from the command we just sent, then cancling the timer.
         if (packet[3] == Task.currentTask.type && packet[4] == Task.currentTask.id) {
             Task.taskReceivedHandler.removeCallbacks(Task.currentTask);
-            ackEvents = new AckEvents(packet[3], packet[4]);
         }
+        ackEvents = new AckEvents(packet[3], packet[4]);
         return ackEvents;
     }
 }

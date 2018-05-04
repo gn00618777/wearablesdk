@@ -65,6 +65,9 @@ public class CwmManager{
     public static int startIndex = 16;
     public static int targetSize = 0;
     public static int targetPartionID = 0;
+    public byte[] packageCommand;
+    public int packageLength;
+    public int packageIndex = 0;
     /*************************************/
 
     public static ReentrantLock lock = new ReentrantLock();
@@ -992,6 +995,7 @@ public class CwmManager{
     public int updateBitMapInit(String filePath){
         File file = new File(filePath);
         mapArray = new byte[(int)file.length()];
+        startIndex = 16;
         try {
             FileInputStream fis = new FileInputStream(file);
             fis.read(mapArray);
@@ -1184,44 +1188,45 @@ public class CwmManager{
             }
         }
         else{
-            command = Protocol.addBleProtocol(payload);
+            packageCommand = Protocol.addBleProtocol(payload);
+            packageIndex = 0;
             final int UNIT = 19;
-            int length = command.length;
+            packageLength = packageCommand.length;
 
-            for(int i = 0 ; i < command.length ; i+=19) {
-                if (length > UNIT) {
-                    length -= UNIT;
+                if (packageLength > UNIT) {
+                    packageLength -= UNIT;
                     byte[] partCommand = new byte[20]; //+header1
-                    if(i == 0)
-                        partCommand[0] = (byte) 0xE7;
-                    else
-                        partCommand[0] = (byte) 0xE8;
+                    partCommand[0] = (byte) 0xE7;
 
-                    System.arraycopy(command, i, partCommand, 1, UNIT);
+                    System.arraycopy(packageCommand, packageIndex, partCommand, 1, UNIT);
 
                     if (mConnectStatus != false) {
                         mService.writeRXCharacteristic(partCommand);
                     }
                 }
-                else {
-                    byte[] lastCommand = new byte[length + 1]; //+header1
-                    lastCommand[0] = (byte) 0xE9;
-                    System.arraycopy(command, i, lastCommand, 1, length);
-
-
-                    if (mConnectStatus != false) {
-                        mService.writeRXCharacteristic(lastCommand);
-                    }
+        }
+    }
+    public void sendRemindCommand(){
+       // Log.d("bernie","sendRemindCommand");
+        final int UNIT = 19;
+        packageIndex += UNIT;
+        if( packageLength != 0 && packageIndex < packageCommand.length) {
+            if (packageLength > UNIT) {
+                packageLength -= UNIT;
+                byte[] partCommand = new byte[20]; //+header1
+                partCommand[0] = (byte) 0xE8;
+                System.arraycopy(packageCommand, packageIndex, partCommand, 1, UNIT);
+                if (mConnectStatus != false) {
+                    mService.writeRXCharacteristic(partCommand);
                 }
-
-                try {
-                    Thread.sleep(60);
-                }
-                catch (Exception e){
-
+            } else {
+                byte[] lastCommand = new byte[packageLength + 1]; //+header1
+                lastCommand[0] = (byte) 0xE9;
+                System.arraycopy(packageCommand, packageIndex, lastCommand, 1, packageLength);
+                if (mConnectStatus != false) {
+                    mService.writeRXCharacteristic(lastCommand);
                 }
             }
         }
     }
-
 }
