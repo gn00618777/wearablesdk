@@ -14,6 +14,8 @@ import android.content.BroadcastReceiver;
 import android.content.pm.PackageManager;
 import android.os.Environment;
 import android.os.IBinder;
+import android.provider.MediaStore;
+import android.provider.Settings;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.widget.Toast;
@@ -22,6 +24,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.Date;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -57,13 +60,11 @@ public class CwmManager{
 
     /*********Upadet BitMap************/
     private byte[] mapArray;
-    public  long bitMapLength = 0;
-    public static boolean oledAccomplish = false;
-    public static boolean bitMapAccomplish = false;
-    public static boolean fontLitAccomplish = false;
-    public static int endPos = 0x1000;
     public static int currentMapSize = 0;
-    public static int mapSize = 0;
+    public static int startAddress = 0;
+    public static int startIndex = 16;
+    public static int targetSize = 0;
+    public static int targetPartionID = 0;
     /*************************************/
 
     public static ReentrantLock lock = new ReentrantLock();
@@ -969,56 +970,27 @@ public class CwmManager{
         return SDK_VERSION;
     }
     public void sendBitMap(){
-        if(bitMapLength >= 0) {
             byte[] payload = new byte[128+3+4]; // type + id + partiion id +(4 byte address)
 
             payload[0] = (byte)0x85;
             payload[1] = (byte)0x05;
-            if(oledAccomplish == false) {
-                payload[2] = (byte) ID.OLED_PAGE;
-                System.arraycopy(mapArray, endPos, payload, 7, 128);
+            payload[2] = (byte)targetPartionID;
 
-                payload[3] = (byte)(endPos & 0xFF);
-                payload[4] = (byte)((endPos >> 8) & 0xFF);
-                payload[5] = (byte)((endPos >> 16) & 0xFF);
-                payload[6] = (byte)((endPos >> 24) & 0xFF);
-                Log.d("bernie","oled endPos is: "+Integer.toHexString(endPos & 0xFFFFF));
-                splitCommand(payload);
-                Log.d("bernie","oled mapSize is: "+Integer.toHexString(mapSize & 0xFFFFF));
-            }
-            else if(bitMapAccomplish == false){
-                payload[2] = (byte) ID.BITMAP_PAGE;
-                System.arraycopy(mapArray, endPos, payload, 7, 128);
+            payload[3] = (byte)(startAddress & 0xFF);
+            payload[4] = (byte)((startAddress >> 8) & 0xFF);
+            payload[5] = (byte)((startAddress >> 16) & 0xFF);
+            payload[6] = (byte)((startAddress >> 24) & 0xFF);
 
-                payload[3] = (byte)(endPos & 0xFF);
-                payload[4] = (byte)((endPos >> 8) & 0xFF);
-                payload[5] = (byte)((endPos >> 16) & 0xFF);
-                payload[6] = (byte)((endPos >> 24) & 0xFF);
-                Log.d("bernie","bitmap endPos is: "+Integer.toHexString(endPos & 0xFFFFF));
-                splitCommand(payload);
-                Log.d("bernie","bitmap mapSize is: "+Integer.toHexString(mapSize & 0xFFFFF));
-            }
-            else if(fontLitAccomplish == false){
-                payload[2] = (byte) ID.FONT_LIB;
-                System.arraycopy(mapArray, endPos, payload, 7, 128);
+        System.arraycopy(mapArray, startIndex, payload, 7, 128);
 
-                payload[3] = (byte)(endPos & 0xFF);
-                payload[4] = (byte)((endPos >> 8) & 0xFF);
-                payload[5] = (byte)((endPos >> 16) & 0xFF);
-                payload[6] = (byte)((endPos >> 24) & 0xFF);
-                Log.d("bernie","font endPos is: "+Integer.toHexString(endPos & 0xFFFFF));
-                splitCommand(payload);
-                Log.d("bernie","font mapSize is: "+Integer.toHexString(mapSize & 0xFFFFF));
-            }
-        }
+            //Log.d("bernie","startAddress is: "+Integer.toHexString(startAddress & 0xFFFFF));
+            splitCommand(payload);
     }
     public void reSendBitMap(){
         sendBitMap();
     }
-    public void updateBitMapInit(){
-        File file = new File(Environment.getExternalStorageDirectory().toString() + "/Download/Bitmap_to_binary.bin");
-        bitMapLength = file.length();
-        Log.d("bernie","sdk bitMapLength:"+Integer.toString((int)bitMapLength));
+    public int updateBitMapInit(String filePath){
+        File file = new File(filePath);
         mapArray = new byte[(int)file.length()];
         try {
             FileInputStream fis = new FileInputStream(file);
@@ -1027,12 +999,28 @@ public class CwmManager{
         } catch (IOException e){
             e.printStackTrace();
         }
-        if(oledAccomplish == true && bitMapAccomplish == true && fontLitAccomplish == true) {
-            oledAccomplish = false;
-            bitMapAccomplish = false;
-            fontLitAccomplish = false;
-            mapSize = 0;
+
+        if(!file.exists())
+            return -1;
+
+        //Validate
+        if(mapArray[0] == 0x5a){
+            byte[] temp = new byte[4];
+            //byte[] test = new byte[49152];
+            targetPartionID = mapArray[9];
+            System.arraycopy(mapArray, 1, temp, 0, 4);
+            startAddress = ByteBuffer.wrap(temp).order(ByteOrder.LITTLE_ENDIAN).getInt();
+            System.arraycopy(mapArray, 5, temp, 0, 4);
+            targetSize = ByteBuffer.wrap(temp).order(ByteOrder.LITTLE_ENDIAN).getInt();
+            currentMapSize = 0;
+            //System.arraycopy(test, 0, mapArray, 16, 49152);
+            Log.d("bernie","targetPartionID:"+Integer.toString(targetPartionID));
+            Log.d("bernie","startAddress:"+Integer.toHexString(startAddress));
+            Log.d("bernie","targetSize:"+Integer.toString(targetSize));
+            return targetSize;
         }
+
+        return -1;
     }
     public void syncRequest(){
         if (lock.tryLock()) {
@@ -1109,7 +1097,8 @@ public class CwmManager{
               payload[2] = (byte)ID.BITMAP_PAGE;
             else if(id == 3)
               payload[2] = (byte)ID.FONT_LIB;
-
+            else if(id == 4)
+                payload[2] = (byte)ID.TFT;
             splitCommand(payload);
             lock.unlock();
         }
@@ -1219,13 +1208,14 @@ public class CwmManager{
                     lastCommand[0] = (byte) 0xE9;
                     System.arraycopy(command, i, lastCommand, 1, length);
 
+
                     if (mConnectStatus != false) {
                         mService.writeRXCharacteristic(lastCommand);
                     }
                 }
 
                 try {
-                    Thread.sleep(20);
+                    Thread.sleep(60);
                 }
                 catch (Exception e){
 

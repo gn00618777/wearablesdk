@@ -61,6 +61,7 @@ public class Parser {
         //Log.d("bernie","sdk msg_type:"+Integer.toString(msg_type));
         switch (msg_type){
             case Type.CHECKSUM_ERROR:
+                Log.d("bernie","checksum error");
                 ErrorEvents errorEvents = new ErrorEvents();
                 errorEvents.setErrorId(ID.CHECKSUM_ERROR);
                 cwmEvent = new CwmEvents();
@@ -810,33 +811,15 @@ public class Parser {
 
                         break;
                     case ID.MAP_WRITE_DONE:
-                        CwmManager.endPos = CwmManager.endPos + 128;
-                        CwmManager.currentMapSize = CwmManager.currentMapSize + 128;
-                        CwmManager.mapSize = CwmManager.mapSize + 128;
-                        if(CwmManager.mapSize == Type.OLED_PAGE_SIZE && CwmManager.oledAccomplish == false) {
-                            Log.d("bernie","endPos size is oled page size ");
-                            CwmManager.oledAccomplish = true;
-                            CwmManager.mapSize = 0;
-                            CwmManager.endPos = 0xE000;
-                        }
-                        else if(CwmManager.mapSize == Type.BITMAP_PAHE_SIZE && CwmManager.oledAccomplish == true) {
-                            Log.d("bernie","endPos size is bitmap page size ");
-                            CwmManager.bitMapAccomplish = true;
-                            CwmManager.mapSize = 0;
-                            CwmManager.endPos = 0x50000;
-                        }
-                        else if(CwmManager.mapSize == Type.FONT_LIB && CwmManager.oledAccomplish == true && CwmManager.bitMapAccomplish == true){
-                            Log.d("bernie","endPos size is font lib page size ");
-                            CwmManager.fontLitAccomplish = true;
-                            CwmManager.mapSize = 0;
-                            CwmManager.endPos = 0x1000;
-                        }
+                        CwmManager.startAddress += 128;
+                        CwmManager.currentMapSize += 128;
+                        CwmManager.startIndex += 128;
+
                         cwmEvent = new CwmEvents();
                         cwmEvent.setEventType(Type.EVENT);
                         cwmEvent.setMsgType(msg_type);
                         cwmEvent.setMessageID(message_id);
                         cwmEvent.setCurrentSize(CwmManager.currentMapSize);
-                        //cwmEvents.setMaxSize((int)CwmManager.bitMapLength);
                         break;
                     case ID.HEART_RATE_MECHANICAL_TEST_RESULT:
                         test_id = packet[3];

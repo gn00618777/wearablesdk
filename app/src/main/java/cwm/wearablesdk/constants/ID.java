@@ -70,6 +70,7 @@ public class ID {
     public static final int OLED_PAGE = 0x01;
     public static final int BITMAP_PAGE  = 0x02;
     public static final int FONT_LIB = 0x03;
+    public static final int TFT = 0x04;
 
     //History
     public static final int SLEEP_HISTORY = 0x01;
