@@ -58,7 +58,6 @@ public class Parser {
 
         byte[] packet = data.getPacket();
 
-        //Log.d("bernie","sdk msg_type:"+Integer.toString(msg_type));
         switch (msg_type){
             case Type.CHECKSUM_ERROR:
                 Log.d("bernie","checksum error");

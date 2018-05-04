@@ -24,9 +24,4 @@ public class Valifier {
 
         return false;
     }
-    public static void checkHandler(Protocol data) {
-        if(data.packet_type == Type.BLE_PAKAGE_TYPE.LONG_MESSAGE_START.ordinal()){
-
-        }
-    }
 }

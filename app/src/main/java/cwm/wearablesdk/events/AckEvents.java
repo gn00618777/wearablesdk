@@ -19,7 +19,4 @@ public class AckEvents{
     public int getId() {
         return mId;
     }
-
-    //public int getCurrentMapSize(){return CwmManager.endPos;}
-    //public long getMaxMapSize(){return CwmManager.bitMapLength;}
 }

@@ -1,7 +1,5 @@
 package cwm.wearablesdk;
 
-import android.util.Log;
-
 /**
  * Created by user on 2017/11/23.
  */

@@ -1,8 +1,6 @@
 package cwm.wearablesdk;
 
-import android.content.Intent;
 import android.os.Handler;
-import android.util.Log;
 
 import cwm.wearablesdk.constants.ID;
 import cwm.wearablesdk.events.ErrorEvents;

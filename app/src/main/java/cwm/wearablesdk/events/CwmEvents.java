@@ -5,7 +5,6 @@ package cwm.wearablesdk.events;
  */
 
 import cwm.wearablesdk.Bias;
-import cwm.wearablesdk.CwmManager;
 import cwm.wearablesdk.LifeData;
 import cwm.wearablesdk.settings.AlarmSetting;
 import cwm.wearablesdk.settings.BodySettings;

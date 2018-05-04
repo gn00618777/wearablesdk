@@ -12,10 +12,7 @@ import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.BroadcastReceiver;
 import android.content.pm.PackageManager;
-import android.os.Environment;
 import android.os.IBinder;
-import android.provider.MediaStore;
-import android.provider.Settings;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.widget.Toast;
@@ -55,7 +52,7 @@ public class CwmManager{
     private BluetoothAdapter mBluetoothAdapter = null;
     private BluetoothManager mBluetoothManager = null;
     private boolean mConnectStatus = false;
-    private JniManager jniMgr; //JNI
+
     private BleReceiver mBleReceiver = new BleReceiver(this);
 
     /*********Upadet BitMap************/
@@ -97,11 +94,6 @@ public class CwmManager{
         mListener = iLlistener;
         mAckListener = ackListener;
         mErrorListener = errorListener;
-
-       // endPos = 0x1000;
-       // currentMapSize = 0;
-
-        jniMgr = new JniManager();
 
         systemBluetoothCheck();
 
@@ -226,9 +218,6 @@ public class CwmManager{
         }
     };
 
-    public JniManager getJniManager(){
-        return jniMgr;
-    }
     public EventListener getListener(){return mListener;}
     public AckListener getAckListener(){return mAckListener;}
     public ErrorListener getErrorListener(){return mErrorListener;}
@@ -558,40 +547,34 @@ public class CwmManager{
         gestureCongig_L  = gestureConfig & 0xFF;
         gestureConfig_H = (gestureConfig >> 8) & 0xFF;
 
-        byte[] config1 = new byte[20];
-        byte[] config2 = new byte[20];
-        byte[] config3 = new byte[20];
-        byte[] config4 = new byte[20];
-        byte[] config5 = new byte[3];
+        byte[] config = new byte[75];
 
-        byte[] config6 = new byte[75];
-
-        config6[0] = (byte)0x81;
-        config6[1] = (byte)0x01;
-        config6[2] = (byte)0x00;
-        config6[3] = (byte)0x00;
-        config6[4] = (byte)0x00;
-        config6[5] = (byte)0x00;
-        config6[6] = (byte)osType;
-        config6[7] = (byte)timeFormat;
-        config6[8] = (byte)historyDetect;
-        config6[9] = (byte)screenTimout;
+        config[0] = (byte)0x81;
+        config[1] = (byte)0x01;
+        config[2] = (byte)0x00;
+        config[3] = (byte)0x00;
+        config[4] = (byte)0x00;
+        config[5] = (byte)0x00;
+        config[6] = (byte)osType;
+        config[7] = (byte)timeFormat;
+        config[8] = (byte)historyDetect;
+        config[9] = (byte)screenTimout;
 
         screens_I = screens & 0xFF;
         screens_II = (screens >> 8) & 0xFF;
 
-        config6[10] = (byte)screens_I;
-        config6[11] = (byte)screens_II;
+        config[10] = (byte)screens_I;
+        config[11] = (byte)screens_II;
 
         functions_I = functions & 0xFF;
         functions_II = (functions >> 8) & 0xFF;
 
-        config6[12] = (byte)functions_I;
-        config6[13] = (byte)functions_II;
-        config6[14] = (byte)gestureCongig_L;
-        config6[15] = (byte)gestureConfig_H;
-        config6[16] = (byte)0xFF;
-        config6[17] = (byte)0xFF;
+        config[12] = (byte)functions_I;
+        config[13] = (byte)functions_II;
+        config[14] = (byte)gestureCongig_L;
+        config[15] = (byte)gestureConfig_H;
+        config[16] = (byte)0xFF;
+        config[17] = (byte)0xFF;
 
         Date date = new Date();
         date.setHours(date.getHours()+8);
@@ -602,235 +585,71 @@ public class CwmManager{
         unixTime_III = ((int)unixTime >> 16 & 0xFF);
         unixTime_IV = ((int)unixTime >> 24 & 0xFF);
 
-        config6[18] = (byte)unixTime_I;
-        config6[19] = (byte)unixTime_II;
-        config6[20] = (byte)unixTime_III;
-        config6[21] = (byte)unixTime_IV;
-        config6[22] = (byte)0x00;
-        config6[23] = (byte)0x00;
-        config6[24] = (byte)0x00;
-        config6[25] = (byte)0x00;
-        config6[26] = (byte)gender;
-        config6[27] = (byte)age;
-        config6[28] = (byte)height;
-        config6[29] = (byte)weight;
+        config[18] = (byte)unixTime_I;
+        config[19] = (byte)unixTime_II;
+        config[20] = (byte)unixTime_III;
+        config[21] = (byte)unixTime_IV;
+        config[22] = (byte)0x00;
+        config[23] = (byte)0x00;
+        config[24] = (byte)0x00;
+        config[25] = (byte)0x00;
+        config[26] = (byte)gender;
+        config[27] = (byte)age;
+        config[28] = (byte)height;
+        config[29] = (byte)weight;
 
         targetStep_I  = targetStep & 0xFF;
         targetStep_II = (targetStep >> 8) & 0xFF;
         targetStep_III = (targetStep >> 16) & 0xFF;
         targetStep_IV = (targetStep_IV >> 24) & 0xFF;
 
-        config6[30] = (byte)targetStep_I;
-        config6[31] = (byte)targetStep_II;
-        config6[32] = (byte)targetStep_III;
-        config6[33] = (byte)targetStep_IV;
-        config6[34] = (byte)0x00;
-        config6[35] = (byte)0x00;
-        config6[36] = (byte)0x00;
-        config6[37] = (byte)0x00;
-        config6[38] = (byte)0x00;
-        config6[39] = (byte)0x00;
-        config6[40] = (byte)0x00;
-        config6[41] = (byte)0x00;
-        config6[42] = (byte)week1;
-        config6[43] = (byte)vibrate1;
-        config6[44] = (byte)hour1;
-        config6[45] = (byte)minute1;
-        config6[46] = (byte)week2;
-        config6[47] = (byte)vibrate2;
-        config6[48] = (byte)hour2;
-        config6[49] = (byte)minute2;
-        config6[50] = (byte)week3;
-        config6[51] = (byte)vibrate3;
-        config6[52] = (byte)hour3;
-        config6[53] = (byte)minute3;
-        config6[54] = (byte)week4;
-        config6[55] = (byte)vibrate4;
-        config6[56] = (byte)hour4;
-        config6[57] = (byte)minute4;
-        config6[58] = (byte)week5;
-        config6[59] = (byte)vibrate5;
-        config6[60] = (byte)hour5;
-        config6[61] = (byte)minute5;
-        config6[62] = (byte)week6;
-        config6[63] = (byte)vibrate6;
-        config6[64] = (byte)hour6;
-        config6[65] = (byte)minute6;
-        config6[66] = (byte)sleepStartTime;
-        config6[67] = (byte)sleepStopTime;
-        config6[68] = (byte)0x00;
-        config6[69] = (byte)0x00;
-        config6[70] = (byte)sedentaryTime;
-        config6[71] = (byte)noDisturbStart;
-        config6[72] = (byte)noDisturbStop;
-        config6[73] = (byte)0x00;
-        config6[74] = (byte)brightness;
+        config[30] = (byte)targetStep_I;
+        config[31] = (byte)targetStep_II;
+        config[32] = (byte)targetStep_III;
+        config[33] = (byte)targetStep_IV;
+        config[34] = (byte)0x00;
+        config[35] = (byte)0x00;
+        config[36] = (byte)0x00;
+        config[37] = (byte)0x00;
+        config[38] = (byte)0x00;
+        config[39] = (byte)0x00;
+        config[40] = (byte)0x00;
+        config[41] = (byte)0x00;
+        config[42] = (byte)week1;
+        config[43] = (byte)vibrate1;
+        config[44] = (byte)hour1;
+        config[45] = (byte)minute1;
+        config[46] = (byte)week2;
+        config[47] = (byte)vibrate2;
+        config[48] = (byte)hour2;
+        config[49] = (byte)minute2;
+        config[50] = (byte)week3;
+        config[51] = (byte)vibrate3;
+        config[52] = (byte)hour3;
+        config[53] = (byte)minute3;
+        config[54] = (byte)week4;
+        config[55] = (byte)vibrate4;
+        config[56] = (byte)hour4;
+        config[57] = (byte)minute4;
+        config[58] = (byte)week5;
+        config[59] = (byte)vibrate5;
+        config[60] = (byte)hour5;
+        config[61] = (byte)minute5;
+        config[62] = (byte)week6;
+        config[63] = (byte)vibrate6;
+        config[64] = (byte)hour6;
+        config[65] = (byte)minute6;
+        config[66] = (byte)sleepStartTime;
+        config[67] = (byte)sleepStopTime;
+        config[68] = (byte)0x00;
+        config[69] = (byte)0x00;
+        config[70] = (byte)sedentaryTime;
+        config[71] = (byte)noDisturbStart;
+        config[72] = (byte)noDisturbStop;
+        config[73] = (byte)0x00;
+        config[74] = (byte)brightness;
 
-        splitCommand(config6);
-
-
-
-        /*config1[0] = (byte)0xE7;
-        config1[1] = (byte)0x4E; // length I
-        config1[2] = (byte)0x00; // length II
-
-        config1[3] = (byte)0x81;
-        config1[4] = (byte)0x01;
-
-        config1[5] = (byte)0x00; //Reserved 0
-        config1[6] = (byte)0x00; //Reserved 1
-        config1[7] = (byte)0x00; //Reserved 2
-        config1[8] = (byte)0x00; //Reserved 3
-        //system
-        config1[9] = (byte)osType; //OS type 0: Android 1: iOS 4
-        config1[10] = (byte)timeFormat; //Time format 0: 0~23 1: 1~12 5
-        config1[11] = (byte)historyDetect; //History detect period 10 min 6
-        config1[12] = (byte)screenTimout; //Screen time out 7
-
-        screens_I = screens & 0xFF;
-        screens_II = (screens >> 8) & 0xFF;
-
-        config1[13] = (byte)screens_I; //Message screen I  8
-        config1[14] = (byte)screens_II; //Message screen II
-
-        functions_I = functions & 0xFF;
-        functions_II = (functions >> 8) & 0xFF;
-
-        config1[15] = (byte)functions_I; //Function switch I
-        config1[16] = (byte)functions_II; //Function swtich II
-        config1[17] = (byte)gestureCongig_L; //Gesture switch I
-        config1[18] = (byte)gestureConfig_H; //Gesture switch II
-        config1[19] = (byte)0xFF; //Gesture switch III
-
-        config2[0] = (byte)0xE8;
-        config2[1] = (byte)0xFF; //Gesture IV
-
-        Date date = new Date();
-        date.setHours(date.getHours()+8);
-        unixTime = date.getTime()/1000;
-
-        unixTime_I = ((int)unixTime & 0xFF);
-        unixTime_II = ((int)unixTime >> 8 & 0xFF);
-        unixTime_III = ((int)unixTime >> 16 & 0xFF);
-        unixTime_IV = ((int)unixTime >> 24 & 0xFF);
-
-        config2[2] = (byte)unixTime_I; //OS time I
-        config2[3] = (byte)unixTime_II; //OS time II
-        config2[4] = (byte)unixTime_III; //OS time III
-        config2[5] = (byte)unixTime_IV; //OS time IV;
-        config2[6] = (byte)0x00; //Reserved
-        config2[7] = (byte)0x00; //Reserved
-        config2[8] = (byte)0x00; //Reserved
-        config2[9] = (byte)0x00; //Reserved
-        config2[10] = (byte)gender;
-        config2[11] = (byte)age;
-        config2[12] = (byte)height;
-        config2[13] = (byte)weight;
-
-        targetStep_I  = targetStep & 0xFF;
-        targetStep_II = (targetStep >> 8) & 0xFF;
-        targetStep_III = (targetStep >> 16) & 0xFF;
-        targetStep_IV = (targetStep_IV >> 24) & 0xFF;
-
-        config2[14] = (byte) targetStep_I;
-        config2[15] = (byte) targetStep_II;
-        config2[16] = (byte) targetStep_III;
-        config2[17] = (byte) targetStep_IV;
-        config2[18] = (byte)0x00; //User Profile
-        config2[19] = (byte)0x00; //USer Profile
-
-        config3[0] = (byte)0xE8;
-        config3[1] = 0x00; //User Profile
-        config3[2] = 0x00; //User Profile
-        config3[3] = 0x00; //User Profile
-        config3[4] = 0x00; //User Profile
-        config3[5] = 0x00; //User Profile
-        config3[6] = 0x00; //User Profile
-        config3[7] = (byte)week1;
-        config3[8] = (byte)vibrate1;
-        config3[9] = (byte)hour1;
-        config3[10] = (byte)minute1;
-        config3[11] = (byte)week2;
-        config3[12] = (byte)vibrate2;
-        config3[13] = (byte)hour2;
-        config3[14] = (byte)minute2;
-        config3[15] = (byte)week3;
-        config3[16] = (byte)vibrate3;
-        config3[17] = (byte)hour3;
-        config3[18] = (byte)minute3;
-        config3[19] = (byte)week4;
-
-        config4[0] = (byte)0xE8;
-        config4[1] = (byte)vibrate4;
-        config4[2] = (byte)hour4;
-        config4[3] = (byte)minute4;
-        config4[4] = (byte)week5;
-        config4[5] = (byte)vibrate5;
-        config4[6] = (byte)hour5;
-        config4[7] = (byte)minute5;
-        config4[8] = (byte)week6;
-        config4[9] = (byte)vibrate6;
-        config4[10] = (byte)hour6;
-        config4[11] = (byte)minute6;
-        config4[12] = (byte)sleepStartTime;
-        config4[13] = (byte)sleepStopTime;
-        config4[14] = (byte)0x00; //Reserved for sleep
-        config4[15] = (byte)0x00; //Reserved for sleep
-        config4[16] = (byte)sedentaryTime;
-        config4[17] = (byte)noDisturbStart;
-        config4[18] = (byte)noDisturbStop;
-        config4[19] = (byte)0x00; //Reserved for sedentary
-
-        config5[0] = (byte)0xE9;
-        config5[1] = (byte)brightness;
-
-
-        for(int i = 1 ; i < config1.length ; i++)
-            checksum += config1[i];
-
-        for(int i = 1 ; i < config2.length ; i++ )
-            checksum += config2[i];
-
-        for(int i = 1 ; i < config3.length ; i++)
-            checksum += config3[i];
-
-        for(int i = 1 ; i < config4.length ; i++)
-            checksum += config4[i];
-
-        for(int i = 1 ; i < config5.length - 1 ; i++)
-            checksum += config5[i];
-
-
-        config5[2] = (byte)checksum; //Checksum
-
-
-        if (mConnectStatus != false) {
-            mService.writeRXCharacteristic(config1);
-            try{
-                Thread.sleep(10);
-            } catch(InterruptedException e){
-                e.printStackTrace();
-            }
-            mService.writeRXCharacteristic(config2);
-            try{
-                Thread.sleep(10);
-            } catch(InterruptedException e){
-                e.printStackTrace();
-            }
-            mService.writeRXCharacteristic(config3);
-            try{
-                Thread.sleep(10);
-            } catch(InterruptedException e){
-                e.printStackTrace();
-            }
-            mService.writeRXCharacteristic(config4);
-            try{
-                Thread.sleep(10);
-            } catch(InterruptedException e){
-                e.printStackTrace();
-            }
-            mService.writeRXCharacteristic(config5);
-        }*/
+        splitCommand(config);
 
         Log.d("bernie","send user config");
 

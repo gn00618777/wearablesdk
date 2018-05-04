@@ -5,8 +5,6 @@ package cwm.wearablesdk;
  */
 import android.os.Handler;
 
-import java.util.ArrayList;
-
 import cwm.wearablesdk.constants.ID;
 import cwm.wearablesdk.events.ErrorEvents;
 
