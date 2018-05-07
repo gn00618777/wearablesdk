@@ -288,7 +288,7 @@ public class CwmManager{
                                 j++;
                             }
                         }
-                        splitCommand(payload);
+                        sendCommand(payload);
                         Log.d("bernie","sdk calling notify is english");
                     }
                     else{
@@ -311,7 +311,7 @@ public class CwmManager{
                                     j++;
                                 }
                             }
-                            splitCommand(payload);
+                            sendCommand(payload);
                             Log.d("bernie","sdk calling notify not english");
                         }catch (IOException e){
                         }
@@ -354,7 +354,7 @@ public class CwmManager{
                                 j++;
                             }
                         }
-                        splitCommand(payload);
+                        sendCommand(payload);
                     }
                     else{ // is not english
                         try {
@@ -372,7 +372,7 @@ public class CwmManager{
                                     j++;
                                 }
                             }
-                            splitCommand(payload);
+                            sendCommand(payload);
                         }
                         catch (IOException e){
 
@@ -383,20 +383,20 @@ public class CwmManager{
                     payload = new byte[2]; //message type + message id
                     payload[0] = (byte) 0x86;
                     payload[1] = (byte) ID.EMAIL;
-                    splitCommand(payload);
+                    sendCommand(payload);
                     break;
                 case ID.MISSING_CALL:
                     payload = new byte[2]; //message type + message id
                     payload[0] = (byte) 0x86;
                     payload[1] = (byte) ID.MISSING_CALL;
-                    splitCommand(payload);
+                    sendCommand(payload);
                     Log.d("bernie","sdk missing call");
                     break;
                 case ID.PICK_UP:
                     payload = new byte[2]; //message type + message id
                     payload[0] = (byte) 0x86;
                     payload[1] = (byte) ID.PICK_UP;
-                    splitCommand(payload);
+                    sendCommand(payload);
                     Log.d("bernie","sdk pick up call");
                     break;
                 default:
@@ -413,7 +413,7 @@ public class CwmManager{
                 payload[0] = (byte) 0x81; // command type
                 payload[1] = (byte) 0x04; // command id
 
-                splitCommand(payload);
+                sendCommand(payload);
             }
             lock.unlock();
         }
@@ -425,7 +425,7 @@ public class CwmManager{
             payload[0] = (byte) 0x81; // command type
             payload[1] = (byte) ID.RESET_USERCONFIG; // command id
 
-            splitCommand(payload);
+            sendCommand(payload);
 
             lock.unlock();
         }
@@ -649,7 +649,7 @@ public class CwmManager{
         config[73] = (byte)0x00;
         config[74] = (byte)brightness;
 
-        splitCommand(config);
+        sendCommand(config);
 
         Log.d("bernie","send user config");
 
@@ -663,7 +663,7 @@ public class CwmManager{
             payload[2] = (byte) sensorType;
             payload[3] = (byte) 0x01;
 
-            splitCommand(payload);
+            sendCommand(payload);
         }
     }
     public void factory(int commandID, int sensor_id){
@@ -680,7 +680,7 @@ public class CwmManager{
                 else
                     payload[2] = 0x01;
 
-                splitCommand(payload);
+                sendCommand(payload);
             }
             else if(commandID == Type.FACTORY_OPERATE.SELF_TEST.ordinal() ||
                     commandID == Type.FACTORY_OPERATE.CALIBRATE.ordinal() ||
@@ -694,7 +694,7 @@ public class CwmManager{
                 else
                     payload[2] = 0x01;
 
-                splitCommand(payload);
+                sendCommand(payload);
             }
             else if(commandID == ID.HEART_RATE_MECHANICAL_TEST_RESULT){
                 byte[] payload = new byte[3];
@@ -704,7 +704,7 @@ public class CwmManager{
                 if (sensor_id >= ID.HR_GOLDEN_TEST && sensor_id <= ID.HR_LIGHT_LEAK_TEST) //HR golden test: 0x01 HR tartget test:0x02 HR Light Leak Test:0x03
                     payload[2] = (byte) sensor_id;
 
-                splitCommand(payload);
+                sendCommand(payload);
             }
             lock.unlock();
         }
@@ -716,7 +716,7 @@ public class CwmManager{
             payload[0] = (byte) 0x81; // command type : Systtem information command
             payload[1] = (byte) 0x02; // command id : request battery
 
-            splitCommand(payload);
+            sendCommand(payload);
             lock.unlock();
         }
     }
@@ -727,7 +727,7 @@ public class CwmManager{
             payload[0] = (byte) 0x81; // command type : Systtem information command
             payload[1] = (byte) 0x03; // command id : request device version
 
-            splitCommand(payload);
+            sendCommand(payload);
             lock.unlock();
         }
     }
@@ -738,7 +738,7 @@ public class CwmManager{
             payload[0] = (byte) 0x85; // command type : Switch OTA
             payload[1] = (byte) 0x01; // command id : request device version
 
-            splitCommand(payload);
+            sendCommand(payload);
             lock.unlock();
         }
     }
@@ -753,7 +753,7 @@ public class CwmManager{
                 payload[1] = (byte) 0x15; // command id : TABATA response message
                 payload[2] = (byte) operate; //TABATA Operateion: Action Item
                 payload[3] = (byte) action_item;
-                splitCommand(payload);
+                sendCommand(payload);
             }
             else{
                 byte[] payload = new byte[3];
@@ -765,7 +765,7 @@ public class CwmManager{
                 if(operate == 12)
                     Log.d("bernie","sdk tabata done");
 
-                splitCommand(payload);
+                sendCommand(payload);
             }
         }
     }
@@ -784,7 +784,7 @@ public class CwmManager{
                 payload[5] = floatArray[2];
                 payload[6] = floatArray[3];
             }
-            splitCommand(payload);
+            sendCommand(payload);
             lock.unlock();
         }
     }
@@ -806,7 +806,7 @@ public class CwmManager{
         System.arraycopy(mapArray, startIndex, payload, 7, 128);
 
             //Log.d("bernie","startAddress is: "+Integer.toHexString(startAddress & 0xFFFFF));
-            splitCommand(payload);
+            sendCommand(payload);
     }
     public void reSendBitMap(){
         sendBitMap();
@@ -853,7 +853,7 @@ public class CwmManager{
             payload[1] = (byte) ID.REQUEST_HISTORY;
             payload[2] = (byte) Type.FLASH_SYNC_TYPE.SYNC_DATA_LENGTH.ordinal();
 
-            splitCommand(payload);
+            sendCommand(payload);
             lock.unlock();
         }
     }
@@ -866,7 +866,7 @@ public class CwmManager{
                 payload[1] = (byte) ID.REQUEST_HISTORY;
                 payload[2] = (byte) Type.FLASH_SYNC_TYPE.SYNC_START.ordinal();
 
-                splitCommand(payload);
+                sendCommand(payload);
             }
             lock.unlock();
         }
@@ -880,7 +880,7 @@ public class CwmManager{
                 payload[1] = (byte) ID.REQUEST_HISTORY;
                 payload[2] = (byte) Type.FLASH_SYNC_TYPE.SYNC_SUCCESS.ordinal();
 
-                splitCommand(payload);
+                sendCommand(payload);
             }
             lock.unlock();
         }
@@ -894,7 +894,7 @@ public class CwmManager{
                 payload[1] = (byte) ID.REQUEST_HISTORY;
                 payload[2] = (byte) Type.FLASH_SYNC_TYPE.SYNC_FAIL.ordinal();
 
-                splitCommand(payload);
+                sendCommand(payload);
             }
             lock.unlock();
         }
@@ -905,7 +905,7 @@ public class CwmManager{
 
             payload[0] = (byte) 0x83;
             payload[1] = (byte) ID.ERASE_HISTORY;
-            splitCommand(payload);
+            sendCommand(payload);
             lock.unlock();
         }
     }
@@ -922,7 +922,7 @@ public class CwmManager{
               payload[2] = (byte)ID.FONT_LIB;
             else if(id == 4)
                 payload[2] = (byte)ID.TFT;
-            splitCommand(payload);
+            sendCommand(payload);
             lock.unlock();
         }
     }
@@ -932,7 +932,7 @@ public class CwmManager{
 
             payload[0] = (byte) 0x81;
             payload[1] = (byte) ID.UNBOND;
-            splitCommand(payload);
+            sendCommand(payload);
             lock.unlock();
             }
     }
@@ -942,7 +942,7 @@ public class CwmManager{
 
             payload[0] = (byte) 0x85;
             payload[1] = (byte) ID.SOFTRESET;
-            splitCommand(payload);
+            sendCommand(payload);
             lock.unlock();
         }
     }
@@ -952,7 +952,7 @@ public class CwmManager{
 
             payload[0] = (byte) 0x81;
             payload[1] = (byte) ID.CURRENT;
-            splitCommand(payload);
+            sendCommand(payload);
             lock.unlock();
         }
     }
@@ -974,7 +974,7 @@ public class CwmManager{
                     j++;
                 }
             }
-            splitCommand(payload);
+            sendCommand(payload);
             lock.unlock();
         }
     }
@@ -984,13 +984,13 @@ public class CwmManager{
             byte[] payload = new byte[12];
             payload[0] = (byte) 0x81;
             payload[1] = (byte) ID.CLEAR_STEP;
-            splitCommand(payload);
+            sendCommand(payload);
             lock.unlock();
         }
     }
 
 
-    public void splitCommand(byte[] payload){
+    public void sendCommand(byte[] payload){
 
         byte[] command;
 
