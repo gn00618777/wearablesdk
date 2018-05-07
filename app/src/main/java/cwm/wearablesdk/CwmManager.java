@@ -1048,4 +1048,14 @@ public class CwmManager{
             }
         }
     }
+    public void sendFinishCommand(int type){
+        Log.d("bernie","end up turbo mode");
+        byte[] payload = new byte[2];
+        payload[0] = (byte)type;
+        payload[1] = (byte)0x0B;
+        byte[] command = Protocol.addBleProtocol(payload);
+        if (mConnectStatus != false) {
+            mService.writeRXCharacteristic(command);
+        }
+    }
 }
