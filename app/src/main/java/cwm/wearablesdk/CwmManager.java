@@ -49,6 +49,8 @@ public class CwmManager{
     private AckListener mAckListener = null;
     private final int REQUEST_ENABLE_BT = 1;
     private final int REQUEST_SELECT_DEVICE = 2;
+    private final int SHORT = 17;
+    private final int UNIT = 19;
     private BluetoothAdapter mBluetoothAdapter = null;
     private BluetoothManager mBluetoothManager = null;
     private boolean mConnectStatus = false;
@@ -1000,7 +1002,7 @@ public class CwmManager{
 
         Task.taskReceivedHandler.postDelayed(task, 4000); //timer 4 sec
 
-        if(payload.length <= 17){
+        if(payload.length <= SHORT){
             command = Protocol.addBleProtocol(payload);
             if (mConnectStatus != false) {
                 mService.writeRXCharacteristic(command);
@@ -1009,7 +1011,6 @@ public class CwmManager{
         else{
             packageCommand = Protocol.addBleProtocol(payload);
             packageIndex = 0;
-            final int UNIT = 19;
             packageLength = packageCommand.length;
 
                 if (packageLength > UNIT) {
@@ -1027,7 +1028,6 @@ public class CwmManager{
     }
     public void sendRemindCommand(){
        // Log.d("bernie","sendRemindCommand");
-        final int UNIT = 19;
         packageIndex += UNIT;
         if( packageLength != 0 && packageIndex < packageCommand.length) {
             if (packageLength > UNIT) {
