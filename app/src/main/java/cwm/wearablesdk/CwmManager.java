@@ -49,8 +49,6 @@ public class CwmManager{
     private AckListener mAckListener = null;
     private final int REQUEST_ENABLE_BT = 1;
     private final int REQUEST_SELECT_DEVICE = 2;
-    private final int SHORT = 17;
-    private final int UNIT = 19;
     private BluetoothAdapter mBluetoothAdapter = null;
     private BluetoothManager mBluetoothManager = null;
     private boolean mConnectStatus = false;

@@ -127,11 +127,4 @@ public class Type {
     public static final int DOBAN_MESSAGE = 0x03;
     public static final int OTHER = 0x04;
 
-    //OLED page size
-    public static final int OLED_PAGE_SIZE = 48*1024;
-    public static final int BITMAP_PAHE_SIZE = 264*1024;
-    public static final int FONT_LIB = 32*1024;
-
-
-
 }
