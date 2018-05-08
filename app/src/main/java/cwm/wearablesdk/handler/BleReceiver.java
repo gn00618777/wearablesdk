@@ -93,6 +93,7 @@ public class BleReceiver {
                             }
                             else
                                 mCwmManager.getAckListener().onAckArrival(ackEvent);
+
                             break;
                         case Type.ERROR_EVENT:
                             ErrorEvents errorEvent = event.getErrorEvent();

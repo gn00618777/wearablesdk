@@ -1,5 +1,9 @@
 package cwm.wearablesdk;
 
+import android.util.Log;
+
+import cwm.wearablesdk.constants.Type;
+
 /**
  * Created by user on 2017/11/23.
  */
@@ -12,10 +16,11 @@ public class Protocol {
         this.packet_type = 0;
     }
 
-    public static byte[] addBleProtocol(byte[] data) {
+    public static Command addBleProtocol(byte[] data) {
 
         byte[] newBuffer;
         int checksum = 0;
+        Command command;
 
         if (data.length <= 17) {
             newBuffer = new byte[data.length + 3]; //header1+length+checksum
@@ -28,6 +33,7 @@ public class Protocol {
                 checksum += newBuffer[i];
             }
             newBuffer[data.length + 2] = (byte) checksum;
+            command = new Command(Type.SINGLE);
         }
         else{
             newBuffer = new byte[data.length + 3]; // length1+length2+checksum
@@ -41,8 +47,11 @@ public class Protocol {
                checksum += newBuffer[i];
             }
             newBuffer[data.length + 2] = (byte) checksum;
+            command = new Command(Type.MULTI);
         }
 
-        return newBuffer;
+        command.setTransmitted(newBuffer);
+
+        return command;
     }
 }

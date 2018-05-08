@@ -64,9 +64,7 @@ public class CwmManager{
     public static int startIndex = 16;
     public static int targetSize = 0;
     public static int targetPartionID = 0;
-    public byte[] packageCommand;
-    public int packageLength;
-    public int packageIndex = 0;
+    public Command command;
     /*************************************/
 
     public static ReentrantLock lock = new ReentrantLock();
@@ -993,59 +991,22 @@ public class CwmManager{
 
 
     public void sendCommand(byte[] payload){
-
-        byte[] command;
-
         Task task = new Task(payload[0], payload[1]); //type, id
         task.registerManager(this);
         Task.currentTask = task;
 
         Task.taskReceivedHandler.postDelayed(task, 4000); //timer 4 sec
 
-        if(payload.length <= SHORT){
-            command = Protocol.addBleProtocol(payload);
-            if (mConnectStatus != false) {
-                mService.writeRXCharacteristic(command);
-            }
-        }
-        else{
-            packageCommand = Protocol.addBleProtocol(payload);
-            packageIndex = 0;
-            packageLength = packageCommand.length;
+        command = Protocol.addBleProtocol(payload);
 
-                if (packageLength > UNIT) {
-                    packageLength -= UNIT;
-                    byte[] partCommand = new byte[20]; //+header1
-                    partCommand[0] = (byte) 0xE7;
-
-                    System.arraycopy(packageCommand, packageIndex, partCommand, 1, UNIT);
-
-                    if (mConnectStatus != false) {
-                        mService.writeRXCharacteristic(partCommand);
-                    }
-                }
-        }
+        if(mConnectStatus != false)
+            mService.writeRXCharacteristic(command.getTransmitted());
     }
     public void sendRemindCommand(){
-       // Log.d("bernie","sendRemindCommand");
-        packageIndex += UNIT;
-        if( packageLength != 0 && packageIndex < packageCommand.length) {
-            if (packageLength > UNIT) {
-                packageLength -= UNIT;
-                byte[] partCommand = new byte[20]; //+header1
-                partCommand[0] = (byte) 0xE8;
-                System.arraycopy(packageCommand, packageIndex, partCommand, 1, UNIT);
-                if (mConnectStatus != false) {
-                    mService.writeRXCharacteristic(partCommand);
-                }
-            } else {
-                byte[] lastCommand = new byte[packageLength + 1]; //+header1
-                lastCommand[0] = (byte) 0xE9;
-                System.arraycopy(packageCommand, packageIndex, lastCommand, 1, packageLength);
-                if (mConnectStatus != false) {
-                    mService.writeRXCharacteristic(lastCommand);
-                }
-            }
+        command.moveNext();
+
+        if(mConnectStatus != false){
+            mService.writeRXCharacteristic(command.getTransmitted());
         }
     }
     public void sendFinishCommand(int type){
@@ -1053,9 +1014,9 @@ public class CwmManager{
         byte[] payload = new byte[2];
         payload[0] = (byte)type;
         payload[1] = (byte)0x0B;
-        byte[] command = Protocol.addBleProtocol(payload);
+        command = Protocol.addBleProtocol(payload);
         if (mConnectStatus != false) {
-            mService.writeRXCharacteristic(command);
+            mService.writeRXCharacteristic(command.getTransmitted());
         }
     }
 }
